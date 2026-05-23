@@ -28,6 +28,7 @@ export function compileAndInstrument(rawJsCode: string): CompilationResult {
     });
 
     instrumentAST(ast as unknown as Node);
+    appendAutoInvoke(ast as unknown as import('estree').Program);
 
     const instrumentedCode =
       `let __loopCounter = 0;\n` +
@@ -50,6 +51,30 @@ function extractErrorLine(err: unknown): number | undefined {
     if (loc && typeof loc.line === 'number') return loc.line;
   }
   return undefined;
+}
+
+/**
+ * Tìm FunctionDeclaration ở top-level và thêm lời gọi hàm cuối chương trình.
+ * Truyền tham số 'arr' từ Worker sandbox vào hàm người dùng.
+ */
+function appendAutoInvoke(program: import('estree').Program): void {
+  const funcDecl = program.body.find(
+    (stmt): stmt is import('estree').FunctionDeclaration =>
+      stmt.type === 'FunctionDeclaration' && stmt.id !== null,
+  );
+  if (!funcDecl || !funcDecl.id) return;
+
+  const callStatement: import('estree').ExpressionStatement = {
+    type: 'ExpressionStatement',
+    expression: {
+      type: 'CallExpression',
+      callee: { type: 'Identifier', name: funcDecl.id.name } as import('estree').Identifier,
+      arguments: [{ type: 'Identifier', name: 'arr' } as import('estree').Identifier],
+      optional: false,
+    } as import('estree').CallExpression,
+  };
+
+  program.body.push(callStatement as import('estree').Statement);
 }
 
 /**
