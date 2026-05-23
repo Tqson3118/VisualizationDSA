@@ -163,14 +163,15 @@ describe('DebuggerYieldEngine', () => {
       expect(result.generatorCode).toContain('callStack');
     });
 
-    it('should include __captureVars in yield payload', () => {
+    it('should include inline variable capture IIFE in yield payload', () => {
       const code = `function sort(arr) {
   let n = arr.length;
 }`;
 
       const result = compileToDebugGenerator(code);
       expect(result.success).toBe(true);
-      expect(result.generatorCode).toContain('__captureVars');
+      expect(result.generatorCode).toContain("typeof n !== 'undefined'");
+      expect(result.generatorCode).toContain('v.n = n');
     });
   });
 });

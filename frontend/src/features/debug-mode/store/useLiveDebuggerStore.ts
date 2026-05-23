@@ -45,6 +45,7 @@ export const useLiveDebuggerStore = defineStore('liveDebugger', () => {
   const stepCount = ref<number>(0);
   const errorMessage = ref<string | null>(null);
   const arrayState = ref<number[]>([]);
+  const historyLength = ref<number>(0);
 
   let debuggerInstance: LiveCompilerDebugger | null = null;
 
@@ -56,7 +57,7 @@ export const useLiveDebuggerStore = defineStore('liveDebugger', () => {
   const isFinished = computed(() => status.value === 'FINISHED');
   const hasError = computed(() => status.value === 'ERROR');
   const canStepForward = computed(() => status.value === 'PAUSED' && debuggerInstance !== null && !debuggerInstance.isFinished());
-  const canStepBackward = computed(() => status.value === 'PAUSED' && debuggerInstance !== null && debuggerInstance.getHistory().length > 1);
+  const canStepBackward = computed(() => status.value === 'PAUSED' && historyLength.value > 1);
   const canContinue = computed(() => status.value === 'PAUSED' && activeBreakpoints.value.length > 0 && debuggerInstance !== null && !debuggerInstance.isFinished());
 
   // ==========================================
@@ -112,29 +113,8 @@ export const useLiveDebuggerStore = defineStore('liveDebugger', () => {
       const inputArr = [...inputArray.value];
 
       const generatorFunc = (): Generator<DebugStepPayload, void, unknown> => {
-        const captureVarsFunc = `
-          function __captureVars() {
-            const vars = {};
-            try { if (typeof n !== 'undefined') vars.n = n; } catch(e) {}
-            try { if (typeof i !== 'undefined') vars.i = i; } catch(e) {}
-            try { if (typeof j !== 'undefined') vars.j = j; } catch(e) {}
-            try { if (typeof temp !== 'undefined') vars.temp = temp; } catch(e) {}
-            try { if (typeof left !== 'undefined') vars.left = left; } catch(e) {}
-            try { if (typeof right !== 'undefined') vars.right = right; } catch(e) {}
-            try { if (typeof pivot !== 'undefined') vars.pivot = pivot; } catch(e) {}
-            try { if (typeof mid !== 'undefined') vars.mid = mid; } catch(e) {}
-            try { if (typeof key !== 'undefined') vars.key = key; } catch(e) {}
-            try { if (typeof low !== 'undefined') vars.low = low; } catch(e) {}
-            try { if (typeof high !== 'undefined') vars.high = high; } catch(e) {}
-            try { if (typeof min !== 'undefined') vars.min = min; } catch(e) {}
-            try { if (typeof max !== 'undefined') vars.max = max; } catch(e) {}
-            return vars;
-          }
-        `;
-        const fullCode = captureVarsFunc + generatorCode;
-
         const createGenerator = new Function('arr', `
-          ${fullCode}
+          ${generatorCode}
           return __debugMain();
         `);
         return createGenerator(inputArr) as Generator<DebugStepPayload, void, unknown>;
@@ -143,6 +123,7 @@ export const useLiveDebuggerStore = defineStore('liveDebugger', () => {
       debuggerInstance = new LiveCompilerDebugger(generatorFunc);
       debuggerInstance.setBreakpoints(activeBreakpoints.value);
       status.value = 'PAUSED';
+      historyLength.value = 0;
 
       stepForward();
     } catch (err: unknown) {
@@ -161,6 +142,7 @@ export const useLiveDebuggerStore = defineStore('liveDebugger', () => {
       const payload = debuggerInstance.stepForward();
       if (payload) {
         syncDebuggerPayload(payload);
+        historyLength.value = debuggerInstance.getHistory().length;
       } else {
         status.value = 'FINISHED';
         currentLineNumber.value = null;
@@ -180,6 +162,7 @@ export const useLiveDebuggerStore = defineStore('liveDebugger', () => {
     const payload = debuggerInstance.stepBackward();
     if (payload) {
       syncDebuggerPayload(payload);
+      historyLength.value = debuggerInstance.getHistory().length;
     }
   }
 
@@ -193,6 +176,7 @@ export const useLiveDebuggerStore = defineStore('liveDebugger', () => {
       const payload = debuggerInstance.continueToNextBreakpoint();
       if (payload) {
         syncDebuggerPayload(payload);
+        historyLength.value = debuggerInstance.getHistory().length;
       } else {
         status.value = 'FINISHED';
         currentLineNumber.value = null;
@@ -213,6 +197,7 @@ export const useLiveDebuggerStore = defineStore('liveDebugger', () => {
       const payload = debuggerInstance.stepOut();
       if (payload) {
         syncDebuggerPayload(payload);
+        historyLength.value = debuggerInstance.getHistory().length;
       } else {
         status.value = 'FINISHED';
         currentLineNumber.value = null;
@@ -235,6 +220,8 @@ export const useLiveDebuggerStore = defineStore('liveDebugger', () => {
     stepCount.value = 0;
     errorMessage.value = null;
     arrayState.value = [...inputArray.value];
+
+    historyLength.value = 0;
 
     if (debuggerInstance) {
       debuggerInstance.reset();

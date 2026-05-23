@@ -119,10 +119,28 @@ function getStatementLine(stmt: import('estree').Statement): number | null {
   return null;
 }
 
+const CAPTURE_VARS_NAMES = ['n', 'i', 'j', 'temp', 'left', 'right', 'pivot', 'mid', 'key', 'low', 'high', 'min', 'max'];
+
+/**
+ * Create an inline IIFE that captures block-scoped variables at the yield site.
+ * Arrow function IIFE inherits the enclosing scope, so it can access let-scoped variables.
+ * Generates: (() => { var v = {}; try { if (typeof n !== 'undefined') v.n = n; } catch(e) {} ... return v; })()
+ */
+function createInlineCaptureVars(): import('estree').CallExpression {
+  const captureCode = `(() => {
+    var v = {};
+    ${CAPTURE_VARS_NAMES.map(name => `try { if (typeof ${name} !== 'undefined') v.${name} = ${name}; } catch(e) {}`).join('\n    ')}
+    return v;
+  })()`;
+  const parsed = acorn.parse(captureCode, { ecmaVersion: 2020, sourceType: 'script' });
+  const exprStmt = (parsed as unknown as import('estree').Program).body[0] as import('estree').ExpressionStatement;
+  return exprStmt.expression as import('estree').CallExpression;
+}
+
 /**
  * Create a yield expression statement:
  * yield { lineNumber: N, arrayState: typeof arr !== 'undefined' ? [...arr] : [],
- *         variables: __captureVars(), callStack: [...__callStack] };
+ *         variables: (() => { ... })(), callStack: [...__callStack] };
  */
 function createYieldStatement(lineNumber: number): import('estree').ExpressionStatement {
   const yieldExpr: import('estree').YieldExpression = {
@@ -177,12 +195,7 @@ function createYieldStatement(lineNumber: number): import('estree').ExpressionSt
           type: 'Property',
           kind: 'init',
           key: { type: 'Identifier', name: 'variables' } as import('estree').Identifier,
-          value: {
-            type: 'CallExpression',
-            callee: { type: 'Identifier', name: '__captureVars' } as import('estree').Identifier,
-            arguments: [],
-            optional: false,
-          } as import('estree').CallExpression,
+          value: createInlineCaptureVars(),
           computed: false,
           method: false,
           shorthand: false,
