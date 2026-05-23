@@ -62,19 +62,43 @@
           >
             <div class="flex items-center gap-3">
               <div class="w-2 h-2 rounded-full bg-cyan-500"></div>
-              <span class="text-sm font-medium text-slate-200"
-                >Array Sorting</span
-              >
-              <span
-                class="text-xs px-2 py-0.5 bg-slate-700 text-slate-400 rounded"
-                >Bubble Sort</span
-              >
+              <span class="text-sm font-medium text-slate-200">{{
+                currentTabLabel
+              }}</span>
             </div>
           </div>
           <div
             class="flex-1 overflow-auto p-4 flex items-center justify-center"
           >
-            <ArrayBarVisualizer />
+            <!-- Sorting -->
+            <ArrayBarVisualizer v-if="activeTab === 'sorting'" />
+
+            <!-- Graph -->
+            <AlgorithmCanvas v-else-if="activeTab === 'graph'" />
+
+            <!-- OOP -->
+            <OOPSandbox v-else-if="activeTab === 'oop'" />
+
+            <!-- SOLID -->
+            <SOLIDSandbox v-else-if="activeTab === 'solid'" />
+
+            <!-- DI/IoC -->
+            <DISandbox v-else-if="activeTab === 'di'" />
+
+            <!-- Patterns -->
+            <PatternSandbox v-else-if="activeTab === 'patterns'" />
+
+            <!-- Stack/Heap -->
+            <StateInspector v-else-if="activeTab === 'state'" />
+
+            <!-- System -->
+            <SystemSandbox v-else-if="activeTab === 'system'" />
+
+            <!-- Quiz -->
+            <InteractiveLectureSlides v-else-if="activeTab === 'quiz'" />
+
+            <!-- Gamification -->
+            <GamificationPanel v-else-if="activeTab === 'gamification'" />
           </div>
         </div>
       </section>
@@ -92,6 +116,21 @@
           </div>
           <div class="flex-1 overflow-hidden">
             <VcrControlPanel />
+          </div>
+        </section>
+
+        <!-- Custom Input -->
+        <section
+          v-if="activeTab === 'sorting' || activeTab === 'graph'"
+          class="w-[350px] flex-shrink-0 bg-slate-900 border border-slate-800 rounded-lg overflow-hidden flex flex-col"
+        >
+          <div class="px-4 py-2 border-b border-slate-800 bg-slate-800/50">
+            <span class="text-xs font-medium text-slate-400 uppercase"
+              >Custom Input</span
+            >
+          </div>
+          <div class="flex-1 overflow-auto">
+            <CustomInputPanel />
           </div>
         </section>
 
@@ -134,10 +173,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { ArrayBarVisualizer } from "./features/algorithm-sandbox";
+import { ref, computed } from "vue";
+
+import { AlgorithmCanvas, ArrayBarVisualizer, CustomInputPanel } from "./features/algorithm-sandbox";
 import { VcrControlPanel } from "./features/vcr-player";
 import { CodeEditor, PseudocodePanel } from "./features/code-editor";
+import { OOPSandbox } from "./features/oop-sandbox";
+import { SOLIDSandbox } from "./features/solid-sandbox";
+import { DISandbox } from "./features/di-sandbox";
+import { PatternSandbox } from "./features/pattern-sandbox";
+import { StateInspector } from "./features/state-sandbox";
+import { SystemSandbox } from "./features/system-sandbox";
+import { InteractiveLectureSlides } from "./features/quiz";
+import { GamificationPanel } from "./features/gamification";
 
 const activeTab = ref("sorting");
 
@@ -151,7 +199,12 @@ const tabs = [
   { id: "state", name: "Stack/Heap" },
   { id: "system", name: "System" },
   { id: "quiz", name: "Quiz" },
+  { id: "gamification", name: "Gamification" },
 ];
+
+const currentTabLabel = computed(
+  () => tabs.find((t) => t.id === activeTab.value)?.name ?? "Sorting"
+);
 </script>
 
 <style>
