@@ -52,6 +52,15 @@
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col overflow-hidden p-4 gap-4">
+      <!-- Animation Engine Tab -->
+      <template v-if="activeTab === 'animation'">
+        <section class="flex-1 min-h-0">
+          <VisualizationPlayer />
+        </section>
+      </template>
+
+      <!-- Default Sorting Layout -->
+      <template v-else>
       <!-- Visualizer Area -->
       <section
         class="flex-1 min-h-0 bg-slate-900 border border-slate-800 rounded-lg overflow-hidden"
@@ -129,6 +138,7 @@
           </div>
         </section>
       </div>
+      </template>
     </main>
   </div>
 </template>
@@ -138,11 +148,13 @@ import { ref } from "vue";
 import { ArrayBarVisualizer } from "./features/algorithm-sandbox";
 import { VcrControlPanel } from "./features/vcr-player";
 import { CodeEditor, PseudocodePanel } from "./features/code-editor";
+import { VisualizationPlayer } from "./features/animation-engine";
 
 const activeTab = ref("sorting");
 
 const tabs = [
   { id: "sorting", name: "Sorting" },
+  { id: "animation", name: "Animation" },
   { id: "graph", name: "Graph" },
   { id: "oop", name: "OOP" },
   { id: "solid", name: "SOLID" },

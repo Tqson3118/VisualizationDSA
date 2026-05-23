@@ -12,7 +12,7 @@ Chào mừng bạn đến với **Deep Decomposition Master Index** của **Visu
 
 > Chú thích: `✅ CODE DONE` = code thực tế đã viết | `🟡 IN PROGRESS` = đang viết | `🟠 PARTIAL` = có skeleton chưa tích hợp | `❌ SPEC ONLY` = chỉ có tài liệu
 
-- **[01. Animation Engine](./phase1-animation-engine)** `✅ CODE DONE` — `CoreAnimationEngine.ts`, `CompilerStepExecutor.ts`
+- **[01. Animation Engine](./phase1-animation-engine)** `✅ CODE DONE` — `CoreAnimationEngine.ts`, `CompilerStepExecutor.ts`, **Phase 1 Backend-Driven**: `useAnimationStore.ts`, `CanvasLayer.vue`, `VisualizationPlayer.vue`, `BubbleSortExecutor.cs`, `AlgorithmsController.cs`
 - **[02. Custom Input](./phase1-custom-input)** `✅ CODE DONE` — `CustomInputParser.ts` (array + adjacency list parser)
 - **[03. DSA Modules](./phase1-dsa-modules)** `✅ CODE DONE` — Bubble/Quick/Merge/Heap Sort frame generators, `ArrayBarVisualizer.vue`
 - **[04. E-Lecture Mode](./phase1-e-lecture-mode)** `🟠 PARTIAL (~40%)` — `InteractiveLectureSlides.vue` viết xong nhưng chưa mount vào `App.vue`

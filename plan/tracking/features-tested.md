@@ -5,7 +5,7 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 ---
 
 ## 📌 Trạng Thái Bao Phủ Kiểm Thử (Test Coverage Status)
-*   **Tổng số tính năng hạt nhân:** 23/23 Tính năng.
+*   **Tổng số tính năng hạt nhân:** 23/23 Tính năng + Phase 1 Animation Engine (23 tests mới).
 *   **Trạng thái Vitest Suite:** 🟢 100% PASSED.
 *   **Công cụ chạy kiểm thử:** Vitest Core.
 *   **Thời gian phản hồi test suite:** ~180ms (độ nhạy cực cao dưới máy khách).
@@ -42,3 +42,15 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 24 | **System Design** | Khói sập nguồn Canvas GC | Lọc sạch các hạt chết hoặc tan biến sau khi cập nhật. | 🟢 PASSED |
 | 25 | **Embed Widget** | Tạo mã nhúng Iframe HTML | Xây dựng URL an toàn kèm query params mã hóa sandbox. | 🟢 PASSED |
 | 26 | **Gamification** | Tích lũy XP thăng cấp Level | Cộng XP vượt ngưỡng 1000 thăng cấp, tặng huy hiệu Neon. | 🟢 PASSED |
+| 27 | **Animation Store** | FSM UNINITIALIZED → LOADED | loadResult chuyển trạng thái, gán currentIndex=0, frames > 0. | 🟢 PASSED |
+| 28 | **Animation Store** | stepForward/stepBackward | Tăng/giảm currentIndex, kẹp biên [0, totalSteps-1]. | 🟢 PASSED |
+| 29 | **Animation Store** | scrubTo out-of-bounds guard | Từ chối index âm hoặc vượt kích thước mảng frames. | 🟢 PASSED |
+| 30 | **Animation Store** | play/pause cascade setTimeout | Tick tự động tăng currentIndex, pause dừng hẳn timer. | 🟢 PASSED |
+| 31 | **Animation Store** | isFinished + FINISHED state | Chạm bước cuối → isFinished=true, play bị chặn. | 🟢 PASSED |
+| 32 | **Animation Store** | progressPercent computation | 0% ở step đầu, 100% ở step cuối. | 🟢 PASSED |
+| 33 | **Dummy Engine** | BubbleSort algorithmId/pseudoCode | Trả đúng 'bubble-sort' và 4 dòng pseudoCode. | 🟢 PASSED |
+| 34 | **Dummy Engine** | First frame = unsorted array | stepId=1, dataState khớp input, highlights rỗng. | 🟢 PASSED |
+| 35 | **Dummy Engine** | Last frame = sorted array | dataState sắp xếp tăng dần, sorted indices = N. | 🟢 PASSED |
+| 36 | **Dummy Engine** | Sequential stepIds | Tất cả frames có stepId liên tục từ 1 đến N. | 🟢 PASSED |
+| 37 | **Dummy Engine** | Single-element array | Trả ít nhất 1 frame, dataState giữ nguyên. | 🟢 PASSED |
+| 38 | **Dummy Engine** | Compare highlights validation | Compare frames luôn chứa đúng 2 index liền kề. | 🟢 PASSED |

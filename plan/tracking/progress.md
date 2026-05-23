@@ -37,6 +37,15 @@ Tài liệu này theo dõi chi tiết tiến độ hoàn thành **code thực t�
 | **Sprint 11** | Cân bằng tải Server bốc khói & DB Replication lag   | ✅ CODE DONE    | `LoadBalancerEngine` + `SystemSandbox.vue` mounted, Round-robin LB, smoke particles, DB replication lag                                                                               |
 | **Sprint 12** | Tích lũy XP & Trình sinh mã nhúng Iframe nhúng      | ✅ CODE DONE    | `XPEngine` + `GamificationPanel.vue` mounted, Level progression, badges, embed widget generator                                                                                       |
 
+### Phase 1 Animation Engine — Backend-Driven State Capture
+
+| Bước | Nội dung | Trạng thái CODE | Chi tiết |
+| :--- | :--- | :--- | :--- |
+| **Step 1** | JSON Protocol & DTOs (C# Backend + TS Frontend) | ✅ CODE DONE | `Domain/Engine/HighlightIndices.cs`, `FrameDTO.cs`, `AlgorithmResult.cs`, `AlgorithmBase.cs`; TS interfaces `animation.types.ts` |
+| **Step 2** | Pinia Store useAnimationStore + Dummy Engine | ✅ CODE DONE | `useAnimationStore.ts` (play/pause/step/scrub/speed/FSM), `algorithmApi.ts` (dummy BubbleSort generator), `ExplanationPanel.vue`, `AnimControlPanel.vue` |
+| **Step 3** | Canvas Rendering Layer + PseudoCode Sync | ✅ CODE DONE | `CanvasLayer.vue` (coordinate calc, color palette, Lerp EaseOut, ResizeObserver), `AnimPseudoCodePanel.vue` (activeLine highlight) |
+| **Step 4** | Backend API + E2E Integration | ✅ CODE DONE | `BubbleSortExecutor.cs`, `AlgorithmsController.cs` (POST /api/v1/algorithms/execute), Brotli/Gzip compression, `VisualizationPlayer.vue` orchestrator |
+
 ---
 
 ## 3. Kiểm Kê Code Thực Tế Đã Có (File Inventory)
@@ -141,17 +150,44 @@ Tài liệu này theo dõi chi tiết tiến độ hoàn thành **code thực t�
 - `Controllers/UsersController.cs` — GET /progress, POST /xp endpoints
 - `Controllers/QuizzesController.cs` — GET /quizzes, POST /attempt với scoring
 - `Controllers/BadgesController.cs` — GET /badges, GET /my, POST /check endpoints
-- `Program.cs` — DI registration, JWT auth, CORS, Swagger
+- `Controllers/AlgorithmsController.cs` — POST /api/v1/algorithms/execute (Phase 1 Animation Engine)
+- `Program.cs` — DI registration, JWT auth, CORS, Swagger, Brotli/Gzip compression, camelCase JSON
 - `appsettings.json` — PostgreSQL connection, JWT secret config
+
+### `backend/src/Domain/Engine/` — Phase 1 Animation Engine ✅
+
+- `HighlightIndices.cs` — Compare/Swap/Sorted index lists for highlight rendering
+- `FrameDTO.cs` — Step snapshot: stepId, activeLine, explanation, dataState, highlights
+- `AlgorithmResult.cs` — Complete algorithm output: algorithmId, pseudoCode, frames
+- `AlgorithmBase.cs` — State Recorder base class with CaptureState/DeepClone pattern
+- `BubbleSortExecutor.cs` — Bubble Sort implementation with memory guard (max 50 elements)
+
+### `backend/src/Application/DTOs/` ✅ (updated)
+
+- `AlgorithmRequestDto.cs` — Request DTO: algorithmId, dataType, inputData
 
 ### Backend Features ✅
 
 - **JWT Authentication**: Full token-based auth with 7-day expiry
 - **Gamification Engine**: XP awards, level progression (formula: level = 1 + √(XP/100)), badge checking
 - **Quiz System**: Quiz attempts with 70% pass threshold, automatic XP rewards
+- **Algorithm Execution API**: POST /api/v1/algorithms/execute with Brotli/Gzip compression
 - **Seed Data**: 8 badges + 5 quizzes (Bubble Sort, Quick Sort, OOP, SOLID, Design Patterns)
 - **Clean Architecture**: Domain → Application → Infrastructure → WebApi layers
 - **Unit of Work Pattern**: Generic Repository + UoW for transactions
+
+### `src/features/animation-engine/` — Phase 1 Animation Engine ✅
+
+- `types/animation.types.ts` — HighlightIndices, FrameDTO, AlgorithmResult, AlgorithmRequest, PlaybackState interfaces
+- `store/useAnimationStore.ts` — Pinia store: shallowRef frames, play/pause/step/scrub/speed, FSM state machine
+- `services/algorithmApi.ts` — Backend API client + generateDummyBubbleSortResult fallback
+- `components/VisualizationPlayer.vue` — Orchestrator: input bar + canvas + pseudocode + explanation + controls
+- `components/CanvasLayer.vue` — HTML5 Canvas: coordinate calculation, 5-color palette, Lerp EaseOut transition, ResizeObserver
+- `components/AnimPseudoCodePanel.vue` — Pseudocode display with activeLine highlight sync
+- `components/ExplanationPanel.vue` — Natural language explanation display
+- `components/AnimControlPanel.vue` — Play/Pause/Step/Stop, timeline scrubber, speed selector, keyboard shortcuts
+- `__tests__/useAnimationStore.spec.ts` — 16 unit tests for store FSM
+- `__tests__/algorithmApi.spec.ts` — 7 unit tests for dummy data generator
 
 ### `src/features/vcr-player/` — Sprint 2 ✅
 

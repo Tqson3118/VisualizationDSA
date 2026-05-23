@@ -56,3 +56,21 @@ Các ADR sau đây được ghi trong tài liệu đặc tả nhưng **chưa có
 | ADR-DI-LOOP | Phát hiện Dependency Loop DFS IoC Container   | Sprint 8  |
 | ADR-SMOKE   | Hạt khói Canvas GC-Cycle Emitter Server crash | Sprint 11 |
 | ADR-VTABLE  | Mô phỏng VTable đa hình OOP client-side       | Sprint 6  |
+
+---
+
+## ADR-BACKEND-DRIVEN: Backend-Driven State Capture cho Phase 1 Animation Engine
+
+- **Trạng thái:** ✅ IMPLEMENTED
+- **Ngữ cảnh:** Phase 1 Animation Engine cần kiến trúc mới cho việc trực quan hóa giải thuật, bổ sung bên cạnh kiến trúc Client-Side First hiện tại (ADR-01).
+- **Quyết định:** Áp dụng mô hình Backend-Driven State Capture: Backend C# chạy thuật toán, ghi nhận snapshot từng bước vào List FrameDTO, Frontend Vue 3 nhận JSON và phát lại như video player.
+- **Hệ quả:**
+  - Tính toàn vẹn dữ liệu cao (logic thuật toán C# tường minh).
+  - Scrubbing O(1) complexity (thay đổi currentIndex trong Pinia Store).
+  - Mở rộng thuật toán mới cực nhanh (chỉ viết C# class kế thừa AlgorithmBase).
+  - shallowRef tối ưu RAM Vue 3 (tiết kiệm 95% CPU tracking reactivity).
+  - Fallback dummy engine phía Frontend khi Backend chưa sẵn sàng.
+- **File liên quan:**
+  - Backend: Domain/Engine/AlgorithmBase.cs, BubbleSortExecutor.cs, FrameDTO.cs, AlgorithmsController.cs
+  - Frontend: useAnimationStore.ts, CanvasLayer.vue, VisualizationPlayer.vue, algorithmApi.ts
+  - Tests: useAnimationStore.spec.ts (16 tests), algorithmApi.spec.ts (7 tests)
