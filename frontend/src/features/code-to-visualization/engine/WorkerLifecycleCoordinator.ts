@@ -57,8 +57,8 @@ function buildWorkerScript(): string {
 
       try {
         var arrayCopy = initialArray.slice();
-        var fn = new Function('arr', 'traceCompare', 'traceAssign', '__loopCounter', code);
-        fn(arrayCopy, traceCompare, traceAssign, 0);
+        var fn = new Function('arr', 'traceCompare', 'traceAssign', code);
+        fn(arrayCopy, traceCompare, traceAssign);
 
         frames.push({
           frameIndex: frames.length,
