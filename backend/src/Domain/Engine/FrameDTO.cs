@@ -10,4 +10,5 @@ public class FrameDTO
     public string Explanation { get; set; } = string.Empty;
     public int[] DataState { get; set; } = Array.Empty<int>();
     public HighlightIndices Highlights { get; set; } = new();
+    public List<TreeNodeDTO>? TreeNodes { get; set; }
 }

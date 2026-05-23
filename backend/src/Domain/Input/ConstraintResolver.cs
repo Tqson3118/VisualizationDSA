@@ -15,6 +15,9 @@ namespace VisualizationDSA.Domain.Input
                 { "insertion-sort", 50 },
                 { "quick-sort", 150 },
                 { "merge-sort", 150 },
+                { "stack", 20 },
+                { "queue", 20 },
+                { "bst", 15 },
                 { "tsp-backtracking", 10 }
             };
 
