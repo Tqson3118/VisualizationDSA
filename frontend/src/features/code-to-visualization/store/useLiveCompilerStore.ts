@@ -100,7 +100,7 @@ export const useLiveCompilerStore = defineStore('liveCompiler', () => {
     try {
       const liveFrames = await executeInSandbox(
         compileResult.instrumentedCode,
-        inputArray.value,
+        [...inputArray.value],
       );
 
       addConsoleLog(
