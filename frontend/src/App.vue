@@ -66,6 +66,13 @@
         </section>
       </template>
 
+      <!-- Code IDE Tab -->
+      <template v-else-if="activeTab === 'code-ide'">
+        <section class="flex-1 min-h-0">
+          <CodeWorkspace />
+        </section>
+      </template>
+
       <!-- Interactive Playground Tab -->
       <template v-else-if="activeTab === 'playground'">
         <section class="flex-1 min-h-0">
@@ -213,6 +220,7 @@ import { SystemSandbox } from "./features/system-sandbox";
 import { InteractiveLectureSlides } from "./features/quiz";
 import { GamificationPanel } from "./features/gamification";
 import { InteractivePlayground } from "./features/interactive-playground";
+import { CodeWorkspace } from "./features/code-to-visualization";
 
 const activeTab = ref("sorting");
 
@@ -220,6 +228,7 @@ const tabs = [
   { id: "sorting", name: "Sorting" },
   { id: "dsa", name: "DSA Modules" },
   { id: "animation", name: "Animation" },
+  { id: "code-ide", name: "Code IDE" },
   { id: "graph", name: "Graph" },
   { id: "playground", name: "Playground" },
   { id: "oop", name: "OOP" },

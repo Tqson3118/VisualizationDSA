@@ -244,3 +244,32 @@ Các ADR sau đây được ghi trong tài liệu đặc tả nhưng **chưa có
   - Scripts: quiz-system/scripts/bubble-sort.quiz.ts, quizLoader.ts
   - Integration: animation-engine/components/VisualizationPlayer.vue (checkpoint watch)
   - Tests: QuizVerificationEngine.spec.ts (12), QuizStatsManager.spec.ts (9), QuizSchemaValidator.spec.ts (11), useQuizStore.spec.ts (18), quizLoader.spec.ts (4) — 54 tests total
+
+---
+
+## ADR-13: AST Instrumentation & Web Worker Sandbox (Phase 2 Code-to-Visualization Compiler)
+
+- **Trạng thái:** ✅ IMPLEMENTED — `code-to-visualization/engine/ASTInstrumentationEngine.ts`, `WorkerLifecycleCoordinator.ts`
+- **Ngữ cảnh:** Phase 2 Code-to-Visualization yêu cầu biên dịch mã JavaScript tùy biến do sinh viên viết thành chuỗi hoạt ảnh trực quan. Cần AST parsing an toàn, injection tracing tự động, và sandbox execution cô lập.
+- **Quyết định:**
+  1. **Acorn + acorn-walk + escodegen pipeline:** Parse raw JS → AST (ecmaVersion 2020) → Walk AST nodes → Inject tracing → Regenerate code. Hoàn toàn client-side, không cần backend.
+  2. **BinaryExpression instrumentation:** Tự động phát hiện `arr[i] > arr[j]` (MemberExpression with computed property) và thay thế bằng `traceCompare(arr, i, j, ">")` để ghi nhận COMPARE frame.
+  3. **AssignmentExpression instrumentation:** Phát hiện `arr[i] = value` và thay thế bằng `traceAssign(arr, i, value)` để ghi nhận SWAP/ACCESS frame.
+  4. **Dual Loop Protection:** AST-injected `__loopCounter` (max 5000 iterations per loop) + Worker timeout (1500ms). Hai lớp bảo vệ chống infinite loop.
+  5. **Web Worker Sandbox:** Blob URL lifecycle management — create Blob → URL.createObjectURL → Worker constructor → terminate + URL.revokeObjectURL. Cô lập execution thread, không block UI.
+  6. **LiveFrameDTO → FrameDTO conversion:** `useLiveCompilerStore.convertToAnimationFrames()` chuyển đổi trace events thành FrameDTO chuẩn, tái sử dụng hoàn toàn CanvasLayer + AnimControlPanel từ Phase 1.
+  7. **Monaco Editor algolens-dark theme:** Custom theme với keyword purple (#C084FC), string emerald (#34D399), number amber (#F59E0B), background Slate (#1E293B). JetBrains Mono font.
+- **Hệ quả:**
+  - Sinh viên viết JS code sắp xếp → nhấn RUN → xem hoạt ảnh 60 FPS trên Canvas, không cần backend.
+  - Bảo vệ chống vòng lặp vô hạn 2 tầng: AST guard + Worker timeout.
+  - Tái sử dụng 100% animation infrastructure từ Phase 1 (CanvasLayer, AnimControlPanel, useAnimationStore).
+  - Monaco Editor IDE chuyên nghiệp với syntax highlighting, error glow, status indicators.
+  - Compiler Console hiển thị nhật ký biên dịch real-time với Neon color coding.
+- **File liên quan:**
+  - Types: code-to-visualization/types/compiler.types.ts
+  - Engine: code-to-visualization/engine/ASTInstrumentationEngine.ts, WorkerLifecycleCoordinator.ts
+  - Store: code-to-visualization/store/useLiveCompilerStore.ts
+  - Components: code-to-visualization/components/MonacoEditorPanel.vue, CompilerConsole.vue, CodeWorkspace.vue
+  - Module: code-to-visualization/index.ts (barrel export)
+  - Integration: App.vue (Code IDE tab)
+  - Tests: ASTInstrumentationEngine.spec.ts (14), WorkerLifecycleCoordinator.spec.ts (7), useLiveCompilerStore.spec.ts (11) — 32 tests total
