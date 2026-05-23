@@ -23,6 +23,9 @@ export const useAnimationStore = defineStore('animation', () => {
   const isPlaying = ref<boolean>(false);
   const playbackSpeed = ref<number>(1.0);
   let timerId: number | null = null;
+  const interactionLocked = ref<boolean>(false);
+  let playUntilTarget: number | null = null;
+  let playUntilResolver: (() => void) | null = null;
 
   // ==========================================
   // 2. GETTERS (Computed)
@@ -74,10 +77,17 @@ export const useAnimationStore = defineStore('animation', () => {
     if (!isPlaying.value) return;
     if (isFinished.value) {
       pause();
+      resolvePlayUntil();
       return;
     }
 
     currentIndex.value++;
+
+    if (playUntilTarget !== null && currentIndex.value >= playUntilTarget) {
+      pause();
+      resolvePlayUntil();
+      return;
+    }
 
     const baseDelay = 1000;
     const currentDelay = baseDelay / playbackSpeed.value;
@@ -129,6 +139,57 @@ export const useAnimationStore = defineStore('animation', () => {
     }
   }
 
+  function goToFrame(frameIndex: number): void {
+    if (frameIndex >= 0 && frameIndex < frames.value.length) {
+      pause();
+      currentIndex.value = frameIndex;
+    }
+  }
+
+  function playUntilFrame(targetFrame: number): Promise<void> {
+    return new Promise<void>((resolve) => {
+      if (frames.value.length === 0 || targetFrame >= frames.value.length) {
+        resolve();
+        return;
+      }
+
+      if (currentIndex.value >= targetFrame) {
+        goToFrame(targetFrame);
+        resolve();
+        return;
+      }
+
+      playUntilTarget = targetFrame;
+      playUntilResolver = resolve;
+
+      isPlaying.value = true;
+      tick();
+    });
+  }
+
+  function cancelPlayUntil(): void {
+    if (playUntilTarget !== null) {
+      pause();
+      if (playUntilTarget < frames.value.length) {
+        currentIndex.value = playUntilTarget;
+      }
+      resolvePlayUntil();
+    }
+  }
+
+  function resolvePlayUntil(): void {
+    playUntilTarget = null;
+    if (playUntilResolver) {
+      const resolver = playUntilResolver;
+      playUntilResolver = null;
+      resolver();
+    }
+  }
+
+  function setInteractionLocked(locked: boolean): void {
+    interactionLocked.value = locked;
+  }
+
   return {
     frames,
     pseudoCode,
@@ -136,6 +197,7 @@ export const useAnimationStore = defineStore('animation', () => {
     currentIndex,
     isPlaying,
     playbackSpeed,
+    interactionLocked,
     currentFrame,
     isFinished,
     totalSteps,
@@ -149,5 +211,9 @@ export const useAnimationStore = defineStore('animation', () => {
     stepBackward,
     scrubTo,
     setSpeed,
+    goToFrame,
+    playUntilFrame,
+    cancelPlayUntil,
+    setInteractionLocked,
   };
 });

@@ -15,7 +15,7 @@
           min="0"
           :max="Math.max(store.totalSteps - 1, 0)"
           :value="store.currentIndex"
-          :disabled="store.totalSteps === 0"
+          :disabled="store.totalSteps === 0 || store.interactionLocked"
           class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
           @input="onScrub"
         />
@@ -140,6 +140,7 @@ function onScrub(event: Event): void {
 // ─── KEYBOARD SHORTCUTS ───────────────────────────────────────────────────────
 function onKeyDown(e: KeyboardEvent): void {
   if (store.playbackState === 'UNINITIALIZED') return;
+  if (store.interactionLocked) return;
 
   switch (e.code) {
     case 'Space':

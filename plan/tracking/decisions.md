@@ -116,3 +116,26 @@ Các ADR sau đây được ghi trong tài liệu đặc tả nhưng **chưa có
   - Backend: Domain/Strategies/IAlgorithmStrategy.cs, AlgorithmStrategyBase.cs, 10 Strategy files, Infrastructure/Extensions/AlgorithmDIConfiguration.cs
   - Frontend: dsa-modules/store/useAlgorithmStore.ts, dsa-modules/services/dummyGenerators.ts, dsa-modules/components/DSAPlayer.vue, AlgorithmVisualizer.vue, 4 renderers
   - Tests: useAlgorithmStore.spec.ts (10), dummyGenerators.spec.ts (19), dsaApi.spec.ts (3), algorithmCatalog.spec.ts (8) — 40 tests total
+
+---
+
+## ADR-E-LECTURE: Script-driven E-Lecture Mode (Phase 1 — Cognitive Load Theory)
+
+- **Trạng thái:** ✅ IMPLEMENTED
+- **Ngữ cảnh:** Hệ thống cần chế độ bài giảng điện tử dẫn dắt sinh viên qua từng bước giải thuật theo kịch bản sư phạm (Cognitive Load Theory), không hardcode logic UI mà dùng JSON script.
+- **Quyết định:** Áp dụng Script-driven Architecture với 3 trụ cột:
+  1. `LectureScript` JSON schema: mỗi bài giảng là mảng `Slide[]`, mỗi slide chứa `SlideAction` với 3 lệnh (`RESET_CANVAS`, `PLAY_UNTIL`, `PAUSE`).
+  2. `useLectureStore` orchestration: điều phối slide + đồng bộ `useAnimationStore.playUntilFrame()` Promise — tự động minimize panel (opacity 0.15, scale 0.88) khi Canvas chạy hoạt ảnh.
+  3. `interactionLocked` state: khóa Timeline/Speed/CustomInput controls khi bài giảng đang hoạt động, mở khóa khi exitLecture.
+- **Hệ quả:**
+  - Thêm bài giảng mới = chỉ tạo 1 file JSON, không sửa code Vue/Pinia.
+  - Glassmorphism overlay panel: backdrop-blur 16px, dimmed backdrop 40% opacity.
+  - 3 slide types: theory (static), guided-animation (PLAY_UNTIL auto-play), interactive-check (pause + chờ user).
+  - Keyboard shortcuts: Arrow Right/Left (slide nav), Esc (exit lecture).
+  - Backend API: `GET /api/v1/lectures/{algorithmId}` với Cache-Control 7 days.
+  - Bundled JSON fallback: `bubble-sort-intro.json` tải offline không cần API.
+- **File liên quan:**
+  - Frontend: e-lecture/store/useLectureStore.ts, e-lecture/components/LectureOverlay.vue, e-lecture/services/lectureLoader.ts, e-lecture/types/lecture.types.ts
+  - Backend: Domain/Lectures/Lecture.cs, LectureRepository.cs, WebApi/Controllers/LecturesController.cs
+  - Extended: animation-engine/store/useAnimationStore.ts (playUntilFrame, goToFrame, interactionLocked)
+  - Tests: useLectureStore.spec.ts (13), lectureLoader.spec.ts (7), animationStoreExtensions.spec.ts (8) — 28 tests total

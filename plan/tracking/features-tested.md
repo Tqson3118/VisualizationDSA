@@ -5,8 +5,8 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 ---
 
 ## 📌 Trạng Thái Bao Phủ Kiểm Thử (Test Coverage Status)
-*   **Tổng số tính năng hạt nhân:** 23/23 Tính năng + Phase 1 Animation Engine (23 tests) + Phase 1 Custom Input (38 tests) + Phase 1 DSA Modules (40 tests mới).
-*   **Trạng thái Vitest Suite:** 🟢 100% PASSED (137/138 — 1 pre-existing ForceDirectedLayout failure).
+*   **Tổng số tính năng hạt nhân:** 23/23 Tính năng + Phase 1 Animation Engine (23 tests) + Phase 1 Custom Input (38 tests) + Phase 1 DSA Modules (40 tests mới) + Phase 1 E-Lecture Mode (28 tests mới).
+*   **Trạng thái Vitest Suite:** 🟢 100% PASSED (165/166 — 1 pre-existing ForceDirectedLayout failure).
 *   **Công cụ chạy kiểm thử:** Vitest Core.
 *   **Thời gian phản hồi test suite:** ~180ms (độ nhạy cực cao dưới máy khách).
 
@@ -108,3 +108,36 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 90 | **DSA API** | Fallback on network error | Returns dummy result. | 🟢 PASSED |
 | 91 | **DSA API** | API success | Returns API response. | 🟢 PASSED |
 | 92 | **DSA API** | HTTP error fallback | Returns dummy on 500 status. | 🟢 PASSED |
+
+### Phase 1 E-Lecture Mode — 28 Unit Tests
+
+| STT | Phân hệ kiểm thử | Tính năng hạt nhân được xác thực | Phương thức kiểm tra (Test Spec) | Trạng thái |
+| :--- | :--- | :--- | :--- | :--- |
+| 93 | **useLectureStore** | Starts in inactive state | isActive=false, activeSlide=null, isWaitingForAnimation=false | 🟢 PASSED |
+| 94 | **useLectureStore** | startLecture activates + first slide | isActive=true, slideId=1, interactionLocked=true | 🟢 PASSED |
+| 95 | **useLectureStore** | slideProgress format | Returns "1 / 3" correct format | 🟢 PASSED |
+| 96 | **useLectureStore** | isFirstSlide / isLastSlide | Correct boundary detection | 🟢 PASSED |
+| 97 | **useLectureStore** | nextSlide advances slide | Index increments, PLAY_UNTIL with fake timers | 🟢 PASSED |
+| 98 | **useLectureStore** | prevSlide goes back | Index decrements after nextSlide | 🟢 PASSED |
+| 99 | **useLectureStore** | prevSlide does nothing on first | currentSlideIndex remains 0 | 🟢 PASSED |
+| 100 | **useLectureStore** | nextSlide does nothing on last | Stays at last index, isLastSlide=true | 🟢 PASSED |
+| 101 | **useLectureStore** | exitLecture resets all state | isActive=false, lecture=null, interactionLocked=false | 🟢 PASSED |
+| 102 | **useLectureStore** | totalSlides count | Returns 3 for 3-slide lecture | 🟢 PASSED |
+| 103 | **useLectureStore** | RESET_CANVAS calls goToFrame | animStore.currentIndex = 0 | 🟢 PASSED |
+| 104 | **useLectureStore** | goToSlide navigates | Jumps to specific slide index | 🟢 PASSED |
+| 105 | **useLectureStore** | goToSlide rejects OOB | Ignores -1 and 100 | 🟢 PASSED |
+| 106 | **lectureLoader** | hasLecture bubble-sort | Returns true | 🟢 PASSED |
+| 107 | **lectureLoader** | hasLecture unknown | Returns false | 🟢 PASSED |
+| 108 | **lectureLoader** | getAvailableLectureIds | Contains 'bubble-sort' | 🟢 PASSED |
+| 109 | **lectureLoader** | loadLecture bundled | Returns full LectureScript | 🟢 PASSED |
+| 110 | **lectureLoader** | loadLecture fetch fail | Returns null | 🟢 PASSED |
+| 111 | **lectureLoader** | loadLecture 404 | Returns null | 🟢 PASSED |
+| 112 | **lectureLoader** | Correct slide types | theory + guided-animation + interactive-check | 🟢 PASSED |
+| 113 | **lectureLoader** | Valid actions | All commands in RESET_CANVAS/PLAY_UNTIL/PAUSE | 🟢 PASSED |
+| 114 | **AnimStore Ext** | goToFrame moves to index | currentIndex=5, isPlaying=false | 🟢 PASSED |
+| 115 | **AnimStore Ext** | goToFrame rejects OOB | Stays at 0 for -1 and 999 | 🟢 PASSED |
+| 116 | **AnimStore Ext** | setInteractionLocked toggle | true→true, false→false | 🟢 PASSED |
+| 117 | **AnimStore Ext** | playUntilFrame resolves | Stops at target frame 3 | 🟢 PASSED |
+| 118 | **AnimStore Ext** | playUntilFrame already past | Snaps to target | 🟢 PASSED |
+| 119 | **AnimStore Ext** | playUntilFrame empty frames | Resolves immediately | 🟢 PASSED |
+| 120 | **AnimStore Ext** | cancelPlayUntil snaps | Stops + snaps to target 7 | 🟢 PASSED |
