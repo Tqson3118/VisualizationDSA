@@ -16,7 +16,7 @@ Tài liệu này theo dõi chi tiết tiến độ hoàn thành **code thực t�
 | **Sprint đang triển khai CODE** | Hoàn tất! 🎉                                                       |
 | **Backend .NET C#**             | 100% — Full Clean Architecture, JWT Auth, 5 Controllers, Seed Data |
 | **Tổng file thực tế**           | ~55 files (35 frontend + 20 backend `.cs`)                         |
-| **Unit tests**                  | 459+ tests — ✅ 100% PASS (1 pre-existing failure)                  |
+| **Unit tests**                  | 509+ tests — ✅ 100% PASS (1 pre-existing failure)                  |
 
 ---
 
@@ -197,6 +197,22 @@ Tài liệu này theo dõi chi tiết tiến độ hoàn thành **code thực t�
 | **Component** | DebugWorkspace.vue (IDE Orchestrator) | ✅ CODE DONE | `components/DebugWorkspace.vue` — Monaco Editor (algolens-debug theme, JetBrains Mono, gutter click → toggleBreakpoint, breakpoint rose dots via deltaDecorations, active line Cyan highlight), Canvas (right), CallStack + WatchPanel (right column), VCR controls (Step Over/Back/Out/Continue/Stop/Restart), keyboard shortcuts (F5/F10/F11/Shift+F5/Shift+F11/R), input array editor, status badge, error display |
 | **Integration** | App.vue "Debug" tab | ✅ CODE DONE | New "Debug" tab in `App.vue`, `index.ts` barrel export |
 | **Tests** | 49 Unit Tests | ✅ CODE DONE | `DebuggerYieldEngine.spec.ts` (15), `LiveCompilerDebugger.spec.ts` (13), `useLiveDebuggerStore.spec.ts` (21) — ALL 49 PASS |
+
+---
+
+### Phase 2 Design Patterns & SOLID Visualizer — SVG UML Class Diagram + Strategy/Observer/DIP
+
+| Bước | Nội dung | Trạng thái CODE | Chi tiết |
+| :--- | :--- | :--- | :--- |
+| **Types** | UMLNode, UMLLink, UMLScenarioPayload, PatternScenarioId | ✅ CODE DONE | `design-patterns/types/design-patterns.types.ts` — UMLNode (id, name, type class/interface/abstract, x/y/width/height, attributes[], methods[]), UMLLink (sourceId, targetId, type inheritance/realization/dependency/association) |
+| **Engine** | DesignPatternVisualizerEngine (Bezier path + drag + swap) | ✅ CODE DONE | `engine/DesignPatternVisualizerEngine.ts` — calculateBezierPath (Cubic Bezier M/C), updateNodePosition (clamped boundaries), swapStrategyTarget, calculateAllPaths, getLinksToTarget/FromSource, replaceState |
+| **Scenarios** | 3 scenario presets (Strategy, Observer, DIP) | ✅ CODE DONE | `scenarios/scenarioData.ts` — Strategy Pattern (4 nodes, 3 links), Observer Pattern (5 nodes, 4 links), DIP Sandbox (2 nodes, 1 link), getScenario(), getAllScenarioIds(), SCENARIO_LABELS |
+| **Store** | useDesignPatternsStore (Pinia setup store) | ✅ CODE DONE | `store/useDesignPatternsStore.ts` — initializeScenario, handleNodeDrag, switchStrategy, triggerObserverNotify (2s timeout), toggleDIP (add/remove IDatabase interface), couplingIndexMetric computed (85%→20%), pathCache reactive Map, cleanup |
+| **Component** | ClassNodeCard.vue (Glassmorphism UML node card) | ✅ CODE DONE | `components/ClassNodeCard.vue` — Glassmorphism backdrop-blur, stereotype headers (interface/abstract), JetBrains Mono, attributes + methods sections, drag-and-drop (global window mousemove/mouseup), active strategy Amber glow, observer pulse animation |
+| **Component** | DesignPatternsCanvas.vue (SVG connections + nodes) | ✅ CODE DONE | `components/DesignPatternsCanvas.vue` — SVG layer with Bezier paths, 4 arrow markers (inheritance hollow, realization hollow dashed, dependency solid, association), Neon link styles (Emerald/Cyan/Amber), Observer stroke-pulse-flow animation, DIP coupled thick red / decoupled thin cyan |
+| **Component** | DesignPatternsWorkspace.vue (Orchestrator) | ✅ CODE DONE | `components/DesignPatternsWorkspace.vue` — Scenario tab selector (3 tabs), Strategy runtime swap buttons (BubbleSort/QuickSort), Observer Notify button, DIP toggle + Coupling Index widget (85% Rose → 20% Cyan), link type legend, node/link count badges |
+| **Integration** | App.vue "Patterns" tab | ✅ CODE DONE | Replaced PatternSandbox with DesignPatternsWorkspace in `App.vue`, `index.ts` barrel export |
+| **Tests** | 50 Unit Tests | ✅ CODE DONE | `DesignPatternVisualizerEngine.spec.ts` (18), `useDesignPatternsStore.spec.ts` (22), `scenarioData.spec.ts` (10) — ALL 50 PASS |
 
 ---
 
