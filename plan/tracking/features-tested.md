@@ -5,8 +5,8 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 ---
 
 ## 📌 Trạng Thái Bao Phủ Kiểm Thử (Test Coverage Status)
-*   **Tổng số tính năng hạt nhân:** 23/23 Tính năng + Phase 1 Animation Engine (23 tests) + Phase 1 Custom Input (38 tests) + Phase 1 DSA Modules (40 tests mới) + Phase 1 E-Lecture Mode (28 tests mới) + Phase 1 Execution Control (23 tests mới) + Phase 1 Interactive Playground (31 tests mới) + Phase 1 Pseudocode Sync (37 tests mới) + Phase 1 Quiz System (54 tests mới) + Phase 2 Code-to-Visualization (32 tests mới) + Phase 2 Compare Algorithms (33 tests mới) + Phase 2 Concurrency Visualizer (35 tests mới) + Phase 2 Debug Mode (49 tests mới).
-*   **Trạng thái Vitest Suite:** 🟢 100% PASSED (459/460 — 1 pre-existing ForceDirectedLayout failure).
+*   **Tổng số tính năng hạt nhân:** 23/23 Tính năng + Phase 1 Animation Engine (23 tests) + Phase 1 Custom Input (38 tests) + Phase 1 DSA Modules (40 tests mới) + Phase 1 E-Lecture Mode (28 tests mới) + Phase 1 Execution Control (23 tests mới) + Phase 1 Interactive Playground (31 tests mới) + Phase 1 Pseudocode Sync (37 tests mới) + Phase 1 Quiz System (54 tests mới) + Phase 2 Code-to-Visualization (32 tests mới) + Phase 2 Compare Algorithms (33 tests mới) + Phase 2 Concurrency Visualizer (35 tests mới) + Phase 2 Debug Mode (49 tests mới) + Phase 2 Design Patterns (50 tests mới).
+*   **Trạng thái Vitest Suite:** 🟢 100% PASSED (509/510 — 1 pre-existing ForceDirectedLayout failure).
 *   **Công cụ chạy kiểm thử:** Vitest Core.
 *   **Thời gian phản hồi test suite:** ~180ms (độ nhạy cực cao dưới máy khách).
 
@@ -501,3 +501,53 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 424 | **DebugStore** | canStepForward true when PAUSED | canStepForward=true | PASSED |
 | 425 | **DebugStore** | hasError true on ERROR status | hasError=true | PASSED |
 | 426 | **DebugStore** | Detect mutated variables on step | watchedVariables defined after step | PASSED |
+| 427 | **DesignPatterns Engine** | Cubic Bezier path calculation | path contains M startX,startY C cp1,cp2 endX,endY | PASSED |
+| 428 | **DesignPatterns Engine** | Empty path for non-existent link | calculateBezierPath('FAKE') returns '' | PASSED |
+| 429 | **DesignPatterns Engine** | Control offset based on deltaY | controlOffset = min(100, deltaY*0.5) | PASSED |
+| 430 | **DesignPatterns Engine** | Clamp minimum control offset 30 | Close nodes get controlOffset=30 minimum | PASSED |
+| 431 | **DesignPatterns Engine** | Cap controlOffset at 100 | Large deltaY caps at 100 | PASSED |
+| 432 | **DesignPatterns Engine** | calculateAllPaths Map | Returns Map with all link paths | PASSED |
+| 433 | **DesignPatterns Engine** | updateNodePosition coordinates | Node x/y updated correctly | PASSED |
+| 434 | **DesignPatterns Engine** | Clamp position within canvas | Negative coords clamped to padding=10 | PASSED |
+| 435 | **DesignPatterns Engine** | Clamp maximum position | Exceeding coords clamped to canvasWidth-nodeWidth-padding | PASSED |
+| 436 | **DesignPatterns Engine** | Ignore non-existent node drag | No error, nodes unchanged | PASSED |
+| 437 | **DesignPatterns Engine** | swapStrategyTarget success | Link targetId changed to new node | PASSED |
+| 438 | **DesignPatterns Engine** | swapStrategyTarget non-existent link | Returns false | PASSED |
+| 439 | **DesignPatterns Engine** | swapStrategyTarget non-existent target | Returns false | PASSED |
+| 440 | **DesignPatterns Engine** | getLinksToTarget | Finds all links to target node | PASSED |
+| 441 | **DesignPatterns Engine** | getLinksFromSource | Finds all links from source node | PASSED |
+| 442 | **DesignPatterns Engine** | getLinksToTarget empty | Returns empty for non-existent node | PASSED |
+| 443 | **DesignPatterns Engine** | replaceState | Replaces all nodes and links | PASSED |
+| 444 | **DesignPatterns Engine** | getNodeById found | Returns correct node by id | PASSED |
+| 445 | **DesignPatterns Store** | Load Strategy Pattern scenario | 4 nodes, 3 links, title='Strategy Pattern' | PASSED |
+| 446 | **DesignPatterns Store** | Load Observer Pattern scenario | 5 nodes, 4 links | PASSED |
+| 447 | **DesignPatterns Store** | Load DIP Sandbox scenario | 2 nodes, 1 link, isDIPEnabled=false | PASSED |
+| 448 | **DesignPatterns Store** | Reset observer on scenario switch | isObserverNotifying=false after switch | PASSED |
+| 449 | **DesignPatterns Store** | Path cache calculated | pathCache.size=3 for strategy | PASSED |
+| 450 | **DesignPatterns Store** | switchStrategy Bubble→Quick | activeStrategyTargetId='Quick', link updated | PASSED |
+| 451 | **DesignPatterns Store** | Paths recalculated after swap | pathCache changes after switchStrategy | PASSED |
+| 452 | **DesignPatterns Store** | No swap in non-strategy mode | activeStrategyTargetId unchanged | PASSED |
+| 453 | **DesignPatterns Store** | Observer notify 2s timeout | isObserverNotifying true→false after 2000ms | PASSED |
+| 454 | **DesignPatterns Store** | No notify in non-observer mode | isObserverNotifying stays false | PASSED |
+| 455 | **DesignPatterns Store** | DIP toggle adds IDatabase | nodes.length 2→3, IDatabase node exists | PASSED |
+| 456 | **DesignPatterns Store** | DIP decoupled links | 2 links: HighToInterface + LowToInterface | PASSED |
+| 457 | **DesignPatterns Store** | DIP toggle off removes IDatabase | nodes.length back to 2 | PASSED |
+| 458 | **DesignPatterns Store** | DIP restore direct coupling | 1 link: DirectCoupling | PASSED |
+| 459 | **DesignPatterns Store** | No DIP toggle in non-DIP mode | isDIPEnabled stays false | PASSED |
+| 460 | **DesignPatterns Store** | Coupling 85% when DIP off | couplingIndexMetric=85, label='RẤT CHẶT' | PASSED |
+| 461 | **DesignPatterns Store** | Coupling 20% when DIP on | couplingIndexMetric=20, label='LỎNG LẺO' | PASSED |
+| 462 | **DesignPatterns Store** | Coupling 35% for non-DIP | couplingIndexMetric=35 for strategy | PASSED |
+| 463 | **DesignPatterns Store** | handleNodeDrag updates position | Node x/y changed, pathCache updated | PASSED |
+| 464 | **DesignPatterns Store** | cleanup resets state | nodes=[], links=[], pathCache empty | PASSED |
+| 465 | **DesignPatterns Store** | nodeCount/linkCount computed | nodeCount=4, linkCount=3 for strategy | PASSED |
+| 466 | **Scenario Data** | Strategy Pattern 4 nodes 3 links | patternId, nodes.length, links.length correct | PASSED |
+| 467 | **Scenario Data** | Observer Pattern 5 nodes 4 links | Correct node/link counts | PASSED |
+| 468 | **Scenario Data** | DIP Sandbox 2 nodes 1 link | Correct counts | PASSED |
+| 469 | **Scenario Data** | Non-existent scenario returns null | getScenario('fake') → null | PASSED |
+| 470 | **Scenario Data** | Strategy nodes have attributes/methods | Client has attributes and methods | PASSED |
+| 471 | **Scenario Data** | ISortStrategy interface type | type='interface' | PASSED |
+| 472 | **Scenario Data** | Dependency link Client→Strategy | type='dependency', correct sourceId/targetId | PASSED |
+| 473 | **Scenario Data** | Realization links concrete→interface | BubbleToStrategy + QuickToStrategy type='realization' | PASSED |
+| 474 | **Scenario Data** | getAllScenarioIds returns 3 | strategy-pattern, observer-pattern, solid-dip | PASSED |
+| 475 | **Scenario Data** | SCENARIO_LABELS correct | All 3 labels defined | PASSED |
+| 476 | **Scenario Data** | getNodeById undefined for non-existent | Returns undefined | PASSED |

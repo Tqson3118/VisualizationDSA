@@ -350,3 +350,34 @@ Các ADR sau đây được ghi trong tài liệu đặc tả nhưng **chưa có
   - Module: debug-mode/index.ts (barrel export)
   - Integration: App.vue ("Debug" tab)
   - Tests: DebuggerYieldEngine.spec.ts (15), LiveCompilerDebugger.spec.ts (13), useLiveDebuggerStore.spec.ts (21) — 49 tests total
+
+---
+
+## ADR-17: Design Patterns Visualizer — SVG Cubic Bezier UML Diagram with Reactive Drag-and-Drop
+
+- **Trạng thái:** ✅ IMPLEMENTED
+- **Ngữ cảnh:** Sinh viên cần hiểu các mẫu thiết kế (Strategy, Observer) và nguyên tắc SOLID (DIP) qua sơ đồ UML tương tác, nhưng sơ đồ tĩnh không thể hiện runtime behavior (swap Strategy, notify Observer, toggle DIP).
+- **Quyết định:** Triển khai SVG Cubic Bezier UML Diagram 100% client-side:
+  1. **Cubic Bezier Path Calculation:** `M startX,startY C cp1X,cp1Y cp2X,cp2Y endX,endY` với controlOffset = max(30, min(100, deltaY * 0.5)) đảm bảo đường cong mượt mà giữa các node ở mọi khoảng cách.
+  2. **Reactive Drag-and-Drop:** Vue 3 reactivity tracking node positions (x, y), SVG paths tự động recalculate qua pathCache reactive Map, global window mousemove/mouseup cho UX drag mượt.
+  3. **Strategy Runtime Swap:** Link dependency từ Client snap sang concrete Strategy mới (BubbleSort ↔ QuickSort), Amber neon glow cho active target.
+  4. **Observer Notify Pulse:** CSS stroke-dashoffset animation 1.2s infinite linear lan tỏa từ Subject qua SVG paths tới Observers, Cyan neon glow.
+  5. **DIP Toggle Sandbox:** Switch giữa "Highly Coupled" (direct red line, 85%) và "Loosely Coupled" (blue lines through IDatabase Interface, 20%) để dạy Dependency Inversion Principle.
+  6. **Glassmorphism UML Nodes:** backdrop-blur(12px), rgba background, stereotype headers (<<interface>>, <<abstract>>), JetBrains Mono font.
+- **Kiến trúc:**
+  - `DesignPatternVisualizerEngine` — calculateBezierPath, updateNodePosition (clamped), swapStrategyTarget, calculateAllPaths, replaceState
+  - `useDesignPatternsStore` — Pinia setup store: initializeScenario, handleNodeDrag, switchStrategy, triggerObserverNotify (2s timeout), toggleDIP, couplingIndexMetric computed (85→20), pathCache reactive
+  - `ClassNodeCard.vue` — Glassmorphism cards with drag
+  - `DesignPatternsCanvas.vue` — SVG layer + HTML overlay
+  - `DesignPatternsWorkspace.vue` — Scenario tabs + controls
+  - 3 scenario presets: Strategy Pattern (4 nodes), Observer Pattern (5 nodes), DIP Sandbox (2+1 nodes)
+- **Hệ quả:** Sinh viên thấy trực quan Strategy swap (Amber line snaps), Observer notify (Cyan pulse flows), DIP toggle (Interface xuất hiện/biến mất, coupling index 85→20). Toàn bộ draggable + interactive.
+- **File liên quan:**
+  - Types: design-patterns/types/design-patterns.types.ts
+  - Engine: design-patterns/engine/DesignPatternVisualizerEngine.ts
+  - Store: design-patterns/store/useDesignPatternsStore.ts
+  - Scenarios: design-patterns/scenarios/scenarioData.ts (3 presets)
+  - Components: ClassNodeCard.vue, DesignPatternsCanvas.vue, DesignPatternsWorkspace.vue
+  - Module: design-patterns/index.ts (barrel export)
+  - Integration: App.vue ("Patterns" tab — replaced PatternSandbox)
+  - Tests: DesignPatternVisualizerEngine.spec.ts (18), useDesignPatternsStore.spec.ts (22), scenarioData.spec.ts (10) — 50 tests total

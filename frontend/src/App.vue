@@ -137,7 +137,7 @@
             <DISandbox v-else-if="activeTab === 'di'" />
 
             <!-- Patterns -->
-            <PatternSandbox v-else-if="activeTab === 'patterns'" />
+            <DesignPatternsWorkspace v-else-if="activeTab === 'patterns'" />
 
             <!-- Stack/Heap -->
             <StateInspector v-else-if="activeTab === 'state'" />
@@ -236,6 +236,7 @@ import { OOPSandbox } from "./features/oop-sandbox";
 import { SOLIDSandbox } from "./features/solid-sandbox";
 import { DISandbox } from "./features/di-sandbox";
 import { PatternSandbox } from "./features/pattern-sandbox";
+import { DesignPatternsWorkspace } from "./features/design-patterns";
 import { StateInspector } from "./features/state-sandbox";
 import { SystemSandbox } from "./features/system-sandbox";
 import { InteractiveLectureSlides } from "./features/quiz";
