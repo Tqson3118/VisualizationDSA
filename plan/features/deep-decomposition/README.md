@@ -14,7 +14,7 @@ Chào mừng bạn đến với **Deep Decomposition Master Index** của **Visu
 
 - **[01. Animation Engine](./phase1-animation-engine)** `✅ CODE DONE` — `CoreAnimationEngine.ts`, `CompilerStepExecutor.ts`, **Phase 1 Backend-Driven**: `useAnimationStore.ts`, `CanvasLayer.vue`, `VisualizationPlayer.vue`, `BubbleSortExecutor.cs`, `AlgorithmsController.cs`
 - **[02. Custom Input](./phase1-custom-input)** `✅ CODE DONE` — `CustomInputParser.ts`, **Phase 1 Custom Input Generator**: `useInputStore.ts`, `CustomInputForm.vue`, `InputParser.cs`, `ConstraintResolver.cs`, custom-execute API endpoint
-- **[03. DSA Modules](./phase1-dsa-modules)** `✅ CODE DONE` — Bubble/Quick/Merge/Heap Sort frame generators, `ArrayBarVisualizer.vue`
+- **[03. DSA Modules](./phase1-dsa-modules)** `✅ CODE DONE` — **Phase 1 DSA Modules Library**: 10 Algorithm Strategies (Strategy Pattern + Reflection DI), 4 Canvas Renderers (BarChart, BoxArray, Tree, Tube), `DSAPlayer.vue`, `AlgorithmDashboard.vue`, `AlgorithmVisualizer.vue` (dynamic `<component :is>`), 40 unit tests
 - **[04. E-Lecture Mode](./phase1-e-lecture-mode)** `🟠 PARTIAL (~40%)` — `InteractiveLectureSlides.vue` viết xong nhưng chưa mount vào `App.vue`
 - **[05. Execution Control](./phase1-execution-control)** `✅ CODE DONE` — `useVcrStore.ts`, `VcrControlPanel.vue` (play/pause/scrub/speed/loop)
 - **[06. Interactive Playground](./phase1-interactive-playground)** `❌ SPEC ONLY` — Chỉ có `InteractivePlaygroundEngine` stub đơn giản

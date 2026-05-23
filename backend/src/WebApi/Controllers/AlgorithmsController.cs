@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using VisualizationDSA.Application.DTOs;
 using VisualizationDSA.Domain.Engine;
 using VisualizationDSA.Domain.Input;
+using VisualizationDSA.Domain.Strategies;
 
 namespace VisualizationDSA.WebApi.Controllers;
 
@@ -9,6 +10,57 @@ namespace VisualizationDSA.WebApi.Controllers;
 [Route("api/v1/[controller]")]
 public class AlgorithmsController : ControllerBase
 {
+    private readonly IEnumerable<IAlgorithmStrategy> _strategies;
+
+    public AlgorithmsController(IEnumerable<IAlgorithmStrategy> strategies)
+    {
+        _strategies = strategies;
+    }
+
+    /// <summary>
+    /// Lấy danh sách tất cả thuật toán có trong thư viện.
+    /// GET /api/v1/algorithms
+    /// </summary>
+    [HttpGet]
+    public ActionResult<IEnumerable<object>> GetAll()
+    {
+        var list = _strategies.Select(s => new
+        {
+            id = s.AlgorithmId,
+            name = s.Name,
+            category = s.Category,
+            difficulty = GetDifficulty(s.AlgorithmId),
+            timeComplexity = s.GetMetadata().TimeComplexity,
+            spaceComplexity = s.GetMetadata().SpaceComplexity
+        });
+
+        return Ok(list);
+    }
+
+    /// <summary>
+    /// Lấy siêu dữ liệu lý thuyết của thuật toán.
+    /// GET /api/v1/algorithms/{algorithmId}/metadata
+    /// </summary>
+    [HttpGet("{algorithmId}/metadata")]
+    public ActionResult<AlgorithmMetadata> GetMetadata(string algorithmId)
+    {
+        var strategy = _strategies.FirstOrDefault(s =>
+            s.AlgorithmId.Equals(algorithmId, StringComparison.OrdinalIgnoreCase));
+
+        if (strategy == null)
+        {
+            return NotFound(new
+            {
+                status = 404,
+                title = "Not Found",
+                errorType = "ALGORITHM_NOT_FOUND",
+                message = $"Không tìm thấy thuật toán tương ứng với ID: '{algorithmId}' trong thư viện hệ thống."
+            });
+        }
+
+        return Ok(strategy.GetMetadata());
+    }
+
     /// <summary>
     /// Thực thi thuật toán và trả về danh sách frames hoạt họa.
     /// POST /api/v1/algorithms/execute
@@ -27,15 +79,29 @@ public class AlgorithmsController : ControllerBase
             });
         }
 
+        var strategy = _strategies.FirstOrDefault(s =>
+            s.AlgorithmId.Equals(request.AlgorithmId, StringComparison.OrdinalIgnoreCase));
+
+        if (strategy == null)
+        {
+            return BadRequest(new
+            {
+                status = 400,
+                title = "Bad Request",
+                errorType = "UNSUPPORTED_ALGORITHM",
+                message = $"Thuật toán '{request.AlgorithmId}' chưa được hỗ trợ."
+            });
+        }
+
         try
         {
-            AlgorithmResult result = request.AlgorithmId.ToLowerInvariant() switch
+            var frames = strategy.Execute(request.InputData);
+            var result = new AlgorithmResult
             {
-                "bubble-sort" => new BubbleSortExecutor().Execute(request.InputData),
-                _ => throw new NotSupportedException(
-                    $"Thuật toán '{request.AlgorithmId}' chưa được hỗ trợ.")
+                AlgorithmId = strategy.AlgorithmId,
+                PseudoCode = strategy.GetMetadata().PseudoCode,
+                Frames = frames
             };
-
             return Ok(result);
         }
         catch (ArgumentException ex)
@@ -44,17 +110,7 @@ public class AlgorithmsController : ControllerBase
             {
                 status = 400,
                 title = "Bad Request",
-                errorType = "MEMORY_LIMIT_EXCEEDED",
-                message = ex.Message
-            });
-        }
-        catch (NotSupportedException ex)
-        {
-            return BadRequest(new
-            {
-                status = 400,
-                title = "Bad Request",
-                errorType = "UNSUPPORTED_ALGORITHM",
+                errorType = "VALIDATION_ERROR",
                 message = ex.Message
             });
         }
@@ -69,7 +125,6 @@ public class AlgorithmsController : ControllerBase
         [FromBody] CustomInputRequestDto request,
         CancellationToken clientCancelToken)
     {
-        // 1. Parse raw input string to int array
         int[] parsedArray;
         try
         {
@@ -86,7 +141,6 @@ public class AlgorithmsController : ControllerBase
             });
         }
 
-        // 2. Validate size against algorithm constraint
         if (!ConstraintResolver.ValidateSize(request.AlgorithmId, parsedArray.Length, out int allowedLimit))
         {
             return UnprocessableEntity(new
@@ -103,7 +157,20 @@ public class AlgorithmsController : ControllerBase
             });
         }
 
-        // 3. Execute algorithm with cancellation timeout (2 seconds)
+        var strategy = _strategies.FirstOrDefault(s =>
+            s.AlgorithmId.Equals(request.AlgorithmId, StringComparison.OrdinalIgnoreCase));
+
+        if (strategy == null)
+        {
+            return BadRequest(new
+            {
+                status = 400,
+                title = "Bad Request",
+                errorType = "UNSUPPORTED_ALGORITHM",
+                message = $"Thuật toán '{request.AlgorithmId}' chưa được hỗ trợ."
+            });
+        }
+
         using var timeoutSource = new CancellationTokenSource(TimeSpan.FromSeconds(2));
         using var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(
             timeoutSource.Token, clientCancelToken);
@@ -112,11 +179,12 @@ public class AlgorithmsController : ControllerBase
         {
             var result = await Task.Run(() =>
             {
-                return request.AlgorithmId.ToLowerInvariant() switch
+                var frames = strategy.Execute(parsedArray);
+                return new AlgorithmResult
                 {
-                    "bubble-sort" => new BubbleSortExecutor().Execute(parsedArray),
-                    _ => throw new NotSupportedException(
-                        $"Thuật toán '{request.AlgorithmId}' chưa được hỗ trợ.")
+                    AlgorithmId = strategy.AlgorithmId,
+                    PseudoCode = strategy.GetMetadata().PseudoCode,
+                    Frames = frames
                 };
             }, linkedSource.Token);
 
@@ -132,15 +200,25 @@ public class AlgorithmsController : ControllerBase
                 message = "Thời gian xử lý giải thuật vượt quá giới hạn an toàn cho phép (2 giây)."
             });
         }
-        catch (NotSupportedException ex)
+        catch (ArgumentException ex)
         {
             return BadRequest(new
             {
                 status = 400,
                 title = "Bad Request",
-                errorType = "UNSUPPORTED_ALGORITHM",
+                errorType = "VALIDATION_ERROR",
                 message = ex.Message
             });
         }
+    }
+
+    private static string GetDifficulty(string algorithmId)
+    {
+        return algorithmId switch
+        {
+            "bubble-sort" or "selection-sort" or "insertion-sort" or "linear-search" or "stack" or "queue" => "Easy",
+            "quick-sort" or "merge-sort" or "binary-search" or "bst" => "Medium",
+            _ => "Medium"
+        };
     }
 }

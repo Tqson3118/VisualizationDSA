@@ -94,3 +94,25 @@ Các ADR sau đây được ghi trong tài liệu đặc tả nhưng **chưa có
   - Backend: Domain/Input/InputParser.cs, ConstraintResolver.cs, Application/DTOs/CustomInputRequestDto.cs, AlgorithmsController.cs (custom-execute endpoint)
   - Frontend: custom-input/store/useInputStore.ts, custom-input/components/CustomInputForm.vue
   - Tests: useInputStore.spec.ts (38 tests)
+
+---
+
+## ADR-STRATEGY-DI: Strategy Pattern + Reflection DI cho Phase 1 DSA Modules Library
+
+- **Trạng thái:** ✅ IMPLEMENTED
+- **Ngữ cảnh:** Hệ thống cần mở rộng từ 1 thuật toán (Bubble Sort) lên 10+ thuật toán mà không sửa code Controller hoặc logic hiện tại.
+- **Quyết định:** Áp dụng Strategy Pattern + Reflection-based DI Auto-Registration:
+  1. `IAlgorithmStrategy` interface: mỗi thuật toán là một Plugin class độc lập.
+  2. `AlgorithmDIConfiguration.cs`: quét Assembly tự động tìm tất cả class implement IAlgorithmStrategy và đăng ký vào DI Container.
+  3. Controller inject `IEnumerable<IAlgorithmStrategy>`: không cần switch-case, không cần sửa code khi thêm thuật toán mới.
+  4. Frontend Dynamic Component: `<component :is>` tự chuyển renderer theo category (Sorting→Bars, Searching→Boxes, Tree→Nodes, Stack-Queue→Tube).
+- **Hệ quả:**
+  - Open/Closed Principle hoàn hảo: thêm thuật toán mới = chỉ tạo 1 file C# class.
+  - 10 thuật toán đầy đủ: BubbleSort, SelectionSort, InsertionSort, QuickSort, MergeSort, LinearSearch, BinarySearch, Stack, Queue, BST.
+  - 4 Canvas Renderers chuyên biệt: BarChart (sorting bars), BoxArray (search boxes + Low/Mid/High pointers), TreeRenderer (BST node circles + edges), TubeRenderer (Stack vertical LIFO / Queue horizontal FIFO).
+  - Binary Search validation gate: từ chối mảng chưa sắp xếp với HTTP 400.
+  - Fallback dummy generators cho tất cả 10 thuật toán khi Backend chưa sẵn sàng.
+- **File liên quan:**
+  - Backend: Domain/Strategies/IAlgorithmStrategy.cs, AlgorithmStrategyBase.cs, 10 Strategy files, Infrastructure/Extensions/AlgorithmDIConfiguration.cs
+  - Frontend: dsa-modules/store/useAlgorithmStore.ts, dsa-modules/services/dummyGenerators.ts, dsa-modules/components/DSAPlayer.vue, AlgorithmVisualizer.vue, 4 renderers
+  - Tests: useAlgorithmStore.spec.ts (10), dummyGenerators.spec.ts (19), dsaApi.spec.ts (3), algorithmCatalog.spec.ts (8) — 40 tests total

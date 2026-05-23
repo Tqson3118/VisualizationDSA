@@ -8,6 +8,7 @@ using System.Text;
 using VisualizationDSA.Application.Services;
 using VisualizationDSA.Domain.Interfaces;
 using VisualizationDSA.Infrastructure.Data;
+using VisualizationDSA.Infrastructure.Extensions;
 using VisualizationDSA.Infrastructure.Repositories;
 using VisualizationDSA.Infrastructure.Services;
 
@@ -65,6 +66,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<IGamificationService, GamificationService>();
+
+// Register Algorithm Strategies (Reflection-based auto-scan)
+builder.Services.AddAlgorithmStrategies();
 
 // Configure JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

@@ -59,6 +59,13 @@
         </section>
       </template>
 
+      <!-- DSA Modules Tab -->
+      <template v-else-if="activeTab === 'dsa'">
+        <section class="flex-1 min-h-0">
+          <DSAPlayer />
+        </section>
+      </template>
+
       <!-- Default Sorting Layout -->
       <template v-else>
       <!-- Visualizer Area -->
@@ -189,6 +196,7 @@ import { AlgorithmCanvas, ArrayBarVisualizer, CustomInputPanel } from "./feature
 import { VcrControlPanel } from "./features/vcr-player";
 import { CodeEditor, PseudocodePanel } from "./features/code-editor";
 import { VisualizationPlayer } from "./features/animation-engine";
+import { DSAPlayer } from "./features/dsa-modules";
 import { OOPSandbox } from "./features/oop-sandbox";
 import { SOLIDSandbox } from "./features/solid-sandbox";
 import { DISandbox } from "./features/di-sandbox";
@@ -202,6 +210,7 @@ const activeTab = ref("sorting");
 
 const tabs = [
   { id: "sorting", name: "Sorting" },
+  { id: "dsa", name: "DSA Modules" },
   { id: "animation", name: "Animation" },
   { id: "graph", name: "Graph" },
   { id: "oop", name: "OOP" },

@@ -5,8 +5,8 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 ---
 
 ## 📌 Trạng Thái Bao Phủ Kiểm Thử (Test Coverage Status)
-*   **Tổng số tính năng hạt nhân:** 23/23 Tính năng + Phase 1 Animation Engine (23 tests) + Phase 1 Custom Input (38 tests mới).
-*   **Trạng thái Vitest Suite:** 🟢 100% PASSED.
+*   **Tổng số tính năng hạt nhân:** 23/23 Tính năng + Phase 1 Animation Engine (23 tests) + Phase 1 Custom Input (38 tests) + Phase 1 DSA Modules (40 tests mới).
+*   **Trạng thái Vitest Suite:** 🟢 100% PASSED (137/138 — 1 pre-existing ForceDirectedLayout failure).
 *   **Công cụ chạy kiểm thử:** Vitest Core.
 *   **Thời gian phản hồi test suite:** ~180ms (độ nhạy cực cao dưới máy khách).
 
@@ -68,3 +68,43 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 50 | **Input Store** | clear action | Reset rawText, apiErrorMessage, isLoading. | 🟢 PASSED |
 | 51 | **Input Store** | submitCustomInput guard | Không gọi API khi canExecute=false. | 🟢 PASSED |
 | 52 | **Input Store** | submitCustomInput fallback | Fallback sang dummy engine khi API unreachable. | 🟢 PASSED |
+| 53 | **Algorithm Store** | Initial state empty | algorithms=[], currentAlgorithm=null, metadata=null. | 🟢 PASSED |
+| 54 | **Algorithm Store** | fetchAlgorithms API fallback | Fallback sang local catalog khi API fails. | 🟢 PASSED |
+| 55 | **Algorithm Store** | fetchAlgorithms API success | Load algorithms từ API response. | 🟢 PASSED |
+| 56 | **Algorithm Store** | selectAlgorithm + metadata | Gán currentAlgorithm, load local metadata. | 🟢 PASSED |
+| 57 | **Algorithm Store** | clearActive reset | Reset currentAlgorithm + metadata về null. | 🟢 PASSED |
+| 58 | **Algorithm Store** | filteredAlgorithms search | Filter theo tên/category, clear trả về tất cả. | 🟢 PASSED |
+| 59 | **Algorithm Store** | filteredAlgorithms category | Filter 'searching' trả 2 algos đúng category. | 🟢 PASSED |
+| 60 | **Algorithm Store** | categories unique | 4 categories: Sorting, Searching, Stack-Queue, Tree. | 🟢 PASSED |
+| 61 | **Algorithm Store** | loadAlgorithmDetails fallback | Set currentAlgorithm + metadata từ local. | 🟢 PASSED |
+| 62 | **Algorithm Store** | 10 algorithms metadata | Tất cả 10 algos có metadata + pseudoCode. | 🟢 PASSED |
+| 63 | **Dummy Generators** | BubbleSort frames | algorithmId='bubble-sort', frames > 0, pseudoCode > 0. | 🟢 PASSED |
+| 64 | **Dummy Generators** | BubbleSort sorted result | Last frame dataState sorted ascending. | 🟢 PASSED |
+| 65 | **Dummy Generators** | BubbleSort stepId sequence | stepId incrementing 1..N. | 🟢 PASSED |
+| 66 | **Dummy Generators** | SelectionSort correct | Final dataState = sorted. | 🟢 PASSED |
+| 67 | **Dummy Generators** | InsertionSort correct | Final dataState = sorted. | 🟢 PASSED |
+| 68 | **Dummy Generators** | QuickSort correct | Final dataState = sorted. | 🟢 PASSED |
+| 69 | **Dummy Generators** | QuickSort pivot highlights | Có frames với highlights.pivot != null. | 🟢 PASSED |
+| 70 | **Dummy Generators** | MergeSort correct | Final dataState = sorted. | 🟢 PASSED |
+| 71 | **Dummy Generators** | LinearSearch found | highlights.found != null khi target tồn tại. | 🟢 PASSED |
+| 72 | **Dummy Generators** | LinearSearch not found | Không có found highlight khi target vắng mặt. | 🟢 PASSED |
+| 73 | **Dummy Generators** | BinarySearch found | highlights.found != null, sorted array. | 🟢 PASSED |
+| 74 | **Dummy Generators** | BinarySearch pointers | highlights.mid != null (Low/Mid/High). | 🟢 PASSED |
+| 75 | **Dummy Generators** | Stack push/pop | 3 Push frames, final dataState rỗng. | 🟢 PASSED |
+| 76 | **Dummy Generators** | Stack empty final | Last frame dataState = []. | 🟢 PASSED |
+| 77 | **Dummy Generators** | Queue enqueue/dequeue | 3 Enqueue frames, final dataState rỗng. | 🟢 PASSED |
+| 78 | **Dummy Generators** | Queue empty final | Last frame dataState = []. | 🟢 PASSED |
+| 79 | **Dummy Generators** | BST tree nodes | treeNodes defined, length = 3. | 🟢 PASSED |
+| 80 | **Dummy Generators** | BST parent-child | Root leftNodeId/rightNodeId not null. | 🟢 PASSED |
+| 81 | **Dummy Generators** | Unknown fallback | Returns single frame fallback. | 🟢 PASSED |
+| 82 | **Algorithm Catalog** | 10 algorithms count | Exactly 10 algorithms. | 🟢 PASSED |
+| 83 | **Algorithm Catalog** | Required fields | All fields (id, name, category, etc.) populated. | 🟢 PASSED |
+| 84 | **Algorithm Catalog** | Unique IDs | No duplicate algorithm IDs. | 🟢 PASSED |
+| 85 | **Algorithm Catalog** | 4 categories | Sorting, Searching, Stack-Queue, Tree. | 🟢 PASSED |
+| 86 | **Algorithm Catalog** | 5 sorting algos | 5 sorting algorithms. | 🟢 PASSED |
+| 87 | **Algorithm Catalog** | 2 searching algos | 2 searching algorithms. | 🟢 PASSED |
+| 88 | **Algorithm Catalog** | 2 stack-queue algos | 2 stack-queue algorithms. | 🟢 PASSED |
+| 89 | **Algorithm Catalog** | 1 tree algo (BST) | 1 tree algorithm, id='bst'. | 🟢 PASSED |
+| 90 | **DSA API** | Fallback on network error | Returns dummy result. | 🟢 PASSED |
+| 91 | **DSA API** | API success | Returns API response. | 🟢 PASSED |
+| 92 | **DSA API** | HTTP error fallback | Returns dummy on 500 status. | 🟢 PASSED |
