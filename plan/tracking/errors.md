@@ -45,3 +45,9 @@ Tài liệu này tổng hợp các mã lỗi, kịch bản sự cố và cách t
 *   **Mã Lỗi:** `ERR_WORKER_POSTMESSAGE_PROXY`
 *   **Nguyên nhân gốc:** `inputArray` là `ref<number[]>` trong Pinia store. Dù truy cập `.value`, kết quả vẫn là reactive Proxy — không phải plain Array.
 *   **Cách khắc phục:** Spread operator `[...inputArray.value]` để tạo bản sao plain Array trước khi truyền vào `postMessage`. File sửa: `useLiveCompilerStore.ts` dòng 103.
+
+### 🚨 Lỗi 105: __loopCounter Khai Báo Trùng Lặp Trong Web Worker (Phase 2)
+*   **Mô tả:** Khi thực thi code đã tiêm vết bên trong Web Worker, lỗi runtime `Identifier '__loopCounter' has already been declared` xảy ra vì biến `__loopCounter` được khai báo hai lần: một lần bởi `ASTInstrumentationEngine` (prepend `let __loopCounter = 0;`) và một lần bởi `new Function('...', '__loopCounter', code)` (parameter binding).
+*   **Mã Lỗi:** `ERR_WORKER_DUPLICATE_DECLARATION`
+*   **Nguyên nhân gốc:** `buildWorkerScript()` truyền `__loopCounter` làm tham số thứ 4 của `new Function()`, đồng thời `compileAndInstrument()` đã prepend `let __loopCounter = 0;` vào đầu mã nguồn đã sinh. Khi cả hai tồn tại trong cùng scope, JavaScript ném lỗi khai báo trùng.
+*   **Cách khắc phục:** Loại bỏ `__loopCounter` khỏi danh sách tham số `new Function()` trong `WorkerLifecycleCoordinator.ts`, vì biến đã được khai báo nội bộ bởi mã nguồn đã tiêm vết.
