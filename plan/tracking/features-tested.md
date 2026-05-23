@@ -5,8 +5,8 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 ---
 
 ## 📌 Trạng Thái Bao Phủ Kiểm Thử (Test Coverage Status)
-*   **Tổng số tính năng hạt nhân:** 23/23 Tính năng + Phase 1 Animation Engine (23 tests) + Phase 1 Custom Input (38 tests) + Phase 1 DSA Modules (40 tests mới) + Phase 1 E-Lecture Mode (28 tests mới) + Phase 1 Execution Control (23 tests mới) + Phase 1 Interactive Playground (31 tests mới) + Phase 1 Pseudocode Sync (37 tests mới) + Phase 1 Quiz System (54 tests mới).
-*   **Trạng thái Vitest Suite:** 🟢 100% PASSED (310/311 — 1 pre-existing ForceDirectedLayout failure).
+*   **Tổng số tính năng hạt nhân:** 23/23 Tính năng + Phase 1 Animation Engine (23 tests) + Phase 1 Custom Input (38 tests) + Phase 1 DSA Modules (40 tests mới) + Phase 1 E-Lecture Mode (28 tests mới) + Phase 1 Execution Control (23 tests mới) + Phase 1 Interactive Playground (31 tests mới) + Phase 1 Pseudocode Sync (37 tests mới) + Phase 1 Quiz System (54 tests mới) + Phase 2 Code-to-Visualization (32 tests mới).
+*   **Trạng thái Vitest Suite:** 🟢 100% PASSED (342/343 — 1 pre-existing ForceDirectedLayout failure).
 *   **Công cụ chạy kiểm thử:** Vitest Core.
 *   **Thời gian phản hồi test suite:** ~180ms (độ nhạy cực cao dưới máy khách).
 
@@ -318,3 +318,40 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 275 | **QuizLoader** | Unknown algorithm returns null | 'unknown-algo' → null | 🟢 PASSED |
 | 276 | **QuizLoader** | hasQuizScript detection | 'bubble-sort'→true, 'unknown'→false | 🟢 PASSED |
 | 277 | **QuizLoader** | Valid question structures | All checkpoints have id, prompt, explanation, valid type | 🟢 PASSED |
+
+### Phase 2 Code-to-Visualization Compiler — 32 Unit Tests
+
+| STT | Phân hệ kiểm thử | Tính năng hạt nhân được xác thực | Phương thức kiểm tra (Test Spec) | Trạng thái |
+| :--- | :--- | :--- | :--- | :--- |
+| 278 | **ASTInstrumentation** | BinaryExpression traceCompare | arr[i] > arr[j] output contains traceCompare | PASSED |
+| 279 | **ASTInstrumentation** | AssignmentExpression traceAssign | arr[i] = temp output contains traceAssign | PASSED |
+| 280 | **ASTInstrumentation** | While loop guard injection | while(i<n) loopCounter injected | PASSED |
+| 281 | **ASTInstrumentation** | For loop guard injection | for loop loopCounter injected | PASSED |
+| 282 | **ASTInstrumentation** | Syntax error handling | Invalid JS success=false, error defined | PASSED |
+| 283 | **ASTInstrumentation** | Full Bubble Sort code | Multiple compare+assign both traceCompare+traceAssign | PASSED |
+| 284 | **ASTInstrumentation** | Empty function body | No errors for empty function | PASSED |
+| 285 | **ASTInstrumentation** | Non-array comparisons preserved | x > y no traceCompare (not array access) | PASSED |
+| 286 | **ASTInstrumentation** | <= comparison operator | arr[i] <= arr[j] traceCompare injected | PASSED |
+| 287 | **ASTInstrumentation** | < comparison operator | arr[i] < arr[j] traceCompare injected | PASSED |
+| 288 | **ASTInstrumentation** | loopCounter prepended at top | Output starts with let loopCounter = 0 | PASSED |
+| 289 | **ASTInstrumentation** | Selection Sort pattern | Multiple assignments traceAssign injected | PASSED |
+| 290 | **ASTInstrumentation** | Syntax error info | Malformed code error message defined | PASSED |
+| 291 | **ASTInstrumentation** | Do-while loop guard | do-while loopCounter injected | PASSED |
+| 292 | **WorkerCoordinator** | Create Worker + postMessage | Worker created, postMessage called with code+array | PASSED |
+| 293 | **WorkerCoordinator** | Worker error response rejection | success:false promise rejects with error | PASSED |
+| 294 | **WorkerCoordinator** | Worker onerror event rejection | onerror rejects with Worker error message | PASSED |
+| 295 | **WorkerCoordinator** | Timeout rejection | 100ms timeout rejects with Timeout message | PASSED |
+| 296 | **WorkerCoordinator** | Terminate previous worker | New execution terminates old worker | PASSED |
+| 297 | **WorkerCoordinator** | URL.revokeObjectURL cleanup | After completion revokeObjectURL called | PASSED |
+| 298 | **WorkerCoordinator** | terminateActiveSession | Explicit terminate worker.terminate() called | PASSED |
+| 299 | **CompilerStore** | Default state initialization | sourceCode contains bubbleSort, isCompiling=false | PASSED |
+| 300 | **CompilerStore** | setSourceCode | Updates sourceCode ref | PASSED |
+| 301 | **CompilerStore** | setInputArray | Updates inputArray ref | PASSED |
+| 302 | **CompilerStore** | addConsoleLog with timestamp | Log entry added with text, type, timestamp | PASSED |
+| 303 | **CompilerStore** | clearLogs | All logs cleared | PASSED |
+| 304 | **CompilerStore** | AST compile failure hasCompileError | success=false hasCompileError=true, error log | PASSED |
+| 305 | **CompilerStore** | Successful compile+execute | Full pipeline success log, hasCompileError=false | PASSED |
+| 306 | **CompilerStore** | Sandbox execution failure | executeInSandbox rejects hasCompileError=true | PASSED |
+| 307 | **CompilerStore** | Double compilation prevention | Second call ignored while compiling | PASSED |
+| 308 | **CompilerStore** | cancelExecution | terminateActiveSession called, isCompiling=false | PASSED |
+| 309 | **CompilerStore** | Error line info in log | errorLine=3 log contains Dong so 3 | PASSED |

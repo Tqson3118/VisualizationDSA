@@ -137,6 +137,21 @@ Tài liệu này theo dõi chi tiết tiến độ hoàn thành **code thực t�
 | **Integration** | VisualizationPlayer checkpoint watch | ✅ CODE DONE | `VisualizationPlayer.vue` — QuizCardOverlay + QuizSummaryCard, watch currentIndex for checkpoint detection, watch algorithmId for quiz script loading, watch allCheckpointsCompleted for summary |
 | **Tests** | 54 Unit Tests | ✅ CODE DONE | `QuizVerificationEngine.spec.ts` (12), `QuizStatsManager.spec.ts` (9), `QuizSchemaValidator.spec.ts` (11), `useQuizStore.spec.ts` (18), `quizLoader.spec.ts` (4) — ALL PASS |
 
+### Phase 2 Code-to-Visualization Compiler — AST Instrumentation & Web Worker Sandbox
+
+| Bước | Nội dung | Trạng thái CODE | Chi tiết |
+| :--- | :--- | :--- | :--- |
+| **Types** | LiveFrameDTO, CompilationResult, ConsoleLogEntry, WorkerPayload/Response | ✅ CODE DONE | `code-to-visualization/types/compiler.types.ts` |
+| **Engine** | ASTInstrumentationEngine (Acorn + acorn-walk + escodegen) | ✅ CODE DONE | `engine/ASTInstrumentationEngine.ts` — compileAndInstrument, instrumentAST (BinaryExpression→traceCompare, AssignmentExpression→traceAssign), injectLoopGuard (__loopCounter > 5000), applyReplacements |
+| **Engine** | WorkerLifecycleCoordinator (Web Worker Sandbox) | ✅ CODE DONE | `engine/WorkerLifecycleCoordinator.ts` — executeInSandbox, terminateActiveSession, Blob URL lifecycle, Timeout Guard 1.5s, MAX_FRAMES 2000, traceCompare/traceAssign functions inside Worker |
+| **Store** | useLiveCompilerStore Pinia Setup Store | ✅ CODE DONE | `store/useLiveCompilerStore.ts` — sourceCode, isCompiling, compilerConsoleLogs, hasCompileError, inputArray, compileAndExecuteCode (AST→Worker→AnimStore), convertToAnimationFrames (LiveFrameDTO→FrameDTO), cancelExecution |
+| **Component** | MonacoEditorPanel.vue (IDE Monaco Editor) | ✅ CODE DONE | `components/MonacoEditorPanel.vue` — algolens-dark theme, JetBrains Mono font, compile error glow (rose red pulse), success glow (emerald), status dot indicator |
+| **Component** | CompilerConsole.vue (Nhật ký biên dịch) | ✅ CODE DONE | `components/CompilerConsole.vue` — console log lines (info/success/error/warn), Neon text-shadow, auto-scroll, JetBrains Mono, clear button |
+| **Component** | CodeWorkspace.vue (IDE Layout Grid) | ✅ CODE DONE | `components/CodeWorkspace.vue` — 50/50 grid (Editor+Console left, Canvas+Controls right), input array validation, Run button (Cyan gradient + loading state), CanvasLayer + AnimControlPanel reuse |
+| **Integration** | App.vue Code IDE tab + module barrel export | ✅ CODE DONE | New "Code IDE" tab in `App.vue`, `index.ts` barrel export |
+| **Dependencies** | acorn, acorn-walk, escodegen + @types | ✅ CODE DONE | `acorn`, `acorn-walk`, `escodegen`, `@types/escodegen`, `@types/estree` |
+| **Tests** | 32 Unit Tests | ✅ CODE DONE | `ASTInstrumentationEngine.spec.ts` (14), `WorkerLifecycleCoordinator.spec.ts` (7), `useLiveCompilerStore.spec.ts` (11) — ALL PASS |
+
 ---
 
 ## 3. Kiểm Kê Code Thực Tế Đã Có (File Inventory)
