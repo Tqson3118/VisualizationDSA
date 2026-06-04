@@ -1,22 +1,11 @@
 import { ref } from 'vue';
 import { CoreAnimationEngine } from '../../../core/CoreAnimationEngine';
 import type { PlaybackFrame } from '../../../core/CompilerStepExecutor';
-import type { AnimatedItem, RGB } from '../types/canvas.types';
-
-const COLORS = {
-  normal:    { r: 6,   g: 182, b: 212 },
-  compare:   { r: 245, g: 158, b: 11  },
-  swap:      { r: 244, g: 63,  b: 94  },
-  highlight: { r: 16,  g: 185, b: 129 },
-} as const;
+import { type AnimatedItem, COLORS, lerpRGB } from '../types/canvas.types';
 
 const slotWidth = 70;
 const gap = 20;
 
-/**
- * useAnimatedItems — quản lý danh sách items với lerp animation.
- * Bao gồm: khởi tạo, match array mới, cập nhật status/màu sắc.
- */
 export function useAnimatedItems() {
   const items = ref<AnimatedItem[]>([]);
 
@@ -87,12 +76,6 @@ export function useAnimatedItems() {
     });
   };
 
-  const lerpRGB = (c1: RGB, c2: RGB, t: number): RGB => ({
-    r: CoreAnimationEngine.lerp(c1.r, c2.r, t),
-    g: CoreAnimationEngine.lerp(c1.g, c2.g, t),
-    b: CoreAnimationEngine.lerp(c1.b, c2.b, t),
-  });
-
   const tickLerp = (lerpFactor: number) => {
     items.value.forEach(item => {
       item.currentX     = CoreAnimationEngine.lerp(item.currentX,     item.targetX,     lerpFactor);
@@ -110,6 +93,5 @@ export function useAnimatedItems() {
     matchNewArrayToItems,
     updateItemStatuses,
     tickLerp,
-    lerpRGB,
   };
 }

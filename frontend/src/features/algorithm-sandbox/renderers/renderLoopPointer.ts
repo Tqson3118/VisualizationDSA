@@ -43,8 +43,10 @@ export function renderLoopPointer(
   ctx.roundRect(x - 12, arrowY - 18, 24, 18, 4);
   ctx.fill();
 
-  ctx.fillStyle = '#0f172a';
-  ctx.font = 'bold 11px "Outfit", "Inter", sans-serif';
+  const rootStyle = getComputedStyle(document.documentElement);
+  const textInverse = rootStyle.getPropertyValue('--color-text-inverse').trim() || '#0f172a';
+  ctx.fillStyle = textInverse;
+  ctx.font = 'bold 11px "Inter", sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(varName, x, arrowY - 9);

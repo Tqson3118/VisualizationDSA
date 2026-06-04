@@ -142,6 +142,33 @@ describe('usePlaygroundStore', () => {
     expect(store.nodes[0].x).toBe(250);
     expect(store.nodes[0].y).toBe(350);
   });
+
+  it('manages hovered states for nodes and edges', () => {
+    const store = usePlaygroundStore();
+    const a = store.addNode(100, 100)!;
+    const b = store.addNode(200, 200)!;
+    const edge = store.addEdge(a.id, b.id)!;
+
+    expect(store.hoveredNodeId).toBeNull();
+    expect(store.hoveredEdgeId).toBeNull();
+
+    store.setHoveredNodeId(a.id);
+    store.setHoveredEdgeId(edge.id);
+    expect(store.hoveredNodeId).toBe(a.id);
+    expect(store.hoveredEdgeId).toBe(edge.id);
+
+    // Deleting the edge resets hoveredEdgeId if it matches
+    store.deleteEdge(edge.id);
+    expect(store.hoveredEdgeId).toBeNull();
+
+    // Reset hover node state
+    store.setHoveredNodeId(b.id);
+    expect(store.hoveredNodeId).toBe(b.id);
+    
+    // Deleting the node resets hoveredNodeId if it matches
+    store.deleteNode(b.id);
+    expect(store.hoveredNodeId).toBeNull();
+  });
 });
 
 // =========================================

@@ -2,7 +2,7 @@
   <div class="flex flex-col h-full w-full gap-2">
     <!-- Mode: Dashboard (no algorithm selected) -->
     <template v-if="!algoStore.currentAlgorithm">
-      <AlgorithmDashboard @select="onAlgorithmSelected" />
+      <AlgorithmDashboard :allowedCategories="allowedCategories" @select="onAlgorithmSelected" />
     </template>
 
     <!-- Mode: Visualization (algorithm selected) -->
@@ -17,7 +17,7 @@
 
       <div class="flex-1 flex gap-2 min-h-0">
         <!-- Canvas Visualizer (65%) -->
-        <div class="flex-[65] rounded-xl overflow-hidden border border-slate-800 shadow-lg relative">
+        <div class="flex-[65] rounded-xl overflow-hidden border border-border-subtle shadow-lg relative">
           <AlgorithmVisualizer />
         </div>
 
@@ -39,8 +39,8 @@
 
       <!-- Explanation Row -->
       <div v-if="animStore.currentFrame"
-        class="h-10 rounded-xl overflow-hidden border border-slate-800 shadow-lg bg-slate-900 flex items-center px-4">
-        <span class="text-xs text-slate-300">{{ animStore.currentFrame.explanation }}</span>
+        class="h-10 rounded-xl overflow-hidden border border-border-subtle shadow-lg bg-bg-secondary flex items-center px-4">
+        <span class="text-xs text-text-secondary">{{ animStore.currentFrame.explanation }}</span>
       </div>
 
       <!-- Control Panel -->
@@ -73,6 +73,10 @@ import DSAInputForm from './DSAInputForm.vue';
 import PseudocodeViewer from './PseudocodeViewer.vue';
 import AnimationVcrControls from '../../animation-engine/components/AnimationVcrControls.vue';
 import { useDSAKeyboard } from '../composables/useDSAKeyboard';
+
+const props = defineProps<{
+  allowedCategories?: string[];
+}>();
 
 const algoStore   = useAlgorithmStore();
 const animStore   = useAnimationStore();

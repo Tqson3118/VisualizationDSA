@@ -12,7 +12,7 @@
         >
           <div class="flex items-center gap-2">
             <div class="w-2 h-2 rounded-full" :class="statusDotClass"></div>
-            <span class="text-xs font-medium text-slate-300 uppercase tracking-wider">
+            <span class="text-xs font-medium text-text-secondary uppercase tracking-wider">
               Debug Editor — JavaScript
             </span>
           </div>
@@ -24,12 +24,12 @@
             >
               {{ debugStore.activeBreakpoints.length }} BP
             </span>
-            <span class="text-[10px] text-slate-500 font-mono">JetBrains Mono</span>
+            <span class="text-[10px] text-text-muted font-mono">JetBrains Mono</span>
           </div>
         </div>
 
         <!-- Monaco Container -->
-        <div ref="editorContainerRef" class="flex-1 min-h-0" style="background: #1E293B;" />
+        <div ref="editorContainerRef" class="flex-1 min-h-0" style="background: var(--color-bg-active);" />
       </div>
 
       <!-- Canvas (Middle 4 cols) -->
@@ -49,9 +49,10 @@
 
         <!-- Watch Panel (bottom half) -->
         <div class="flex-1 min-h-0">
-          <DebugWatchPanel
+          <WatchVariableConfig
             :variables="debugStore.watchedVariables"
             :mutated-keys="debugStore.mutatedVariableKeys"
+            :previous-variables="debugStore.previousVariables"
           />
         </div>
       </div>
@@ -70,11 +71,11 @@
           </span>
           <span
             v-if="debugStore.currentLineNumber !== null"
-            class="text-xs font-mono text-slate-400"
+            class="text-xs font-mono text-text-secondary"
           >
             Dong {{ debugStore.currentLineNumber }}
           </span>
-          <span class="text-xs font-mono text-slate-500">
+          <span class="text-xs font-mono text-text-muted">
             Buoc {{ debugStore.stepCount }}
           </span>
         </div>
@@ -144,7 +145,7 @@
 
         <!-- Input Array -->
         <div class="flex items-center gap-2">
-          <span class="text-[10px] text-slate-500 uppercase tracking-wider">Input:</span>
+          <span class="text-[10px] text-text-muted uppercase tracking-wider">Input:</span>
           <input
             v-model="inputArrayStr"
             @change="updateInputArray"
@@ -171,7 +172,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { useLiveDebuggerStore } from '../store/useLiveDebuggerStore';
 import CallStackVisualizer from './CallStackVisualizer.vue';
-import DebugWatchPanel from './DebugWatchPanel.vue';
+import WatchVariableConfig from './WatchVariableConfig.vue'; // 🆕 thay thế DebugWatchPanel
 import DebugCanvas from './DebugCanvas.vue';
 import loader from '@monaco-editor/loader';
 
@@ -212,14 +213,15 @@ let editorInstance: MonacoEditor | null = null;
 let monacoModule: { editor: { MouseTargetType: { GUTTER_GLYPH_MARGIN: number; GUTTER_LINE_NUMBERS: number } } } | null = null;
 let breakpointDecorationIds: string[] = [];
 let activeLineDecorationIds: string[] = [];
+let errorLineDecorationIds: string[] = []; // 🆕 theo dõi decoration dòng lỗi compile
 
 const statusDotClass = computed(() => {
   switch (debugStore.status) {
     case 'DEBUGGING':
-    case 'PAUSED': return 'bg-amber-400 animate-pulse';
-    case 'FINISHED': return 'bg-emerald-500';
-    case 'ERROR': return 'bg-rose-500';
-    default: return 'bg-slate-500';
+    case 'PAUSED': return 'bg-accent-yellow animate-pulse';
+    case 'FINISHED': return 'bg-accent-green';
+    case 'ERROR': return 'bg-accent-red';
+    default: return 'bg-bg-hover';
   }
 });
 
@@ -316,11 +318,37 @@ function syncActiveLineDecoration(): void {
   editorInstance.revealLineInCenter(line);
 }
 
+// 🆕 Highlight dòng lỗi compile trong Monaco bằng màu đỏ
+function syncErrorLineDecoration(): void {
+  if (!editorInstance) return;
+
+  const errorLine = debugStore.errorLine;
+  if (errorLine === null) {
+    errorLineDecorationIds = editorInstance.deltaDecorations(errorLineDecorationIds, []);
+    return;
+  }
+
+  const decorations: MonacoDecoration[] = [{
+    range: { startLineNumber: errorLine, startColumn: 1, endLineNumber: errorLine, endColumn: 1 },
+    options: {
+      isWholeLine: true,
+      className: 'monaco-error-line',
+      linesDecorationsClassName: 'monaco-error-line-gutter',
+    },
+  }];
+
+  errorLineDecorationIds = editorInstance.deltaDecorations(errorLineDecorationIds, decorations);
+  editorInstance.revealLineInCenter(errorLine);
+}
+
 onMounted(async () => {
   if (!editorContainerRef.value) return;
 
   const monaco = await loader.init();
   monacoModule = monaco;
+
+  const style = getComputedStyle(document.documentElement);
+  const editorBg = style.getPropertyValue('--color-bg-active').trim() || '#1e293b';
 
   monaco.editor.defineTheme('algolens-debug', {
     base: 'vs-dark',
@@ -333,7 +361,7 @@ onMounted(async () => {
       { token: 'type', foreground: '38BDF8' },
     ],
     colors: {
-      'editor.background': '#1E293B',
+      'editor.background': editorBg,
       'editor.foreground': '#E2E8F0',
       'editor.lineHighlightBackground': '#334155',
       'editor.selectionBackground': '#475569',
@@ -398,10 +426,12 @@ onBeforeUnmount(() => {
 
 watch(() => debugStore.activeBreakpoints, syncBreakpointDecorations, { deep: true });
 watch(() => debugStore.currentLineNumber, syncActiveLineDecoration);
+watch(() => debugStore.errorLine, syncErrorLineDecoration); // 🆕
 watch(() => debugStore.status, (newStatus) => {
   if (newStatus === 'IDLE') {
     syncBreakpointDecorations();
     syncActiveLineDecoration();
+    syncErrorLineDecoration(); // 🆕 reset error decoration khi IDLE
   }
 });
 </script>
@@ -518,13 +548,26 @@ watch(() => debugStore.status, (newStatus) => {
 }
 
 .monaco-active-debug-line {
-  background: rgba(6, 182, 212, 0.12) !important;
+  background: rgba(6, 182, 212, 0.20) !important; /* tăng từ 0.12 → 0.20 để dễ nhìn hơn */
   border-left: 3px solid #06B6D4 !important;
+  box-shadow: inset 0 0 16px rgba(6, 182, 212, 0.07) !important;
 }
 
 .monaco-debug-line-arrow {
   width: 5px !important;
   margin-left: 3px !important;
   background: #06B6D4 !important;
+}
+
+/* 🆕 Error line styles */
+.monaco-error-line {
+  background: rgba(244, 63, 94, 0.14) !important;
+  border-left: 3px solid #F43F5E !important;
+}
+
+.monaco-error-line-gutter {
+  width: 5px !important;
+  margin-left: 3px !important;
+  background: #F43F5E !important;
 }
 </style>

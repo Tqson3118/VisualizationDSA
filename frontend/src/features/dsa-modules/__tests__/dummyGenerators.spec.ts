@@ -2,63 +2,77 @@ import { describe, it, expect } from 'vitest';
 import { generateDummyResult } from '../services/dummyGenerators';
 
 describe('dummyGenerators', () => {
-  describe('Bubble Sort', () => {
+  describe('BFS (Breadth-First Search)', () => {
     it('generates frames with correct algorithm id', () => {
-      const result = generateDummyResult('bubble-sort', [5, 3, 1]);
-      expect(result.algorithmId).toBe('bubble-sort');
+      const result = generateDummyResult('bfs', [50, 30, 70]);
+      expect(result.algorithmId).toBe('bfs');
       expect(result.frames.length).toBeGreaterThan(0);
       expect(result.pseudoCode.length).toBeGreaterThan(0);
     });
 
-    it('final frame has sorted array', () => {
-      const result = generateDummyResult('bubble-sort', [5, 3, 1]);
+    it('traverses in breadth-first order', () => {
+      const result = generateDummyResult('bfs', [50, 30, 70]);
       const lastFrame = result.frames[result.frames.length - 1];
-      expect(lastFrame.dataState).toEqual([1, 3, 5]);
-    });
-
-    it('frames have stepId incrementing', () => {
-      const result = generateDummyResult('bubble-sort', [3, 1, 2]);
-      for (let i = 0; i < result.frames.length; i++) {
-        expect(result.frames[i].stepId).toBe(i + 1);
-      }
+      // Traversed values are collected in dataState
+      expect(lastFrame.dataState).toEqual([50, 30, 70]);
     });
   });
 
-  describe('Selection Sort', () => {
-    it('sorts correctly', () => {
-      const result = generateDummyResult('selection-sort', [4, 2, 7, 1]);
+  describe('DFS (Depth-First Search)', () => {
+    it('generates frames with correct algorithm id', () => {
+      const result = generateDummyResult('dfs', [50, 30, 70]);
+      expect(result.algorithmId).toBe('dfs');
+      expect(result.frames.length).toBeGreaterThan(0);
+    });
+
+    it('traverses in depth-first pre-order', () => {
+      const result = generateDummyResult('dfs', [50, 30, 70]);
       const lastFrame = result.frames[result.frames.length - 1];
-      expect(lastFrame.dataState).toEqual([1, 2, 4, 7]);
+      expect(lastFrame.dataState).toEqual([50, 30, 70]);
     });
   });
 
-  describe('Insertion Sort', () => {
-    it('sorts correctly', () => {
-      const result = generateDummyResult('insertion-sort', [8, 3, 5, 1]);
+  describe('Dijkstra', () => {
+    it('calculates shortest path and updates distances', () => {
+      const result = generateDummyResult('dijkstra', [50, 30, 70]);
+      expect(result.algorithmId).toBe('dijkstra');
       const lastFrame = result.frames[result.frames.length - 1];
-      expect(lastFrame.dataState).toEqual([1, 3, 5, 8]);
+      expect(lastFrame.treeNodes).toBeDefined();
+
+      // Root (50) dist = 0, left child (30) dist = 3, right child (70) dist = 5
+      const rootNode = lastFrame.treeNodes!.find(n => n.id === 1);
+      const leftNode = lastFrame.treeNodes!.find(n => n.id === 2);
+      const rightNode = lastFrame.treeNodes!.find(n => n.id === 3);
+
+      expect(rootNode?.value).toBe(0);
+      expect(leftNode?.value).toBe(3);
+      expect(rightNode?.value).toBe(5);
     });
   });
 
-  describe('Quick Sort', () => {
-    it('sorts correctly', () => {
-      const result = generateDummyResult('quick-sort', [6, 2, 9, 3, 1]);
-      const lastFrame = result.frames[result.frames.length - 1];
-      expect(lastFrame.dataState).toEqual([1, 2, 3, 6, 9]);
-    });
+  describe('Sliding Window', () => {
+    it('computes maximum subarray sum of length K=3', () => {
+      const result = generateDummyResult('sliding-window', [2, 1, 5, 1, 3]);
+      expect(result.algorithmId).toBe('sliding-window');
+      expect(result.frames.length).toBeGreaterThan(0);
 
-    it('has pivot highlights in some frames', () => {
-      const result = generateDummyResult('quick-sort', [5, 3, 8, 1]);
-      const pivotFrames = result.frames.filter((f) => f.highlights.pivot != null);
-      expect(pivotFrames.length).toBeGreaterThan(0);
+      // Verify that active indices represent the window boundaries
+      const stepWithWindow = result.frames.find(f => f.explanation.includes('Cửa sổ đạt kích thước'));
+      expect(stepWithWindow).toBeDefined();
+      expect(stepWithWindow!.highlights.low).toBe(0);
+      expect(stepWithWindow!.highlights.high).toBe(2);
     });
   });
 
-  describe('Merge Sort', () => {
-    it('sorts correctly', () => {
-      const result = generateDummyResult('merge-sort', [8, 3, 5, 1, 9]);
-      const lastFrame = result.frames[result.frames.length - 1];
-      expect(lastFrame.dataState).toEqual([1, 3, 5, 8, 9]);
+  describe('Monotonic Stack', () => {
+    it('solves Next Greater Element problem using stack', () => {
+      const result = generateDummyResult('monotonic-stack', [4, 5, 2, 10]);
+      expect(result.algorithmId).toBe('monotonic-stack');
+
+      // Stack values are inside dataState
+      const pushFrame = result.frames.find(f => f.explanation.includes('Đẩy index'));
+      expect(pushFrame).toBeDefined();
+      expect(pushFrame!.dataState.length).toBeGreaterThan(0);
     });
   });
 
@@ -68,12 +82,18 @@ describe('dummyGenerators', () => {
       expect(result.algorithmId).toBe('linear-search');
       const foundFrames = result.frames.filter((f) => f.highlights.found != null);
       expect(foundFrames.length).toBe(1);
+      for (const frame of result.frames) {
+        expect(frame.highlights.target).toBe(3);
+      }
     });
 
     it('handles not found case', () => {
       const result = generateDummyResult('linear-search', [5, 3, 8, 1, 99]);
       const foundFrames = result.frames.filter((f) => f.highlights.found != null);
       expect(foundFrames.length).toBe(0);
+      for (const frame of result.frames) {
+        expect(frame.highlights.target).toBe(99);
+      }
     });
   });
 
@@ -83,6 +103,9 @@ describe('dummyGenerators', () => {
       expect(result.algorithmId).toBe('binary-search');
       const foundFrames = result.frames.filter((f) => f.highlights.found != null);
       expect(foundFrames.length).toBe(1);
+      for (const frame of result.frames) {
+        expect(frame.highlights.target).toBe(5);
+      }
     });
 
     it('has low/mid/high pointers', () => {

@@ -4,11 +4,11 @@
     <div class="flex items-center gap-2 px-4 py-2 border-b"
       style="border-color: rgba(255, 255, 255, 0.05); background: rgba(30, 41, 59, 0.6);"
     >
-      <div class="w-2 h-2 rounded-full bg-violet-500"></div>
-      <span class="text-xs font-medium text-slate-300 uppercase tracking-wider">
+      <div class="w-2 h-2 rounded-full bg-accent-purple"></div>
+      <span class="text-xs font-medium text-text-secondary uppercase tracking-wider">
         Call Stack
       </span>
-      <span class="ml-auto text-[10px] text-slate-500 font-mono">
+      <span class="ml-auto text-[10px] text-text-muted font-mono">
         {{ frames.length }} frame{{ frames.length !== 1 ? 's' : '' }}
       </span>
     </div>
@@ -16,7 +16,7 @@
     <!-- Stack Frames -->
     <div class="call-stack-3d-container">
       <template v-if="frames.length === 0">
-        <div class="text-center text-slate-500 text-xs py-6">
+        <div class="text-center text-text-muted text-xs py-6">
           Chua co ngăn xep de quy
         </div>
       </template>
@@ -33,7 +33,7 @@
         >
           <div class="flex items-center gap-3">
             <!-- Depth indicator -->
-            <span class="text-[10px] font-mono text-slate-500 w-5 text-center">
+            <span class="text-[10px] font-mono text-text-muted w-5 text-center">
               #{{ index }}
             </span>
 

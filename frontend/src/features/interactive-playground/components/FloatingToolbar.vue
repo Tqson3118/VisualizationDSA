@@ -1,10 +1,10 @@
 <template>
-  <div class="playground-floating-toolbar">
+  <div class="absolute top-1/2 left-5 -translate-y-1/2 flex flex-col gap-2 p-2.5 bg-bg-secondary/65 backdrop-blur-md border border-white/8 rounded-[20px] shadow-2xl z-[1001]">
     <button
       v-for="tool in tools"
       :key="tool.mode"
-      class="toolbar-tool-btn"
-      :class="{ 'active-tool': store.mode === tool.mode }"
+      class="w-11 h-11 flex items-center justify-center rounded-xl border-none bg-transparent text-text-muted cursor-pointer transition-all duration-200 hover:bg-white/5 hover:text-text-primary"
+      :class="{ 'bg-accent-emerald !text-white shadow-[0_0_12px_rgba(16,185,129,0.4)]': store.mode === tool.mode }"
       :title="tool.title"
       @click="store.setMode(tool.mode)"
     >
@@ -33,11 +33,11 @@
       </svg>
     </button>
 
-    <div class="toolbar-divider"></div>
+    <div class="w-7 h-[1px] my-1 mx-auto bg-white/8"></div>
 
     <button
-      class="toolbar-tool-btn"
-      :class="{ 'active-tool': store.isPhysicsEnabled }"
+      class="w-11 h-11 flex items-center justify-center rounded-xl border-none bg-transparent text-text-muted cursor-pointer transition-all duration-200 hover:bg-white/5 hover:text-text-primary"
+      :class="{ 'bg-accent-emerald !text-white shadow-[0_0_12px_rgba(16,185,129,0.4)]': store.isPhysicsEnabled }"
       title="Bật/Tắt lực đẩy vật lý"
       @click="store.togglePhysics()"
     >
@@ -48,7 +48,7 @@
     </button>
 
     <button
-      class="toolbar-tool-btn toolbar-clear-btn"
+      class="w-11 h-11 flex items-center justify-center rounded-xl border-none bg-transparent text-text-muted cursor-pointer transition-all duration-200 hover:bg-accent-red/15 hover:text-accent-red"
       title="Xóa toàn bộ bản vẽ"
       @click="store.clearAll()"
     >
@@ -79,84 +79,17 @@ function handleKeydown(e: KeyboardEvent) {
   const tag = (e.target as HTMLElement)?.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
-  switch (e.key.toLowerCase()) {
-    case 'v': store.setMode('SELECT'); break;
-    case 'n': store.setMode('ADD_NODE'); break;
-    case 'e': store.setMode('ADD_EDGE'); break;
-    case 'w': store.setMode('WEIGHT'); break;
-    case 'delete':
-    case 'backspace':
-      if (store.selectedNodeId) {
-        store.deleteNode(store.selectedNodeId);
-      } else if (store.selectedEdgeId) {
-        store.deleteEdge(store.selectedEdgeId);
-      }
-      break;
+  const keyMap: Record<string, PlaygroundMode> = { v: 'SELECT', n: 'ADD_NODE', e: 'ADD_EDGE', w: 'WEIGHT' };
+  const key = e.key.toLowerCase();
+  if (keyMap[key]) {
+    store.setMode(keyMap[key]);
+  } else if (key === 'delete' || key === 'backspace') {
+    if (store.selectedNodeId) store.deleteNode(store.selectedNodeId);
+    else if (store.selectedEdgeId) store.deleteEdge(store.selectedEdgeId);
   }
 }
 
-onMounted(() => {
-  window.addEventListener('keydown', handleKeydown);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeydown);
-});
+onMounted(() => { window.addEventListener('keydown', handleKeydown); });
+onUnmounted(() => { window.removeEventListener('keydown', handleKeydown); });
 </script>
 
-<style scoped>
-.playground-floating-toolbar {
-  position: absolute;
-  top: 50%;
-  left: 20px;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 14px 10px;
-  background: rgba(30, 41, 59, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-  z-index: 1001;
-}
-
-.toolbar-tool-btn {
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  border: none;
-  background: transparent;
-  color: #94A3B8;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.toolbar-tool-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #F8FAFC;
-}
-
-.toolbar-tool-btn.active-tool {
-  background: #10B981;
-  color: #FFFFFF;
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
-}
-
-.toolbar-divider {
-  width: 28px;
-  height: 1px;
-  margin: 4px auto;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.toolbar-clear-btn:hover {
-  background: rgba(239, 68, 68, 0.15);
-  color: #EF4444;
-}
-</style>

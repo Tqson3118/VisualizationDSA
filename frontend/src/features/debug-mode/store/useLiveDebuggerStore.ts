@@ -44,8 +44,10 @@ export const useLiveDebuggerStore = defineStore('liveDebugger', () => {
   const mutatedVariableKeys = ref<string[]>([]);
   const stepCount = ref<number>(0);
   const errorMessage = ref<string | null>(null);
+  const errorLine = ref<number | null>(null); // 🆕 dòng lỗi từ AST compile để highlight trong Monaco
   const arrayState = ref<number[]>([]);
   const historyLength = ref<number>(0);
+  const previousVariables = ref<Record<string, string | number | undefined>>({}); // 🆕 snapshot bước trước cho delta display
 
   let debuggerInstance: LiveCompilerDebugger | null = null;
 
@@ -93,6 +95,7 @@ export const useLiveDebuggerStore = defineStore('liveDebugger', () => {
    */
   function startDebuggingSession(): void {
     errorMessage.value = null;
+    errorLine.value = null; // 🆕 reset error line khi bắt đầu session mới
     currentLineNumber.value = null;
     callStackFrames.value = [];
     watchedVariables.value = {};
@@ -105,6 +108,7 @@ export const useLiveDebuggerStore = defineStore('liveDebugger', () => {
     if (!compileResult.success || !compileResult.generatorCode) {
       status.value = 'ERROR';
       errorMessage.value = compileResult.error ?? 'Loi bien dich AST khong xac dinh.';
+      errorLine.value = compileResult.errorLine ?? null; // 🆕 expose dòng lỗi để Monaco highlight
       return;
     }
 
@@ -245,6 +249,7 @@ export const useLiveDebuggerStore = defineStore('liveDebugger', () => {
       }
     }
     mutatedVariableKeys.value = nextMutatedKeys;
+    previousVariables.value = { ...watchedVariables.value }; // 🆕 lưu snapshot trước khi ghi đè
     watchedVariables.value = { ...payload.variables };
   }
 
@@ -260,6 +265,8 @@ export const useLiveDebuggerStore = defineStore('liveDebugger', () => {
     mutatedVariableKeys,
     stepCount,
     errorMessage,
+    errorLine,           // 🆕
+    previousVariables,   // 🆕
     arrayState,
     // Computed
     isDebugging,

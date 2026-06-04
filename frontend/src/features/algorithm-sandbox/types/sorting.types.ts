@@ -1,24 +1,10 @@
 /**
- * sorting.types.ts — Type definitions cho Sprint 2 Sorting Algorithms.
- * [TYPES] — Shared interfaces dùng bởi tất cả frame generators và renderers.
+ * sorting.types.ts — Type definitions cho Sorting Algorithms.
+ * [TYPES] — Dùng bởi tất cả frame generators và visualizers.
  */
 
-// ─── BAR ELEMENT ──────────────────────────────────────────────────────────────
-/** Trạng thái trực quan của một cột bar trong hoạt ảnh sắp xếp */
 export type BarStatus = "IDLE" | "COMPARING" | "PIVOT" | "SWAPPED" | "SORTED";
 
-export interface BarElement {
-  value: number;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  color: string; // HSL Neon Glow string
-  status: BarStatus;
-}
-
-// ─── SORT FRAME ───────────────────────────────────────────────────────────────
-/** Một khung hình snapshot của dòng thời gian sắp xếp */
 export interface SubArray {
   start: number;
   end: number;
@@ -26,35 +12,54 @@ export interface SubArray {
   isActive: boolean;
 }
 
+export interface Partition {
+  low: number;
+  high: number;
+  isActive: boolean;
+  isSorted: boolean;
+}
+
 export interface SortFrame {
   stepIndex: number;
   arrayState: number[];
-  /** Hai chỉ số đang được so sánh */
+  arrayStateWithIds?: Array<{ id: number; value: number }>;
   comparingIndices: [number, number] | null;
-  /** Chỉ số Pivot (dùng cho QuickSort) */
   pivotIndex: number | null;
-  /** Hai chỉ số vừa được hoán vị */
   swappedIndices: [number, number] | null;
-  /** Các chỉ số đã xếp đúng vị trí cuối */
   sortedIndices: number[];
-  /** Mô tả bước hiện tại (hiển thị HUD) */
   description: string;
-  /** Tên thuật toán */
   algorithm: SortAlgorithm;
-  /** Merge sort: các sub-arrays đang hiển thị */
+  
+  // Merge sort properties
   subArrays?: SubArray[];
-  /** Merge sort: phạm vi đang merge */
-  mergeRange?: { start: number; end: number };
+  
+  // Quick sort partitions
+  partitions?: Partition[];
+
+  // Heap sort properties
+  heapSize?: number;
+
+  // Radix sort properties
+  radixBuckets?: number[][]; // 10 buckets, each holds numbers
+  /** Same buckets but with stable IDs for :key binding in transition-group */
+  radixBucketsWithIds?: Array<Array<{ id: number; value: number }>>;
+  activeDigitPlace?: number; // 1, 10, 100, etc.
+  radixStep?: "distribute" | "collect";
+
+  // Counting sort properties
+  countArray?: number[];
+  countingStep?: "count" | "accumulate" | "output";
+  inputArray?: number[];
+  outputArray?: Array<number | null>;
+  outputArrayWithIds?: Array<{ id: number; value: number } | null>;
+
+  // Bucket sort properties
+  bucketSortBuckets?: number[][];
+  bucketSortBucketsWithIds?: Array<Array<{ id: number; value: number }>>;
+  bucketStep?: "distribute" | "sort" | "collect";
+  bucketSortActiveIdx?: number | null;
+  bucketSortComparingBucketIndices?: [number, number] | null;
+  bucketSortOutputWithIds?: Array<{ id: number; value: number } | null>;
 }
 
-// ─── ALGORITHM ENUM ───────────────────────────────────────────────────────────
-export type SortAlgorithm = "bubble" | "quick" | "merge" | "heap";
-
-// ─── SWAP INTERPOLATION ───────────────────────────────────────────────────────
-/** Kết quả tính toán nội suy hoán vị Lerp + cung parabol */
-export interface SwapInterpolation {
-  xA: number;
-  xB: number;
-  /** Độ lệch trục Y theo cung parabol (âm = đi lên) */
-  curveY: number;
-}
+export type SortAlgorithm = "bubble" | "quick" | "merge" | "heap" | "radix" | "counting" | "bucket";

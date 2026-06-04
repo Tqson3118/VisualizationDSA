@@ -21,17 +21,17 @@ export function useCustomInputForm() {
   });
 
   const textareaClasses = computed(() => {
-    const base = 'bg-[#070b13] border';
+    const base = 'bg-bg-terminal border';
     switch (formState.value) {
-      case 'valid':         return `${base} border-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.2)]`;
-      case 'format-error':  return `${base} border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]`;
-      case 'limit-error':   return `${base} border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.3)]`;
-      default: return `${base} border-slate-700`;
+      case 'valid':         return `${base} border-accent-green shadow-[0_0_10px_rgba(16,185,129,0.2)]`;
+      case 'format-error':  return `${base} border-accent-red shadow-[0_0_10px_rgba(239,68,68,0.3)]`;
+      case 'limit-error':   return `${base} border-accent-yellow shadow-[0_0_10px_rgba(245,158,11,0.3)]`;
+      default: return `${base} border-border-default`;
     }
   });
 
   const counterClasses = computed(() =>
-    !inputStore.isWithinLimit ? 'text-amber-400 font-bold' : 'text-slate-500'
+    !inputStore.isWithinLimit ? 'text-accent-yellow font-bold' : 'text-text-muted'
   );
 
   const statusText = computed<string>(() => {
@@ -40,8 +40,8 @@ export function useCustomInputForm() {
   });
 
   const statusClasses = computed(() => {
-    const map: Record<string, string> = { valid: 'text-emerald-400', 'format-error': 'text-red-400', 'limit-error': 'text-amber-400' };
-    return map[formState.value] ?? 'text-slate-500';
+    const map: Record<string, string> = { valid: 'text-accent-green', 'format-error': 'text-accent-red', 'limit-error': 'text-accent-yellow' };
+    return map[formState.value] ?? 'text-text-muted';
   });
 
   const errorText = computed<string>(() => {
@@ -52,8 +52,8 @@ export function useCustomInputForm() {
 
   const executeButtonClasses = computed(() =>
     !inputStore.canExecute
-      ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-      : 'bg-cyan-600 text-white hover:bg-cyan-500 active:scale-95 cursor-pointer'
+      ? 'bg-bg-active text-text-muted cursor-not-allowed'
+      : 'bg-accent text-text-primary hover:bg-accent-light active:scale-95 cursor-pointer'
   );
 
   function onGenerate(type: GenerationType): void {

@@ -1,57 +1,82 @@
 <template>
+  <!--
+    h-full → fills the flex-1 from SortingView (canvas uses ALL available height).
+    flex-col → header (shrink-0) + visualizer zone (flex-1) + progress (shrink-0).
+    Visualizer zone fills every pixel of remaining canvas height — no wasted space.
+  -->
   <div
-    ref="container"
-    class="relative w-full h-[380px] bg-[#090f19] rounded-[18px] border border-slate-800/85 overflow-hidden shadow-[0_8px_40px_rgba(6,182,212,0.06),0_2px_12px_rgba(0,0,0,0.5)]"
+    class="visualizer-canvas-container relative w-full h-full rounded-[18px] overflow-hidden flex flex-col"
   >
     <!-- Background grid -->
-    <div
-      class="absolute inset-0 opacity-[0.18] pointer-events-none bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_65%_55%_at_50%_50%,#000_60%,transparent_100%)] bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)]"
-    />
+    <div class="canvas-grid absolute inset-0 opacity-[0.18] pointer-events-none [mask-image:radial-gradient(ellipse_65%_55%_at_50%_50%,#000_60%,transparent_100%)]" />
 
-    <canvas
-      ref="canvas"
-      class="w-full h-full block cursor-grab active:cursor-grabbing"
-      @mousedown="onMouseDown"
-      @mousemove="onMouseMove"
-      @mouseup="onMouseUp"
-      @mouseleave="onMouseUp"
-    />
+    <!-- Header: HUD label + algorithm picker — shrink-0, ~52px -->
+    <div class="relative z-10 flex items-start justify-between px-4 pt-3 pb-2 shrink-0">
+      <SortingHudOverlay :stepDescription="stepDescription" />
+      <SortingAlgorithmControls :selectedAlgo="selectedAlgo" @select="selectAlgorithm" />
+    </div>
 
-    <!-- HUD Overlay -->
-    <SortingHudOverlay :stepDescription="stepDescription" />
+    <!--
+      Visualizer zone: flex-1 min-h-0 → fills ALL canvas height after header + progress.
+      Each visualizer child must use h-full to utilise this space fully.
+      overflow-x-auto for wide arrays, overflow-y-hidden (visualizers self-contain vertically).
+    -->
+    <div class="relative z-10 flex-1 min-h-0 flex flex-col px-4 pb-4 overflow-hidden">
+      <!-- Visualizer Canvas -->
+      <div class="flex-1 min-h-[0] overflow-x-auto overflow-y-hidden">
+        <BubbleSortVisualizer   v-if="selectedAlgo === 'bubble'"      :frame="currentSortFrame" />
+        <QuickSortVisualizer    v-else-if="selectedAlgo === 'quick'"  :frame="currentSortFrame" />
+        <MergeSortVisualizer    v-else-if="selectedAlgo === 'merge'"  :frame="currentSortFrame" />
+        <HeapSortVisualizer     v-else-if="selectedAlgo === 'heap'"   :frame="currentSortFrame" />
+        <RadixSortVisualizer    v-else-if="selectedAlgo === 'radix'"  :frame="currentSortFrame" />
+        <CountingSortVisualizer v-else-if="selectedAlgo === 'counting'" :frame="currentSortFrame" />
+        <BucketSortVisualizer   v-else-if="selectedAlgo === 'bucket'"   :frame="currentSortFrame" />
+      </div>
+    </div>
 
-    <!-- Algorithm selector + controls -->
-    <SortingAlgorithmControls
-      :selectedAlgo="selectedAlgo"
-      :zoom="zoom"
-      @select="selectAlgorithm"
-      @reset="resetViewport"
-    />
-
-    <!-- Progress bar -->
+    <!-- Progress bar — shrink-0, ~8px -->
     <SortingProgressBar :progressPercent="progressPercent" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useSortingCanvas } from "../composables/useSortingCanvas";
+import { onMounted } from 'vue';
+import { useVcrStore } from "../../vcr-player";
+import { useSortingAnimation } from "../composables/useSortingAnimation";
 import SortingHudOverlay from "./SortingHudOverlay.vue";
 import SortingAlgorithmControls from "./SortingAlgorithmControls.vue";
 import SortingProgressBar from "./SortingProgressBar.vue";
+import BubbleSortVisualizer from "./BubbleSortVisualizer.vue";
+import QuickSortVisualizer from "./QuickSortVisualizer.vue";
+import MergeSortVisualizer from "./MergeSortVisualizer.vue";
+import HeapSortVisualizer from "./HeapSortVisualizer.vue";
+import RadixSortVisualizer from "./RadixSortVisualizer.vue";
+import CountingSortVisualizer from "./CountingSortVisualizer.vue";
+import BucketSortVisualizer from "./BucketSortVisualizer.vue";
 
-const container = ref<HTMLDivElement | null>(null);
-const canvas = ref<HTMLCanvasElement | null>(null);
-
+const vcrStore = useVcrStore();
 const {
-  selectedAlgo,
-  stepDescription,
-  progressPercent,
-  zoom,
-  selectAlgorithm,
-  resetViewport,
-  onMouseDown,
-  onMouseMove,
-  onMouseUp,
-} = useSortingCanvas(canvas, container);
+  selectedAlgo, currentSortFrame, stepDescription,
+  progressPercent, recompileForAlgo, selectAlgorithm,
+} = useSortingAnimation();
+
+onMounted(() => {
+  vcrStore.customCompileFn = () => recompileForAlgo(selectedAlgo.value);
+  recompileForAlgo("bubble");
+});
 </script>
+
+<style scoped>
+.visualizer-canvas-container {
+  background-color: var(--color-bg-primary);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 85%, transparent);
+  box-shadow: 0 8px 40px var(--color-accent-cyan-dim), 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.canvas-grid {
+  background-image: 
+    linear-gradient(to right, var(--color-border-default) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-border-default) 1px, transparent 1px);
+  background-size: 3.5rem 3.5rem;
+}
+</style>

@@ -7,13 +7,11 @@ export { default as OOPSandbox } from './components/OOPSandbox.vue';
 
 export {
   OOPReflectionEngine,
-  type AccessModifier,
-  type ClassMember,
-  type ClassDefinition,
-  type HeapObjectInstance,
-  type MethodDispatchResult,
-  type AccessCheckResult,
-} from './OOPReflectionEngine';
+} from './engine/OOPReflectionEngine';
+
+export {
+  useOOPStore,
+} from './store/useOOPStore';
 
 export {
   drawAccessLock,
@@ -21,6 +19,15 @@ export {
   createShakeAnimation,
   getModifierColor,
   drawModifierBadge,
-  type LockConfig,
-  type LaserBeam,
-} from './EncapsulationLock';
+} from './engine/EncapsulationLock';
+
+export type {
+  AccessModifier,
+  ClassMember,
+  ClassDefinition,
+  HeapObjectInstance,
+  MethodDispatchResult,
+  AccessCheckResult,
+  LockConfig,
+  LaserBeam,
+} from './types/oop-sandbox.types';

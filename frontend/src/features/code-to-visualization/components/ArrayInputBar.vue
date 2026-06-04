@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center gap-3 mb-3">
-    <label class="text-[11px] text-slate-400 uppercase tracking-wider font-medium whitespace-nowrap">
+    <label class="text-[11px] text-text-secondary uppercase tracking-wider font-medium whitespace-nowrap">
       Mảng đầu vào:
     </label>
     <input
@@ -9,7 +9,7 @@
       type="text"
       placeholder="5, 3, 8, 1, 9"
       class="flex-1 px-3 py-1.5 rounded-lg text-xs font-mono border transition-colors focus:outline-none"
-      :class="isValid ? 'border-slate-700 text-slate-200 focus:border-cyan-500/50' : 'border-rose-500/50 text-rose-300'"
+      :class="isValid ? 'border-border-default text-text-secondary focus:border-accent-cyan/50' : 'border-accent-red/50 text-accent-red'"
       @blur="$emit('parse')"
       @keydown.enter="$emit('parse')"
       style="background: rgba(15, 23, 42, 0.6);"

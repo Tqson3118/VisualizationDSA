@@ -15,22 +15,22 @@
 
       <!-- Sidebar (40%): Pseudocode + Custom Input stacked -->
       <div class="flex-[4] flex flex-col gap-2 min-h-0">
-        <div class="flex-1 rounded-xl overflow-hidden border border-slate-800 shadow-lg min-h-0">
+        <div class="sidebar-panel flex-1 min-h-0">
           <MultilingualCodePanel />
         </div>
-        <div class="flex-1 rounded-xl overflow-hidden border border-slate-800 shadow-lg min-h-0">
+        <div class="sidebar-panel flex-1 min-h-0">
           <CustomInputForm />
         </div>
       </div>
     </div>
 
     <!-- Explanation Row -->
-    <div class="h-16 rounded-xl overflow-hidden border border-slate-800 shadow-lg">
+    <div class="sidebar-panel h-16">
       <ExplanationPanel />
     </div>
 
     <!-- Control Panel Row -->
-    <div class="h-40 rounded-xl overflow-hidden border border-slate-800 shadow-lg">
+    <div class="sidebar-panel h-40">
       <AnimControlPanel />
     </div>
   </div>
@@ -48,11 +48,11 @@ import { MultilingualCodePanel, usePseudocodeStore, loadPseudocodeScript as load
 import { useQuizStore, loadQuizScript } from '../../quiz-system';
 import { useAnimationStore } from '../store/useAnimationStore';
 
-const inputStore     = useInputStore();
-const lectureStore   = useLectureStore();
-const animStore      = useAnimationStore();
+const inputStore      = useInputStore();
+const lectureStore    = useLectureStore();
+const animStore       = useAnimationStore();
 const pseudocodeStore = usePseudocodeStore();
-const quizStore      = useQuizStore();
+const quizStore       = useQuizStore();
 const showQuizSummary = ref(false);
 
 const hasLectureAvailable = computed(() => hasLecture(animStore.algorithmId));
@@ -89,3 +89,13 @@ function retryQuiz(): void {
 
 function closeQuizSummary(): void { showQuizSummary.value = false; }
 </script>
+
+<style scoped>
+/* Sidebar panels dùng CSS token thay vì border-border-subtle hardcoded */
+.sidebar-panel {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-md);
+}
+</style>

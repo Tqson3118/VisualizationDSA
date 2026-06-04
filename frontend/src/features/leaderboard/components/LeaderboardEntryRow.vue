@@ -38,11 +38,11 @@
     <!-- Meta -->
     <div class="meta-col flex items-center gap-1.5 justify-end">
       <span v-if="entry.streakDays >= 3" class="streak-chip flex items-center gap-0.5">
-        <BaseIcon name="streak" class="w-3 h-3 text-rose-300" />
+        <BaseIcon name="streak" class="w-3 h-3 text-accent-red" />
         {{ entry.streakDays }}
       </span>
       <span v-if="entry.badgeCount > 0" class="badge-chip flex items-center gap-0.5">
-        <BaseIcon name="badge" class="w-3 h-3 text-yellow-300" />
+        <BaseIcon name="badge" class="w-3 h-3 text-accent-yellow" />
         {{ entry.badgeCount }}
       </span>
     </div>
@@ -80,9 +80,9 @@ const xpBarWidth = computed(() =>
 );
 
 const medalColorClass = computed(() => {
-  if (props.entry.rank === 1) return 'text-amber-400';
-  if (props.entry.rank === 2) return 'text-slate-300';
-  if (props.entry.rank === 3) return 'text-amber-600';
+  if (props.entry.rank === 1) return 'text-accent-yellow';
+  if (props.entry.rank === 2) return 'text-text-secondary';
+  if (props.entry.rank === 3) return 'text-accent-yellow';
   return '';
 });
 </script>

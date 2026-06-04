@@ -5,17 +5,14 @@
 
 export { default as StateInspector } from './components/StateInspector.vue';
 
+export { CallStackEngine } from './engine/CallStackEngine';
+export { DSLEngine } from './engine/DSLEngine';
 export {
-  CallStackEngine,
   type StackFrame3D,
   type HeapNode3D,
   type PointerArrow,
   type BezierPath,
   type MemorySnapshot,
-} from './CallStackEngine';
-
-export {
-  DSLEngine,
   type DSLCommandType,
   type DSLCommand,
   type DSLAnimationFrame,
@@ -23,4 +20,6 @@ export {
   type HeapObject,
   type Pointer,
   type DSLCompileResult,
-} from './DSLEngine';
+} from './types/state-sandbox.types';
+
+export { runSampleScenario } from './scenarios/scenarios';

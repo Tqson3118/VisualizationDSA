@@ -9,6 +9,19 @@ import type { DebugStepPayload } from '../types/debug.types';
 
 const MAX_CONTINUE_STEPS = 5000;
 
+/**
+ * 🆕 Deep clone payload để đảm bảo step backward không bị drift.
+ * shallow copy { ...res.value } không đủ vì variables là object lồng nhau.
+ */
+function deepClonePayload(payload: DebugStepPayload): DebugStepPayload {
+  return {
+    lineNumber: payload.lineNumber,
+    arrayState: [...payload.arrayState],
+    variables: { ...payload.variables },
+    callStack: [...payload.callStack],
+  };
+}
+
 export class LiveCompilerDebugger {
   private generatorInstance: Generator<DebugStepPayload, void, unknown> | null = null;
   private breakpoints: Set<number> = new Set();
@@ -47,7 +60,7 @@ export class LiveCompilerDebugger {
 
     this.stepCount++;
     this.currentStep = res.value;
-    this.history.push({ ...res.value });
+    this.history.push(deepClonePayload(res.value)); // 🆕 deep clone tránh drift
     return this.currentStep;
   }
 
@@ -84,7 +97,7 @@ export class LiveCompilerDebugger {
       const payload = res.value;
       stepsCount++;
       this.stepCount++;
-      this.history.push({ ...payload });
+      this.history.push(deepClonePayload(payload)); // 🆕 deep clone
 
       if (this.breakpoints.has(payload.lineNumber)) {
         this.currentStep = payload;
@@ -118,7 +131,7 @@ export class LiveCompilerDebugger {
       const payload = res.value;
       stepsCount++;
       this.stepCount++;
-      this.history.push({ ...payload });
+      this.history.push(deepClonePayload(payload)); // 🆕 deep clone
 
       if (payload.callStack.length < currentDepth) {
         this.currentStep = payload;

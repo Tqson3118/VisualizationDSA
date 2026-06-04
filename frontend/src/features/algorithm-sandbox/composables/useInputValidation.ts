@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { CustomInputParser } from "../CustomInputParser";
+import { CustomInputParser } from "../engine/CustomInputParser";
 
 export function useInputValidation() {
   const arrayInputText = ref<string>("45, 12, 85, 32, 9, 60");

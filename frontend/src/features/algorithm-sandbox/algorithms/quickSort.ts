@@ -1,89 +1,71 @@
-import type { SortFrame } from '../types/sorting.types';
+import type { SortFrame, Partition } from '../types/sorting.types';
 
-/**
- * quickSort.ts — [ALGORITHM] Frame generator cho Quick Sort (Lomuto partition).
- * Highlight Pivot bằng màu Amber, partitioning bằng màu Cyan.
- */
 export function generateQuickSortFrames(inputArray: number[]): SortFrame[] {
   const frames: SortFrame[] = [];
   const arr = [...inputArray];
   const sortedIndices: number[] = [];
   let step = 0;
 
-  frames.push({
-    stepIndex: step++,
-    arrayState: [...arr],
-    comparingIndices: null,
-    pivotIndex: null,
-    swappedIndices: null,
-    sortedIndices: [],
-    description: 'Khởi tạo Quick Sort — chọn Pivot từ phần tử cuối mỗi partition',
-    algorithm: 'quick',
-  });
+  let partitionsList: Partition[] = [
+    { low: 0, high: arr.length - 1, isActive: true, isSorted: false }
+  ];
 
-  function partition(low: number, high: number): number {
-    const pivot = arr[high];
-
+  function emit(
+    desc: string,
+    comp: [number, number] | null,
+    pivot: number | null,
+    swap: [number, number] | null
+  ) {
     frames.push({
       stepIndex: step++,
       arrayState: [...arr],
-      comparingIndices: null,
-      pivotIndex: high,
-      swappedIndices: null,
+      comparingIndices: comp,
+      pivotIndex: pivot,
+      swappedIndices: swap,
       sortedIndices: [...sortedIndices],
-      description: `Chọn Pivot = ${pivot} tại chỉ số [${high}]`,
+      description: desc,
       algorithm: 'quick',
+      partitions: partitionsList.map(p => ({ ...p }))
     });
+  }
+
+  function splitPartition(low: number, high: number, p: number) {
+    partitionsList = partitionsList.filter(x => !(x.low === low && x.high === high));
+    partitionsList.push({ low: p, high: p, isActive: false, isSorted: true });
+    if (low < p) {
+      partitionsList.push({ low, high: p - 1, isActive: true, isSorted: false });
+    }
+    if (p < high) {
+      partitionsList.push({ low: p + 1, high, isActive: true, isSorted: false });
+    }
+    partitionsList.sort((a, b) => a.low - b.low);
+  }
+
+  function partition(low: number, high: number): number {
+    const pivot = arr[high];
+    partitionsList.forEach(p => {
+      p.isActive = (p.low === low && p.high === high);
+    });
+    emit(`Chọn Pivot = ${pivot} tại [${high}]`, null, high, null);
 
     let i = low - 1;
-
     for (let j = low; j < high; j++) {
-      frames.push({
-        stepIndex: step++,
-        arrayState: [...arr],
-        comparingIndices: [j, high],
-        pivotIndex: high,
-        swappedIndices: null,
-        sortedIndices: [...sortedIndices],
-        description: `So sánh arr[${j}]=${arr[j]} với Pivot=${pivot}`,
-        algorithm: 'quick',
-      });
-
+      emit(`So sánh arr[${j}]=${arr[j]} với Pivot=${pivot}`, [j, high], high, null);
       if (arr[j] <= pivot) {
         i++;
         if (i !== j) {
           [arr[i], arr[j]] = [arr[j], arr[i]];
-          frames.push({
-            stepIndex: step++,
-            arrayState: [...arr],
-            comparingIndices: null,
-            pivotIndex: high,
-            swappedIndices: [i, j],
-            sortedIndices: [...sortedIndices],
-            description: `arr[${j}]=${arr[j]} ≤ Pivot → Hoán vị arr[${i}]↔arr[${j}]`,
-            algorithm: 'quick',
-          });
+          emit(`arr[${j}] <= Pivot → Hoán vị [${i}]↔[${j}]`, null, high, [i, j]);
         }
       }
     }
 
-    // Đặt Pivot về đúng vị trí
     [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
-    const pivotFinalIdx = i + 1;
-
-    frames.push({
-      stepIndex: step++,
-      arrayState: [...arr],
-      comparingIndices: null,
-      pivotIndex: pivotFinalIdx,
-      swappedIndices: [i + 1, high],
-      sortedIndices: [...sortedIndices],
-      description: `Pivot ${pivot} về đúng vị trí [${pivotFinalIdx}] ✓`,
-      algorithm: 'quick',
-    });
-
-    sortedIndices.push(pivotFinalIdx);
-    return pivotFinalIdx;
+    const pIdx = i + 1;
+    sortedIndices.push(pIdx);
+    splitPartition(low, high, pIdx);
+    emit(`Đặt Pivot về đúng vị trí [${pIdx}]`, null, pIdx, [pIdx, high]);
+    return pIdx;
   }
 
   function quickSort(low: number, high: number): void {
@@ -92,26 +74,18 @@ export function generateQuickSortFrames(inputArray: number[]): SortFrame[] {
       quickSort(low, pi - 1);
       quickSort(pi + 1, high);
     } else if (low === high) {
-      // Partition đơn lẻ — cũng đã đứng đúng chỗ
       if (!sortedIndices.includes(low)) {
         sortedIndices.push(low);
+        partitionsList = partitionsList.map(p => 
+          (p.low === low && p.high === low) ? { ...p, isSorted: true, isActive: false } : p
+        );
       }
     }
   }
 
+  emit('Khởi tạo Quick Sort — phân hoạch chia để trị', null, null, null);
   quickSort(0, arr.length - 1);
-
-  // Frame hoàn thành
-  frames.push({
-    stepIndex: step++,
-    arrayState: [...arr],
-    comparingIndices: null,
-    pivotIndex: null,
-    swappedIndices: null,
-    sortedIndices: arr.map((_, i) => i),
-    description: `✅ Quick Sort hoàn thành! Mảng đã được sắp xếp tăng dần.`,
-    algorithm: 'quick',
-  });
+  emit('✅ Quick Sort hoàn thành!', null, null, null);
 
   return frames;
 }

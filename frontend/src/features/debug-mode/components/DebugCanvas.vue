@@ -4,11 +4,11 @@
     <div class="flex items-center gap-2 px-4 py-2 border-b"
       style="border-color: rgba(255, 255, 255, 0.05); background: rgba(30, 41, 59, 0.6);"
     >
-      <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-      <span class="text-xs font-medium text-slate-300 uppercase tracking-wider">
+      <div class="w-2 h-2 rounded-full bg-accent-green"></div>
+      <span class="text-xs font-medium text-text-secondary uppercase tracking-wider">
         Array State
       </span>
-      <span class="ml-auto text-[10px] text-slate-500 font-mono">
+      <span class="ml-auto text-[10px] text-text-muted font-mono">
         {{ arrayState.length }} phan tu
       </span>
     </div>

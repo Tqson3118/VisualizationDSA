@@ -1,9 +1,5 @@
 import type { SortFrame } from '../types/sorting.types';
 
-/**
- * heapSort.ts — [ALGORITHM] Frame generator cho Heap Sort.
- * Phase 1: Build Max-Heap. Phase 2: Extract-Max liên tiếp.
- */
 export function generateHeapSortFrames(inputArray: number[]): SortFrame[] {
   const frames: SortFrame[] = [];
   const arr = [...inputArray];
@@ -11,122 +7,62 @@ export function generateHeapSortFrames(inputArray: number[]): SortFrame[] {
   const sortedIndices: number[] = [];
   let step = 0;
 
-  frames.push({
-    stepIndex: step++,
-    arrayState: [...arr],
-    comparingIndices: null,
-    pivotIndex: null,
-    swappedIndices: null,
-    sortedIndices: [],
-    description: 'Khởi tạo Heap Sort — Phase 1: xây dựng Max-Heap',
-    algorithm: 'heap',
-  });
+  function emit(
+    desc: string,
+    comp: [number, number] | null,
+    pivot: number | null,
+    swap: [number, number] | null,
+    heapSize: number
+  ) {
+    frames.push({
+      stepIndex: step++,
+      arrayState: [...arr],
+      comparingIndices: comp,
+      pivotIndex: pivot,
+      swappedIndices: swap,
+      sortedIndices: [...sortedIndices],
+      description: desc,
+      algorithm: 'heap',
+      heapSize
+    });
+  }
 
-  function heapify(heapSize: number, rootIdx: number): void {
-    let largest = rootIdx;
-    const left = 2 * rootIdx + 1;
-    const right = 2 * rootIdx + 2;
+  function heapify(heapSize: number, i: number): void {
+    let largest = i;
+    const left = 2 * i + 1;
+    const right = 2 * i + 2;
 
     if (left < heapSize) {
-      frames.push({
-        stepIndex: step++,
-        arrayState: [...arr],
-        comparingIndices: [largest, left],
-        pivotIndex: rootIdx,
-        swappedIndices: null,
-        sortedIndices: [...sortedIndices],
-        description: `So sánh node[${rootIdx}]=${arr[rootIdx]} với left[${left}]=${arr[left]}`,
-        algorithm: 'heap',
-      });
+      emit(`So sánh node[${largest}]=${arr[largest]} với left[${left}]=${arr[left]}`, [largest, left], i, null, heapSize);
       if (arr[left] > arr[largest]) largest = left;
     }
-
     if (right < heapSize) {
-      frames.push({
-        stepIndex: step++,
-        arrayState: [...arr],
-        comparingIndices: [largest, right],
-        pivotIndex: rootIdx,
-        swappedIndices: null,
-        sortedIndices: [...sortedIndices],
-        description: `So sánh node[${largest}]=${arr[largest]} với right[${right}]=${arr[right]}`,
-        algorithm: 'heap',
-      });
+      emit(`So sánh node[${largest}]=${arr[largest]} với right[${right}]=${arr[right]}`, [largest, right], i, null, heapSize);
       if (arr[right] > arr[largest]) largest = right;
     }
 
-    if (largest !== rootIdx) {
-      [arr[rootIdx], arr[largest]] = [arr[largest], arr[rootIdx]];
-      frames.push({
-        stepIndex: step++,
-        arrayState: [...arr],
-        comparingIndices: null,
-        pivotIndex: rootIdx,
-        swappedIndices: [rootIdx, largest],
-        sortedIndices: [...sortedIndices],
-        description: `Hoán vị arr[${rootIdx}]=${arr[rootIdx]} ↔ arr[${largest}]=${arr[largest]}`,
-        algorithm: 'heap',
-      });
+    if (largest !== i) {
+      [arr[i], arr[largest]] = [arr[largest], arr[i]];
+      emit(`Hoán vị node[${i}] ↔ node[${largest}]`, null, i, [i, largest], heapSize);
       heapify(heapSize, largest);
     }
   }
 
-  // Phase 1: Build Max-Heap
+  emit('Xây dựng Max-Heap ban đầu', null, null, null, n);
   for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
-    frames.push({
-      stepIndex: step++,
-      arrayState: [...arr],
-      comparingIndices: null,
-      pivotIndex: i,
-      swappedIndices: null,
-      sortedIndices: [...sortedIndices],
-      description: `Build Max-Heap: Heapify từ node [${i}]`,
-      algorithm: 'heap',
-    });
     heapify(n, i);
   }
 
-  frames.push({
-    stepIndex: step++,
-    arrayState: [...arr],
-    comparingIndices: null,
-    pivotIndex: 0,
-    swappedIndices: null,
-    sortedIndices: [],
-    description: `Max-Heap hoàn thành! Root = ${arr[0]} (phần tử lớn nhất)`,
-    algorithm: 'heap',
-  });
-
-  // Phase 2: Extract-Max liên tiếp
+  emit(`Max-Heap hoàn thành! Root = ${arr[0]}`, null, 0, null, n);
   for (let i = n - 1; i > 0; i--) {
     [arr[0], arr[i]] = [arr[i], arr[0]];
     sortedIndices.push(i);
-
-    frames.push({
-      stepIndex: step++,
-      arrayState: [...arr],
-      comparingIndices: null,
-      pivotIndex: null,
-      swappedIndices: [0, i],
-      sortedIndices: [...sortedIndices],
-      description: `Đưa max=${arr[i]} về vị trí [${i}] ✓`,
-      algorithm: 'heap',
-    });
-
+    emit(`Đưa phần tử lớn nhất ${arr[i]} về vị trí [${i}]`, null, null, [0, i], i);
     heapify(i, 0);
   }
 
   sortedIndices.push(0);
-  frames.push({
-    stepIndex: step++,
-    arrayState: [...arr],
-    comparingIndices: null,
-    pivotIndex: null,
-    swappedIndices: null,
-    sortedIndices: arr.map((_, i) => i),
-    description: `✅ Heap Sort hoàn thành! Mảng đã được sắp xếp tăng dần.`,
-    algorithm: 'heap',
-  });
+  emit('✅ Heap Sort hoàn thành!', null, null, null, 0);
 
   return frames;
 }

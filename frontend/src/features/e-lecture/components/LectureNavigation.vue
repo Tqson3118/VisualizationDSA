@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 defineProps<{
-  slides: { slideId: string }[];
+  slides: { slideId: string | number }[];
   currentSlideIndex: number;
   isFirstSlide: boolean;
   isLastSlide: boolean;
@@ -53,8 +53,8 @@ defineEmits<{ prev: []; next: []; exit: []; goTo: [number] }>();
 .nav-buttons { display: flex; justify-content: space-between; gap: 8px; }
 .nav-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; border: 1px solid #334155; }
 .nav-btn:disabled { opacity: .3; cursor: not-allowed; }
-.nav-btn-back   { background: rgba(15,23,42,.8); color: #94a3b8; }
-.nav-btn-back:hover:not(:disabled) { background: #1e293b; color: #f1f5f9; }
+.nav-btn-back   { background: color-mix(in srgb, var(--color-bg-primary) 80%, transparent); color: var(--color-text-secondary); }
+.nav-btn-back:hover:not(:disabled) { background: var(--color-bg-hover); color: var(--color-text-primary); }
 .nav-btn-next   { background: rgba(6,182,212,.15); border-color: rgba(6,182,212,.3); color: #67e8f9; margin-left: auto; }
 .nav-btn-next:hover:not(:disabled) { background: rgba(6,182,212,.25); border-color: rgba(6,182,212,.5); }
 .nav-btn-finish { background: rgba(16,185,129,.15); border-color: rgba(16,185,129,.3); color: #6ee7b7; margin-left: auto; }

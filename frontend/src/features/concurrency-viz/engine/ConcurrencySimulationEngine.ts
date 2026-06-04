@@ -166,7 +166,7 @@ export class DeadlockDetector {
       if (!visited.has(thread.id)) {
         if (dfs(thread.id)) {
           const cycleIds: string[] = [];
-          let current = endCycleId;
+          let current: string | null = endCycleId;
           while (current && current !== startCycleId) {
             cycleIds.push(current);
             current = parentMap.get(current) ?? null;

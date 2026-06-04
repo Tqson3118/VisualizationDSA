@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full flex flex-col bg-slate-900/50">
+  <div class="h-full flex flex-col bg-bg-secondary/50">
     <!-- Variables HUD -->
     <VariablesHud :activeLoopVars="activeLoopVars" />
 
@@ -21,7 +21,7 @@
           <!-- Line number -->
           <span
             class="w-8 text-right pr-3 text-xs select-none"
-            :class="isLineActive(idx + 1) ? 'text-cyan-400' : 'text-slate-600'"
+            :class="isLineActive(idx + 1) ? 'text-accent' : 'text-text-disabled'"
           >
             {{ idx + 1 }}
           </span>
@@ -64,12 +64,12 @@ const isLineExecutable = (lineNum: number) => {
 
 const getLineClasses = (lineNum: number): string => {
   if (isLineActive(lineNum)) {
-    return "bg-cyan-500/10 text-cyan-100 border-l-2 border-cyan-400";
+    return "bg-accent-cyan/10 text-accent-cyan border-l-2 border-accent-cyan";
   }
   if (isLineExecutable(lineNum)) {
-    return "text-slate-300 hover:bg-slate-800/50 hover:text-white";
+    return "text-text-secondary hover:bg-bg-surface/50 hover:text-white";
   }
-  return "text-slate-500/60";
+  return "text-text-muted/60";
 };
 
 const onLineClick = (lineNum: number) => {

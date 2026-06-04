@@ -9,15 +9,15 @@
     >
       <div class="flex items-center gap-2">
         <div class="w-2 h-2 rounded-full" :class="statusDotClass"></div>
-        <span class="text-xs font-medium text-slate-300 uppercase tracking-wider">
+        <span class="text-xs font-medium text-text-secondary uppercase tracking-wider">
           Monaco Editor — JavaScript
         </span>
       </div>
-      <span class="text-[10px] text-slate-500 font-mono">JetBrains Mono</span>
+      <span class="text-[10px] text-text-muted font-mono">JetBrains Mono</span>
     </div>
 
     <!-- Monaco Editor Container -->
-    <div ref="editorContainerRef" class="flex-1 min-h-0" style="background: #1E293B;" />
+    <div ref="editorContainerRef" class="flex-1 min-h-0" style="background: var(--color-bg-active);" />
   </div>
 </template>
 
@@ -37,15 +37,18 @@ function createEditorType(): EditorType { return null as unknown as EditorType; 
 const hasCompileError = computed(() => compilerStore.hasCompileError);
 
 const statusDotClass = computed(() => {
-  if (compilerStore.isCompiling) return 'bg-amber-400 animate-pulse';
-  if (compilerStore.hasCompileError) return 'bg-rose-500';
-  return 'bg-emerald-500';
+  if (compilerStore.isCompiling) return 'bg-accent-yellow animate-pulse';
+  if (compilerStore.hasCompileError) return 'bg-accent-red';
+  return 'bg-accent-green';
 });
 
 onMounted(async () => {
   if (!editorContainerRef.value) return;
 
   const monaco = await loader.init();
+
+  const style = getComputedStyle(document.documentElement);
+  const editorBg = style.getPropertyValue('--color-bg-active').trim() || '#1e293b';
 
   monaco.editor.defineTheme('algolens-dark', {
     base: 'vs-dark',
@@ -58,7 +61,7 @@ onMounted(async () => {
       { token: 'type', foreground: '38BDF8' },
     ],
     colors: {
-      'editor.background': '#1E293B',
+      'editor.background': editorBg,
       'editor.foreground': '#E2E8F0',
       'editor.lineHighlightBackground': '#334155',
       'editor.selectionBackground': '#475569',

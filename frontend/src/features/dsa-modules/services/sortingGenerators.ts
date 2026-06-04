@@ -109,32 +109,163 @@ export function generateLinearSearch(inputData: number[]): AlgorithmResult {
   const target = inputData[inputData.length - 1], arr = inputData.slice(0, -1), frames: FrameDTO[] = [];
   let stepId = 0;
   const pseudoCode = ['linearSearch(A, target)', '  for i from 0 to N-1', '    if A[i] == target', '      return i', '  return -1'];
-  frames.push({ stepId: ++stepId, activeLine: 0, explanation: `Tìm kiếm target = ${target}`, dataState: [...arr], highlights: defaultHighlights() });
+  frames.push({ stepId: ++stepId, activeLine: 0, explanation: `Tìm kiếm target = ${target}`, dataState: [...arr], highlights: defaultHighlights({ target }) });
   let found = false;
   for (let i = 0; i < arr.length; i++) {
     const dimmed = Array.from({ length: i }, (_, k) => k);
-    frames.push({ stepId: ++stepId, activeLine: 2, explanation: `Kiểm tra A[${i}] = ${arr[i]}`, dataState: [...arr], highlights: defaultHighlights({ compare: [i], dimmed }) });
-    if (arr[i] === target) { frames.push({ stepId: ++stepId, activeLine: 3, explanation: `Tìm thấy! A[${i}] = ${target}`, dataState: [...arr], highlights: defaultHighlights({ found: i, dimmed }) }); found = true; break; }
+    frames.push({ stepId: ++stepId, activeLine: 2, explanation: `Kiểm tra A[${i}] = ${arr[i]}`, dataState: [...arr], highlights: defaultHighlights({ compare: [i], dimmed, target }) });
+    if (arr[i] === target) { frames.push({ stepId: ++stepId, activeLine: 3, explanation: `Tìm thấy! A[${i}] = ${target}`, dataState: [...arr], highlights: defaultHighlights({ found: i, dimmed, target }) }); found = true; break; }
   }
-  if (!found) frames.push({ stepId: ++stepId, activeLine: 4, explanation: `Không tìm thấy ${target}`, dataState: [...arr], highlights: defaultHighlights({ dimmed: Array.from({ length: arr.length }, (_, i) => i) }) });
+  if (!found) frames.push({ stepId: ++stepId, activeLine: 4, explanation: `Không tìm thấy ${target}`, dataState: [...arr], highlights: defaultHighlights({ dimmed: Array.from({ length: arr.length }, (_, i) => i), target }) });
   return { algorithmId: 'linear-search', pseudoCode, frames };
 }
 
 export function generateBinarySearch(inputData: number[]): AlgorithmResult {
   const target = inputData[inputData.length - 1], arr = inputData.slice(0, -1), frames: FrameDTO[] = [];
   let stepId = 0;
-  const pseudoCode = ['binarySearch(A, target)', '  low=0, high=N-1', '  while low <= high', '    mid = (low+high)/2', '    if A[mid]==target: return mid', '    else if A[mid]<target: low=mid+1', '    else: high=mid-1'];
-  frames.push({ stepId: ++stepId, activeLine: 0, explanation: `Binary Search target = ${target}`, dataState: [...arr], highlights: defaultHighlights() });
+  const pseudoCode = [
+    'binarySearch(A, target)',
+    '  low=0, high=N-1',
+    '  while low <= high',
+    '    mid = (low+high)/2',
+    '    if A[mid] == target: return mid',
+    '    else if A[mid] < target: low=mid+1',
+    '    else: high=mid-1',
+    '  return -1'
+  ];
+
+  // 1. Initial Frame
+  frames.push({
+    stepId: ++stepId,
+    activeLine: 1,
+    explanation: `Bắt đầu Tìm kiếm nhị phân (Binary Search). Mục tiêu tìm target = ${target}. Khởi tạo low=0, high=${arr.length - 1}.`,
+    dataState: [...arr],
+    highlights: defaultHighlights({ target, low: 0, high: arr.length - 1 })
+  });
+
   let low = 0, high = arr.length - 1, found = false;
+
   while (low <= high) {
-    const mid = Math.floor((low+high)/2);
-    const dimmed: number[] = [];
-    for (let i = 0; i < arr.length; i++) { if (i < low || i > high) dimmed.push(i); }
-    frames.push({ stepId: ++stepId, activeLine: 3, explanation: `low=${low}, mid=${mid}, high=${high}. A[mid]=${arr[mid]}`, dataState: [...arr], highlights: defaultHighlights({ compare: [mid], low, mid, high, dimmed }) });
-    if (arr[mid] === target) { frames.push({ stepId: ++stepId, activeLine: 4, explanation: `Tìm thấy! A[${mid}] = ${target}`, dataState: [...arr], highlights: defaultHighlights({ found: mid, low, mid, high, dimmed }) }); found = true; break; }
-    else if (arr[mid] < target) low = mid + 1;
-    else high = mid - 1;
+    const mid = Math.floor((low + high) / 2);
+    const midVal = arr[mid];
+
+    // Dimmed elements for the current loop (outside [low, high])
+    const currentDimmed: number[] = [];
+    for (let i = 0; i < arr.length; i++) {
+      if (i < low || i > high) currentDimmed.push(i);
+    }
+
+    // --- Sub-step 1: Calculate Mid ---
+    frames.push({
+      stepId: ++stepId,
+      activeLine: 3, // mid = (low+high)/2
+      explanation: `Vòng lặp mới: Tính vị trí giữa mid = (${low} + ${high}) / 2 = ${mid}. Giá trị A[mid] = ${midVal}.`,
+      dataState: [...arr],
+      highlights: defaultHighlights({
+        low,
+        mid,
+        high,
+        dimmed: [...currentDimmed],
+        target
+      })
+    });
+
+    // --- Sub-step 2: Comparison Decision ---
+    const decisionLine = midVal === target ? 4 : (midVal < target ? 5 : 6);
+    let compExplain = "";
+    if (midVal === target) {
+      compExplain = `So sánh: A[mid] = ${midVal} bằng target = ${target}. Đã tìm thấy mục tiêu!`;
+    } else if (midVal < target) {
+      compExplain = `So sánh: A[mid] = ${midVal} < target = ${target}. Do mảng đã sắp xếp, toàn bộ các phần tử từ index ${low} đến ${mid} đều nhỏ hơn target và bị loại.`;
+    } else {
+      compExplain = `So sánh: A[mid] = ${midVal} > target = ${target}. Do mảng đã sắp xếp, toàn bộ các phần tử từ index ${mid} đến ${high} đều lớn hơn target và bị loại.`;
+    }
+
+    frames.push({
+      stepId: ++stepId,
+      activeLine: decisionLine,
+      explanation: compExplain,
+      dataState: [...arr],
+      highlights: defaultHighlights({
+        low,
+        mid,
+        high,
+        dimmed: [...currentDimmed],
+        compare: [mid],
+        target
+      })
+    });
+
+    if (midVal === target) {
+      // --- Found Frame ---
+      frames.push({
+        stepId: ++stepId,
+        activeLine: 4,
+        explanation: `Tìm thấy target = ${target} tại vị trí index ${mid}. Kết thúc thuật toán thành công!`,
+        dataState: [...arr],
+        highlights: defaultHighlights({
+          low,
+          mid,
+          high,
+          dimmed: [...currentDimmed],
+          found: mid,
+          target
+        })
+      });
+      found = true;
+      break;
+    }
+
+    // --- Sub-step 3: Shrink range & Shift boundary ---
+    let oldLow = low;
+    let oldHigh = high;
+    
+    if (midVal < target) {
+      low = mid + 1;
+    } else {
+      high = mid - 1;
+    }
+
+    // Dimmed list now includes the newly eliminated segment!
+    const nextDimmed: number[] = [];
+    for (let i = 0; i < arr.length; i++) {
+      if (i < low || i > high) nextDimmed.push(i);
+    }
+
+    let shrinkExplain = "";
+    if (midVal < target) {
+      shrinkExplain = `Cập nhật ranh giới: Dịch low = mid + 1 = ${low}. Loại bỏ phạm vi phía bên trái [${oldLow}..${mid}] (được gạch chéo đỏ).`;
+    } else {
+      shrinkExplain = `Cập nhật ranh giới: Dịch high = mid - 1 = ${high}. Loại bỏ phạm vi phía bên phải [${mid}..${oldHigh}] (được gạch chéo đỏ).`;
+    }
+
+    frames.push({
+      stepId: ++stepId,
+      activeLine: midVal < target ? 5 : 6,
+      explanation: shrinkExplain,
+      dataState: [...arr],
+      highlights: defaultHighlights({
+        // Show low/high at their new coordinates
+        low: low <= high ? low : null,
+        high: low <= high ? high : null,
+        dimmed: [...nextDimmed],
+        target
+      })
+    });
   }
-  if (!found) frames.push({ stepId: ++stepId, activeLine: 6, explanation: `Không tìm thấy ${target}`, dataState: [...arr], highlights: defaultHighlights() });
+
+  if (!found) {
+    frames.push({
+      stepId: ++stepId,
+      activeLine: 7, // return -1
+      explanation: `Khoảng tìm kiếm trống (low > high). Đã xét tất cả phần tử và không tìm thấy target = ${target} trong mảng!`,
+      dataState: [...arr],
+      highlights: defaultHighlights({
+        dimmed: Array.from({ length: arr.length }, (_, i) => i),
+        target
+      })
+    });
+  }
+
   return { algorithmId: 'binary-search', pseudoCode, frames };
 }

@@ -1,5 +1,5 @@
 <template>
-  <div ref="containerRef" class="w-full h-full bg-[#0F172A] relative">
+  <div ref="containerRef" class="w-full h-full vis-canvas-container relative">
     <canvas ref="canvasRef" class="w-full h-full block" />
   </div>
 </template>
@@ -7,30 +7,24 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import type { FrameDTO } from '../../types/algorithm.types';
+import { drawBoxArray, type AnimatedState } from './boxArrayRenderHelpers';
 
 const props = defineProps<{
   frame: FrameDTO | null;
 }>();
 
-const BOX_SIZE = 50;
-const GAP = 4;
-const MARGIN = 40;
-const POINTER_AREA = 40;
-
-const COLOR_BG = '#0F172A';
-const COLOR_DEFAULT = '#1E293B';
-const COLOR_BORDER = '#475569';
-const COLOR_COMPARE = '#FBBF24';
-const COLOR_FOUND = '#10B981';
-const COLOR_DIMMED = '#1E293B44';
-const COLOR_TEXT = '#FFFFFF';
-const COLOR_DIMMED_TEXT = '#FFFFFF55';
-// pointer arrow color used inline below
-const _COLOR_POINTER = '#38BDF8';
-
 const containerRef = ref<HTMLDivElement | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let resizeObserver: ResizeObserver | null = null;
+
+// Lerp Animation engine states
+const animatedState = ref<AnimatedState | null>(null);
+let animationFrameId: number | null = null;
+let animStartTime = 0;
+const ANIM_DURATION = 350; // Smooth 350ms duration is optimal for playback pacing
+
+let startState: AnimatedState | null = null;
+let targetState: AnimatedState | null = null;
 
 function resizeCanvas(): void {
   const canvas = canvasRef.value;
@@ -49,69 +43,121 @@ function renderCanvas(): void {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
+  const style = getComputedStyle(document.documentElement);
+  const colorBg = style.getPropertyValue('--canvas-bg').trim() || '#080808';
+  const colors = {
+    default: style.getPropertyValue('--color-bg-active').trim() || '#232323',
+    border: style.getPropertyValue('--color-border-default').trim() || '#2b2b2b',
+    compare: style.getPropertyValue('--color-accent-yellow').trim() || '#FBBF24',
+    found: style.getPropertyValue('--color-accent-green').trim() || '#10B981',
+    dimmed: style.getPropertyValue('--color-text-disabled').trim() || 'rgba(35, 35, 35, 0.27)',
+    text: style.getPropertyValue('--color-text-primary').trim() || '#FFFFFF',
+    dimmedText: style.getPropertyValue('--color-text-muted').trim() || '#FFFFFF55',
+    muted: style.getPropertyValue('--color-text-muted').trim() || '#94A3B8',
+    low: style.getPropertyValue('--color-accent-blue').trim() || '#3B82F6',
+    high: style.getPropertyValue('--color-accent-red').trim() || '#EF4444',
+  };
+
   const dpr = window.devicePixelRatio || 1;
   const w = canvas.width / dpr;
   const h = canvas.height / dpr;
 
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = COLOR_BG;
+  ctx.fillStyle = colorBg;
   ctx.fillRect(0, 0, w, h);
 
   const frame = props.frame;
   if (!frame || frame.dataState.length === 0) return;
 
-  const n = frame.dataState.length;
-  const totalW = n * BOX_SIZE + (n - 1) * GAP;
-  const startX = Math.max(MARGIN, (w - totalW) / 2);
-  const y = (h - BOX_SIZE - POINTER_AREA) / 2;
+  // Pass animatedState into drawBoxArray to render smooth interpolations
+  drawBoxArray(ctx, w, h, frame, colors, animatedState.value ?? undefined);
+}
 
-  for (let i = 0; i < n; i++) {
-    const x = startX + i * (BOX_SIZE + GAP);
-    const isDimmed = frame.highlights.dimmed.includes(i);
-    const isCompare = frame.highlights.compare.includes(i);
-    const isFound = frame.highlights.found === i;
+// Cubic easing out function for premium visual feel
+function easeOutCubic(x: number): number {
+  return 1 - Math.pow(1 - x, 3);
+}
 
-    ctx.fillStyle = isFound ? COLOR_FOUND : isCompare ? COLOR_COMPARE : isDimmed ? COLOR_DIMMED : COLOR_DEFAULT;
-    ctx.strokeStyle = isFound ? COLOR_FOUND : isCompare ? COLOR_COMPARE : COLOR_BORDER;
-    ctx.lineWidth = isFound || isCompare ? 2 : 1;
-    ctx.beginPath();
-    ctx.roundRect(x, y, BOX_SIZE, BOX_SIZE, 6);
-    ctx.fill();
-    ctx.stroke();
+function animateFrame(now: number): void {
+  if (!startState || !targetState) return;
 
-    ctx.fillStyle = isDimmed ? COLOR_DIMMED_TEXT : COLOR_TEXT;
-    ctx.font = 'bold 14px monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(String(frame.dataState[i]), x + BOX_SIZE / 2, y + BOX_SIZE / 2);
+  const elapsed = now - animStartTime;
+  const progress = Math.min(1, elapsed / ANIM_DURATION);
+  const t = easeOutCubic(progress);
 
-    ctx.fillStyle = '#94A3B8';
-    ctx.font = '10px monospace';
-    ctx.fillText(String(i), x + BOX_SIZE / 2, y + BOX_SIZE + 14);
-  }
+  // Interpolate search state fields smoothly
+  animatedState.value = {
+    low: startState.low + (targetState.low - startState.low) * t,
+    lowOpacity: startState.lowOpacity + (targetState.lowOpacity - startState.lowOpacity) * t,
+    high: startState.high + (targetState.high - startState.high) * t,
+    highOpacity: startState.highOpacity + (targetState.highOpacity - startState.highOpacity) * t,
+    mid: startState.mid + (targetState.mid - startState.mid) * t,
+    midOpacity: startState.midOpacity + (targetState.midOpacity - startState.midOpacity) * t,
+    opacities: startState.opacities.map((v, idx) => v + ((targetState?.opacities[idx] ?? v) - v) * t),
+    crosses: startState.crosses.map((v, idx) => v + ((targetState?.crosses[idx] ?? v) - v) * t)
+  };
 
-  const pointerY = y + BOX_SIZE + 28;
-  const pointers: { idx: number; label: string; color: string }[] = [];
-  if (frame.highlights.low != null) pointers.push({ idx: frame.highlights.low, label: 'Low', color: '#3B82F6' });
-  if (frame.highlights.mid != null) pointers.push({ idx: frame.highlights.mid, label: 'Mid', color: COLOR_COMPARE });
-  if (frame.highlights.high != null) pointers.push({ idx: frame.highlights.high, label: 'High', color: '#EF4444' });
+  renderCanvas();
 
-  for (const ptr of pointers) {
-    const px = startX + ptr.idx * (BOX_SIZE + GAP) + BOX_SIZE / 2;
-    ctx.fillStyle = ptr.color;
-    ctx.beginPath();
-    ctx.moveTo(px, pointerY - 6);
-    ctx.lineTo(px - 5, pointerY);
-    ctx.lineTo(px + 5, pointerY);
-    ctx.fill();
-    ctx.font = 'bold 10px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(ptr.label, px, pointerY + 12);
+  if (progress < 1) {
+    animationFrameId = requestAnimationFrame(animateFrame);
+  } else {
+    animationFrameId = null;
   }
 }
 
-watch(() => props.frame, renderCanvas, { deep: true });
+// Watch active frame and kick off smooth Lerp transition
+watch(() => props.frame, (newFrame) => {
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+
+  if (!newFrame || newFrame.dataState.length === 0) {
+    animatedState.value = null;
+    renderCanvas();
+    return;
+  }
+
+  const n = newFrame.dataState.length;
+  
+  // Define targets
+  const tLow = newFrame.highlights.low ?? (animatedState.value?.low ?? 0);
+  const tLowOp = newFrame.highlights.low != null ? 1.0 : 0.0;
+  
+  const tHigh = newFrame.highlights.high ?? (animatedState.value?.high ?? n - 1);
+  const tHighOp = newFrame.highlights.high != null ? 1.0 : 0.0;
+  
+  const tMid = newFrame.highlights.mid ?? (animatedState.value?.mid ?? 0);
+  const tMidOp = newFrame.highlights.mid != null ? 1.0 : 0.0;
+
+  const tOpacities = Array.from({ length: n }, (_, i) => newFrame.highlights.dimmed.includes(i) ? 0.25 : 1.0);
+  const tCrosses = Array.from({ length: n }, (_, i) => newFrame.highlights.dimmed.includes(i) ? 1.0 : 0.0);
+
+  const nextTargetState: AnimatedState = {
+    low: tLow,
+    lowOpacity: tLowOp,
+    high: tHigh,
+    highOpacity: tHighOp,
+    mid: tMid,
+    midOpacity: tMidOp,
+    opacities: tOpacities,
+    crosses: tCrosses
+  };
+
+  if (!animatedState.value || animatedState.value.opacities.length !== n) {
+    // First time or structural array size change: set target state instantly without transition
+    animatedState.value = nextTargetState;
+    renderCanvas();
+  } else {
+    // Subsequent playback steps: kick off requestAnimationFrame Lerp loop
+    startState = { ...animatedState.value };
+    targetState = nextTargetState;
+    animStartTime = performance.now();
+    animationFrameId = requestAnimationFrame(animateFrame);
+  }
+}, { deep: true });
 
 onMounted(() => {
   resizeObserver = new ResizeObserver(resizeCanvas);
@@ -121,5 +167,15 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   resizeObserver?.disconnect();
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId);
+  }
 });
 </script>
+
+<style scoped>
+.vis-canvas-container {
+  background-color: var(--canvas-bg);
+}
+</style>
+

@@ -1,73 +1,6 @@
 import type { AlgorithmMetadata } from '../types/algorithm.types';
 
 export const LOCAL_METADATA: Record<string, AlgorithmMetadata> = {
-  'bubble-sort': {
-    timeComplexity: 'O(N²)',
-    spaceComplexity: 'O(1)',
-    description:
-      'Bubble Sort so sánh hai phần tử liền kề và hoán đổi nếu chúng không đúng thứ tự. Lặp lại cho đến khi mảng được sắp xếp hoàn toàn.',
-    pseudoCode: [
-      'for i from 0 to N-1',
-      '  for j from 0 to N-i-2',
-      '    if A[j] > A[j+1]',
-      '      swap(A[j], A[j+1])',
-    ],
-  },
-  'selection-sort': {
-    timeComplexity: 'O(N²)',
-    spaceComplexity: 'O(1)',
-    description:
-      'Selection Sort tìm phần tử nhỏ nhất trong phần chưa sắp xếp và hoán đổi với phần tử đầu tiên của phần chưa sắp xếp.',
-    pseudoCode: [
-      'for i from 0 to N-1',
-      '  minIdx = i',
-      '  for j from i+1 to N-1',
-      '    if A[j] < A[minIdx]',
-      '      minIdx = j',
-      '  swap(A[i], A[minIdx])',
-    ],
-  },
-  'insertion-sort': {
-    timeComplexity: 'O(N²)',
-    spaceComplexity: 'O(1)',
-    description:
-      'Insertion Sort chèn từng phần tử vào đúng vị trí trong phần đã sắp xếp, giống cách sắp xếp bài trên tay.',
-    pseudoCode: [
-      'for i from 1 to N-1',
-      '  key = A[i]',
-      '  j = i - 1',
-      '  while j >= 0 and A[j] > key',
-      '    A[j+1] = A[j]; j--',
-      '  A[j+1] = key',
-    ],
-  },
-  'quick-sort': {
-    timeComplexity: 'O(N log N)',
-    spaceComplexity: 'O(log N)',
-    description:
-      'Quick Sort chọn phần tử chốt (Pivot) và phân hoạch mảng thành hai nửa, sau đó đệ quy sắp xếp từng nửa.',
-    pseudoCode: [
-      'quickSort(A, low, high)',
-      '  if low < high',
-      '    pivotIdx = partition(A, low, high)',
-      '    quickSort(A, low, pivotIdx - 1)',
-      '    quickSort(A, pivotIdx + 1, high)',
-    ],
-  },
-  'merge-sort': {
-    timeComplexity: 'O(N log N)',
-    spaceComplexity: 'O(N)',
-    description:
-      'Merge Sort chia mảng thành hai nửa đệ quy và trộn các nửa đã sắp xếp lại với nhau.',
-    pseudoCode: [
-      'mergeSort(A, left, right)',
-      '  if left < right',
-      '    mid = (left + right) / 2',
-      '    mergeSort(A, left, mid)',
-      '    mergeSort(A, mid+1, right)',
-      '    merge(A, left, mid, right)',
-    ],
-  },
   'linear-search': {
     timeComplexity: 'O(N)',
     spaceComplexity: 'O(1)',
@@ -96,6 +29,23 @@ export const LOCAL_METADATA: Record<string, AlgorithmMetadata> = {
       '    else: high = mid - 1',
     ],
   },
+  'sliding-window': {
+    timeComplexity: 'O(N)',
+    spaceComplexity: 'O(1)',
+    description:
+      'Cửa sổ trượt (Sliding Window) duy trì một phạm vi phần tử liên tiếp (cửa sổ) và di chuyển nó dọc theo mảng để tính toán hiệu quả các bài toán mảng con. Ví dụ này tìm tổng lớn nhất của cửa sổ kích thước K = 3.',
+    pseudoCode: [
+      'slidingWindow(A, K):',
+      '  left = 0, currentSum = 0, maxSum = 0',
+      '  for right from 0 to N-1:',
+      '    currentSum += A[right]',
+      '    if right - left + 1 > K:',
+      '      currentSum -= A[left]',
+      '      left++',
+      '    maxSum = max(maxSum, currentSum)',
+      '  return maxSum',
+    ],
+  },
   stack: {
     timeComplexity: 'O(1)',
     spaceComplexity: 'O(N)',
@@ -122,6 +72,23 @@ export const LOCAL_METADATA: Record<string, AlgorithmMetadata> = {
       '  return queue.removeFirst()',
     ],
   },
+  'monotonic-stack': {
+    timeComplexity: 'O(N)',
+    spaceComplexity: 'O(N)',
+    description:
+      'Ngăn xếp đơn điệu (Monotonic Stack) duy trì các phần tử tăng dần hoặc giảm dần để giải quyết hiệu quả các bài toán như "Tìm phần tử lớn hơn tiếp theo" (Next Greater Element) trong thời gian tuyến tính O(N).',
+    pseudoCode: [
+      'nextGreaterElement(A):',
+      '  stack = []',
+      '  res = [-1 for _ in A]',
+      '  for i from 0 to N-1:',
+      '    while stack is not empty and A[stack.top()] < A[i]:',
+      '      idx = stack.pop()',
+      '      res[idx] = A[i]',
+      '    stack.push(i)',
+      '  return res',
+    ],
+  },
   bst: {
     timeComplexity: 'O(log N)',
     spaceComplexity: 'O(N)',
@@ -135,6 +102,55 @@ export const LOCAL_METADATA: Record<string, AlgorithmMetadata> = {
       '  else:',
       '    root.right = insert(root.right, value)',
       '  return root',
+    ],
+  },
+  bfs: {
+    timeComplexity: 'O(V + E)',
+    spaceComplexity: 'O(V)',
+    description:
+      'Duyệt theo chiều rộng (BFS) đi qua các đỉnh của đồ thị/cây theo từng lớp (chiều rộng). Sử dụng Hàng đợi (Queue) để điều phối thứ tự duyệt.',
+    pseudoCode: [
+      'BFS(root):',
+      '  queue = [root]',
+      '  visited = {root}',
+      '  while queue is not empty:',
+      '    curr = queue.dequeue()',
+      '    for neighbor in curr.neighbors:',
+      '      if neighbor not in visited:',
+      '        visited.add(neighbor)',
+      '        queue.enqueue(neighbor)',
+    ],
+  },
+  dfs: {
+    timeComplexity: 'O(V + E)',
+    spaceComplexity: 'O(V)',
+    description:
+      'Duyệt theo chiều sâu (DFS) bắt đầu từ gốc, đi sâu hết mức có thể dọc theo mỗi nhánh trước khi quay lui (backtrack). Sử dụng Ngăn xếp (Stack) hoặc Đệ quy.',
+    pseudoCode: [
+      'DFS(node, visited):',
+      '  visited.add(node)',
+      '  for neighbor in node.neighbors:',
+      '    if neighbor not in visited:',
+      '      DFS(neighbor, visited)',
+    ],
+  },
+  dijkstra: {
+    timeComplexity: 'O((V + E) log V)',
+    spaceComplexity: 'O(V)',
+    description:
+      'Thuật toán Dijkstra tìm đường đi ngắn nhất từ đỉnh nguồn (nút gốc) đến tất cả các đỉnh khác trên đồ thị có trọng số. Mỗi cạnh trái có trọng số = 3, cạnh phải = 5.',
+    pseudoCode: [
+      'Dijkstra(graph, source):',
+      '  dist = {v: infinity for v in graph}',
+      '  dist[source] = 0',
+      '  pq = PriorityQueue(source, 0)',
+      '  while pq is not empty:',
+      '    curr, d = pq.popMin()',
+      '    for neighbor, weight in curr.edges:',
+      '      newDist = d + weight',
+      '      if newDist < dist[neighbor]:',
+      '        dist[neighbor] = newDist',
+      '        pq.push(neighbor, newDist)',
     ],
   },
 };

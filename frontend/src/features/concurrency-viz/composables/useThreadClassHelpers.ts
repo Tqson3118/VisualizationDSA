@@ -2,10 +2,10 @@ import type { ThreadInstance } from '../types/concurrency.types';
 
 export function threadLabelClass(thread: ThreadInstance): string {
   switch (thread.state) {
-    case 'RUNNING':  return 'bg-cyan-900/50 text-cyan-300 border border-cyan-700/50';
-    case 'BLOCKED':  return 'bg-amber-900/50 text-amber-300 border border-amber-700/50';
-    case 'FINISHED': return 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/50';
-    default: return 'bg-slate-800 text-slate-400 border border-slate-700';
+    case 'RUNNING':  return 'bg-accent-cyan/50 text-accent-cyan border border-accent-cyan/50';
+    case 'BLOCKED':  return 'bg-accent-yellow/50 text-accent-yellow border border-accent-yellow/50';
+    case 'FINISHED': return 'bg-accent-green/50 text-accent-green border border-accent-green/50';
+    default: return 'bg-bg-surface text-text-secondary border border-border-default';
   }
 }
 
@@ -17,10 +17,10 @@ export function threadNodeClass(thread: ThreadInstance): string {
 
 export function stateBadgeClass(thread: ThreadInstance): string {
   switch (thread.state) {
-    case 'RUNNING':  return 'bg-cyan-900/30 text-cyan-400';
-    case 'BLOCKED':  return 'bg-amber-900/30 text-amber-400';
-    case 'FINISHED': return 'bg-emerald-900/30 text-emerald-400';
-    default: return 'bg-slate-800 text-slate-500';
+    case 'RUNNING':  return 'bg-accent-cyan/30 text-accent';
+    case 'BLOCKED':  return 'bg-accent-yellow/30 text-accent-yellow';
+    case 'FINISHED': return 'bg-accent-green/30 text-accent-green';
+    default: return 'bg-bg-surface text-text-muted';
   }
 }
 
@@ -33,7 +33,7 @@ export function lockIconClass(thread: ThreadInstance): string {
 }
 
 export function lockTextClass(thread: ThreadInstance): string {
-  return thread.heldLocks.length > 0 ? 'text-amber-400' : 'text-cyan-400/60';
+  return thread.heldLocks.length > 0 ? 'text-accent-yellow' : 'text-accent-cyan/60';
 }
 
 export function getLockStatusText(thread: ThreadInstance): string {

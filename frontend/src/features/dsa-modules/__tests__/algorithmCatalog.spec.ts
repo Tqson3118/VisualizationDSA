@@ -22,32 +22,26 @@ describe('algorithmCatalog', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('covers all 4 categories', () => {
+  it('covers all 3 categories (Sorting has been removed)', () => {
     const categories = new Set(ALGORITHM_CATALOG.map((a) => a.category));
-    expect(categories.has('Sorting')).toBe(true);
+    expect(categories.has('Sorting')).toBe(false);
     expect(categories.has('Searching')).toBe(true);
     expect(categories.has('Stack-Queue')).toBe(true);
     expect(categories.has('Tree')).toBe(true);
   });
 
-  it('has 5 sorting algorithms', () => {
-    const sorting = ALGORITHM_CATALOG.filter((a) => a.category === 'Sorting');
-    expect(sorting.length).toBe(5);
-  });
-
-  it('has 2 searching algorithms', () => {
+  it('has 3 searching algorithms', () => {
     const searching = ALGORITHM_CATALOG.filter((a) => a.category === 'Searching');
-    expect(searching.length).toBe(2);
+    expect(searching.length).toBe(3);
   });
 
-  it('has 2 stack-queue algorithms', () => {
+  it('has 3 stack-queue algorithms', () => {
     const sq = ALGORITHM_CATALOG.filter((a) => a.category === 'Stack-Queue');
-    expect(sq.length).toBe(2);
+    expect(sq.length).toBe(3);
   });
 
-  it('has 1 tree algorithm (BST)', () => {
+  it('has 4 tree algorithms', () => {
     const tree = ALGORITHM_CATALOG.filter((a) => a.category === 'Tree');
-    expect(tree.length).toBe(1);
-    expect(tree[0].id).toBe('bst');
+    expect(tree.length).toBe(4);
   });
 });

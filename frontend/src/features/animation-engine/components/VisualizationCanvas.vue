@@ -1,8 +1,8 @@
 <template>
-  <div class="flex-[6] rounded-xl overflow-hidden border border-slate-800 shadow-lg relative">
+  <div class="canvas-wrapper">
     <!-- Loading Overlay -->
-    <div v-if="isLoading" class="absolute inset-0 bg-slate-950/60 z-10 flex items-center justify-center">
-      <div class="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+    <div v-if="isLoading" class="canvas-loading-overlay">
+      <div class="loading-spinner"></div>
     </div>
 
     <CanvasLayer />
@@ -45,6 +45,57 @@ defineEmits<{ retry: []; 'close-summary': []; 'open-lecture': [] }>();
 </script>
 
 <style scoped>
-.e-lecture-btn { position: absolute; top: 12px; right: 12px; z-index: 50; display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 10px; background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(6, 182, 212, 0.3); color: #67e8f9; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-.e-lecture-btn:hover { background: rgba(6, 182, 212, 0.15); border-color: rgba(6, 182, 212, 0.5); box-shadow: 0 0 12px rgba(6, 182, 212, 0.2); }
+.canvas-wrapper {
+  flex: 6;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+/* Loading overlay */
+.canvas-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.loading-spinner {
+  width: 2rem; height: 2rem;
+  border-radius: 50%;
+  border: 2px solid var(--color-accent-cyan);
+  border-top-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* E-Lecture button */
+.e-lecture-btn {
+  position: absolute;
+  top: 12px; right: 12px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--color-accent-cyan-dim);
+  color: var(--color-accent-cyan);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.e-lecture-btn:hover {
+  background: var(--color-accent-cyan-dim);
+  border-color: var(--color-accent-cyan-glow);
+  box-shadow: 0 0 12px var(--color-accent-cyan-glow);
+}
 </style>

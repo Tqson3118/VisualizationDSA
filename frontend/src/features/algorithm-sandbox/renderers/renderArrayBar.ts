@@ -48,7 +48,7 @@ export function renderArrayBar(
 
   // Value label
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 18px "Outfit", "Inter", sans-serif';
+  ctx.font = 'bold 18px "Inter", sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(item.value.toString(), x + slotWidth / 2, y + cardH / 2);

@@ -1,0 +1,378 @@
+/* =============================================================================
+ * ALGOLENS -- CENTRALIZED DESIGN TOKEN SYSTEM
+ * =============================================================================
+ * DAY LA FILE NGUON SU THAT DUY NHAT cho toan bo mau sac, font, spacing
+ * va shadow cua du an.
+ *
+ * CAU TRUC MULTI-THEME:
+ *   :root[data-theme="terminal-dark"]  <- Mac dinh: Terminal/Code aesthetic
+ *   :root[data-theme="light"]          <- Future: Light mode
+ *   :root[data-theme="cyberpunk"]      <- Future: Cyberpunk neon
+ *
+ * QUY TAC SU DUNG:
+ *   - Components CHI duoc phep dung cac bien --* duoc dinh nghia o day
+ *   - KHONG duoc hardcode gia tri mau truc tiep trong component nao
+ *   - De them mau moi: them vao TAT CA cac theme block ben duoi
+ * =============================================================================
+ */
+
+/* =============================================================================
+ * THEME: terminal-dark (DEFAULT)
+ * Phong cach: Terminal / Code Editor -- toi gian, chuyen nghiep
+ * Cam hung: VSCode Dark+, GitHub Dark, skillsmp.io
+ *
+ * BO MAU SKILLSMP.IO (trich xuat tu anh tham khao):
+ *   Nen chinh:      #0b0b0b  (am, khong phai den tuyen)
+ *   Nen card:       #181818
+ *   Accent CTA:     #e8825a  (salmon/coral -- nut "Get Started", "Load More")
+ *   Green terminal: #3db87a  (prompt $, "from" links)
+ *   Text primary:   #f2f2f2  (trang am)
+ *   Text secondary: #8a8a8a
+ *   Yellow star:    #f0b429
+ * ============================================================================= */
+:root,
+:root[data-theme="terminal-dark"] {
+
+  /* == FONT FAMILIES ========================================================= */
+  --font-display:   "Space Mono", "JetBrains Mono", ui-monospace, monospace;
+  --font-sans:      "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+                    Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:      "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular,
+                    Menlo, Monaco, Consolas, monospace;
+
+  /* == FONT SIZES ============================================================ */
+  --text-xs:    0.75rem;
+  --text-sm:    0.8125rem;
+  --text-base:  0.875rem;
+  --text-md:    1rem;
+  --text-lg:    1.125rem;
+  --text-xl:    1.25rem;
+  --text-2xl:   1.5rem;
+  --text-3xl:   1.875rem;
+  --text-4xl:   2.25rem;
+
+  /* == FONT WEIGHTS ========================================================== */
+  --font-light:    300;
+  --font-normal:   400;
+  --font-medium:   500;
+  --font-semibold: 600;
+  --font-bold:     700;
+
+  /* == BACKGROUNDS =========================================================== */
+  /* Nen chinh -- skillsmp.io: gan den am, khong phai den tuyen */
+  --color-bg-primary:    #0b0b0b;
+  /* Nen thu cap -- header, sidebar, terminal blocks */
+  --color-bg-secondary:  #111111;
+  /* Nen be mat card/modal -- skillsmp.io card background */
+  --color-bg-surface:    #181818;
+  /* Nen hover state */
+  --color-bg-hover:      #1e1e1e;
+  /* Nen selected/active */
+  --color-bg-active:     #232323;
+  /* Nen overlay (modals) */
+  --color-bg-overlay:    rgba(0, 0, 0, 0.75);
+  /* Nen terminal block -- dark input bar skillsmp.io */
+  --color-bg-terminal:   #121212;
+
+  /* == TEXT HIERARCHY ======================================================== */
+  /* Text chinh -- trang am skillsmp.io */
+  --color-text-primary:   #f2f2f2;
+  /* Text phu -- xam trung */
+  --color-text-secondary: #8a8a8a;
+  /* Text mo -- placeholder, metadata */
+  --color-text-muted:     #555555;
+  /* Text disabled */
+  --color-text-disabled:  #333333;
+  /* Text tren nen mau (buttons) */
+  --color-text-inverse:   #0b0b0b;
+
+  /* == ACCENT -- SALMON/CORAL (PRIMARY) -- skillsmp.io CTA color ============= */
+  /* Mau accent chinh -- salmon/coral chinh xac tu skillsmp.io "Get Started" */
+  --color-accent-primary:       #e8825a;
+  --color-accent-primary-light: #f09070;
+  --color-accent-primary-dark:  #c96848;
+  --color-accent-primary-glow:  rgba(232, 130, 90, 0.25);
+  --color-accent-primary-dim:   rgba(232, 130, 90, 0.10);
+
+  /* == ACCENT -- TERMINAL GREEN (SUCCESS / $ prompt) ========================= */
+  /* skillsmp.io: xanh la tuoi cho $ prompt, "from" links */
+  --color-accent-green:       #3db87a;
+  --color-accent-green-light: #4fd490;
+  --color-accent-green-glow:  rgba(61, 184, 122, 0.25);
+  --color-accent-green-dim:   rgba(61, 184, 122, 0.12);
+
+  /* == ACCENT -- BLUE (INFO / LINK) ========================================== */
+  /* skillsmp.io: xanh duong cho hyperlinks */
+  --color-accent-blue:       #5b9cf6;
+  --color-accent-blue-light: #79b0ff;
+  --color-accent-blue-glow:  rgba(91, 156, 246, 0.25);
+  --color-accent-blue-dim:   rgba(91, 156, 246, 0.12);
+
+  /* == ACCENT -- RED (ERROR / DANGER) ======================================== */
+  --color-accent-red:       #e05252;
+  --color-accent-red-light: #f06060;
+  --color-accent-red-glow:  rgba(224, 82, 82, 0.25);
+  --color-accent-red-dim:   rgba(224, 82, 82, 0.12);
+
+  /* == ACCENT -- YELLOW (WARNING / STAR RATING) ============================== */
+  /* skillsmp.io: vang cho star ratings */
+  --color-accent-yellow:       #f0b429;
+  --color-accent-yellow-light: #f8cc5a;
+  --color-accent-yellow-glow:  rgba(240, 180, 41, 0.25);
+  --color-accent-yellow-dim:   rgba(240, 180, 41, 0.12);
+
+  /* == ACCENT -- CYAN (VISUALIZATION / SPECIAL) ============================== */
+  /* Giu lai cyan cho canvas visualization -- semantic color, khong thay */
+  --color-accent-cyan:      #06b6d4;
+  --color-accent-cyan-glow:  rgba(6, 182, 212, 0.25);
+  --color-accent-cyan-dim:   rgba(6, 182, 212, 0.12);
+
+  /* == ACCENT -- PURPLE (GAMIFICATION) ======================================= */
+  --color-accent-purple:      #a78bfa;
+  --color-accent-purple-glow:  rgba(167, 139, 250, 0.25);
+  --color-accent-purple-dim:   rgba(167, 139, 250, 0.12);
+
+  /* == SYNTAX HIGHLIGHTING COLORS (Code Blocks) ============================== */
+  --color-syntax-keyword:    #e8825a;
+  --color-syntax-string:     #3db87a;
+  --color-syntax-number:     #f0b429;
+  --color-syntax-comment:    #555555;
+  --color-syntax-type:       #5b9cf6;
+  --color-syntax-variable:   #f2f2f2;
+  --color-syntax-function:   #a78bfa;
+  --color-syntax-operator:   #8a8a8a;
+  --color-syntax-punctuation:#8a8a8a;
+
+  /* == TRAFFIC LIGHT DOTS (Terminal Window Controls) ========================= */
+  --color-dot-close:   #ff5f57;
+  --color-dot-min:     #febc2e;
+  --color-dot-max:     #28c840;
+
+  /* == BORDERS =============================================================== */
+  /* skillsmp.io: border rat nhe, gan nhu vo hinh */
+  --color-border-subtle:     rgba(255, 255, 255, 0.06);
+  --color-border-default:    rgba(255, 255, 255, 0.08);
+  --color-border-strong:     rgba(255, 255, 255, 0.14);
+  --color-border-focus:      var(--color-accent-primary);
+  --color-border-accent:     rgba(232, 130, 90, 0.30);
+  --color-border-card:       rgba(255, 255, 255, 0.08);
+  --color-border-card-hover: rgba(255, 255, 255, 0.14);
+
+  /* == GLASS / BACKDROP ====================================================== */
+  --glass-bg:      rgba(24, 24, 24, 0.75);
+  --glass-border:  var(--color-border-subtle);
+  --glass-blur:    12px;
+  --glass-shadow:  0 8px 32px rgba(0, 0, 0, 0.5);
+
+  /* == BORDER RADIUS ========================================================= */
+  --radius-none: 0px;
+  --radius-sm:   4px;
+  --radius-md:   6px;
+  --radius-lg:   8px;
+  --radius-xl:   12px;
+  --radius-2xl:  16px;
+  --radius-full: 9999px;
+
+  /* == SPACING SCALE ========================================================= */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* == SHADOWS =============================================================== */
+  --shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md:     0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-lg:     0 8px 24px rgba(0, 0, 0, 0.7);
+  --shadow-xl:     0 16px 48px rgba(0, 0, 0, 0.8);
+  --shadow-accent: 0 0 20px var(--color-accent-primary-glow);
+  --shadow-cyan:   0 0 20px var(--color-accent-cyan-glow);
+
+  /* == TRANSITIONS =========================================================== */
+  --transition-fast:   all 0.12s ease;
+  --transition-smooth: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* == Z-INDEX SCALE ========================================================= */
+  --z-base:    0;
+  --z-raised:  10;
+  --z-overlay: 100;
+  --z-modal:   1000;
+  --z-toast:   2000;
+  --z-tooltip: 3000;
+
+  /* == COMPONENT-SPECIFIC TOKENS ============================================= */
+
+  /* Header */
+  --header-bg:         var(--color-bg-secondary);
+  --header-border:     var(--color-border-subtle);
+  --header-height:     48px;
+  --header-logo-color: var(--color-accent-primary);
+
+  /* Nav Tab */
+  --tab-bg-default:    transparent;
+  --tab-bg-hover:      var(--color-bg-hover);
+  --tab-bg-active:     var(--color-bg-active);
+  --tab-text-default:  var(--color-text-muted);
+  --tab-text-hover:    var(--color-text-secondary);
+  --tab-text-active:   var(--color-text-primary);
+  --tab-border-active: var(--color-accent-primary);
+
+  /* Card / Panel */
+  --card-bg:         var(--color-bg-surface);
+  --card-border:     var(--color-border-card);
+  --card-radius:     var(--radius-lg);
+  --card-shadow:     var(--shadow-md);
+  --card-header-bg:  var(--color-bg-hover);
+
+  /* Button -- Primary (salmon CTA nhu skillsmp.io) */
+  --btn-primary-bg:       var(--color-accent-primary);
+  --btn-primary-bg-hover: var(--color-accent-primary-light);
+  --btn-primary-text:     #ffffff;
+  --btn-primary-shadow:   0 0 16px var(--color-accent-primary-glow);
+
+  /* Button -- Ghost */
+  --btn-ghost-bg:       transparent;
+  --btn-ghost-bg-hover: var(--color-bg-hover);
+  --btn-ghost-text:     var(--color-text-secondary);
+  --btn-ghost-border:   var(--color-border-default);
+
+  /* Input */
+  --input-bg:           var(--color-bg-terminal);
+  --input-border:       var(--color-border-default);
+  --input-border-focus: var(--color-accent-primary);
+  --input-text:         var(--color-text-primary);
+  --input-placeholder:  var(--color-text-muted);
+
+  /* Badge */
+  --badge-bg:     var(--color-bg-active);
+  --badge-text:   var(--color-text-secondary);
+  --badge-border: var(--color-border-subtle);
+
+  /* Scrollbar */
+  --scrollbar-thumb:       rgba(255, 255, 255, 0.10);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.20);
+  --scrollbar-track:       transparent;
+
+  /* Code / Terminal block -- skillsmp.io style dark terminal */
+  --code-bg:         var(--color-bg-terminal);
+  --code-border:     var(--color-border-subtle);
+  --code-header-bg:  var(--color-bg-secondary);
+  --code-radius:     var(--radius-md);
+
+  /* Canvas / Visualization -- Semantic colors khong thay doi */
+  --canvas-bg:           #080808;
+  --canvas-grid-color:   rgba(255, 255, 255, 0.03);
+  --canvas-node-default: var(--color-accent-cyan);
+  --canvas-node-active:  var(--color-accent-primary);
+  --canvas-edge-default: rgba(255, 255, 255, 0.2);
+  --canvas-edge-active:  var(--color-accent-primary);
+
+  /* == VISUALIZATION PANEL TOKENS (sandbox inspector panels) ================= */
+  /* Dung cho LomutoInspector, SortingDetailPanel, MergeInspector...           */
+  /* Thay the cac hardcode #090f19, #0e1726, #0b121e (cyberpunk blue palette)  */
+  --vis-panel-bg:        var(--color-bg-surface);
+  --vis-panel-bg-deep:   var(--color-bg-secondary);
+  --vis-panel-bg-inner:  var(--color-bg-hover);
+  --vis-panel-border:    var(--color-border-default);
+  --vis-panel-header-bg: var(--color-bg-hover);
+
+  /* Visualization semantic colors -- giu nguyen ngu nghia hoc thuat */
+  --vis-color-pivot:   #f0b429;   /* Vang -- pivot (QuickSort) */
+  --vis-color-active:  #06b6d4;   /* Cyan -- dang xet */
+  --vis-color-sorted:  #3db87a;   /* Xanh -- da sap xep */
+  --vis-color-swap:    #e05252;   /* Do -- dang hoan vi */
+  --vis-color-compare: #a78bfa;   /* Tim -- dang so sanh */
+  --vis-color-bucket:  #5b9cf6;   /* Xanh duong -- bucket */
+  --vis-color-default: #8a8a8a;   /* Xam -- mac dinh */
+}
+
+/* =============================================================================
+ * THEME: light (FUTURE)
+ * Chi override cac token can thay doi so voi terminal-dark
+ * ============================================================================= */
+:root[data-theme="light"] {
+  --color-bg-primary:    #f8f8f8;
+  --color-bg-secondary:  #ffffff;
+  --color-bg-surface:    #f0f0f0;
+  --color-bg-hover:      #e8e8e8;
+  --color-bg-active:     #e0e0e0;
+  --color-bg-overlay:    rgba(0, 0, 0, 0.4);
+  --color-bg-terminal:   #f5f5f5;
+
+  --color-text-primary:   #1a1a1a;
+  --color-text-secondary: #444444;
+  --color-text-muted:     #888888;
+  --color-text-disabled:  #cccccc;
+  --color-text-inverse:   #f8f8f8;
+
+  --color-border-subtle:     rgba(0, 0, 0, 0.06);
+  --color-border-default:    rgba(0, 0, 0, 0.10);
+  --color-border-strong:     rgba(0, 0, 0, 0.18);
+  --color-border-card:       rgba(0, 0, 0, 0.08);
+  --color-border-card-hover: rgba(0, 0, 0, 0.14);
+
+  --glass-bg:     rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+  --header-bg:      #ffffff;
+  --header-border:  rgba(0, 0, 0, 0.08);
+
+  --code-bg:         #f5f5f5;
+  --code-header-bg:  #ebebeb;
+  --canvas-bg:       #fafafa;
+  --canvas-grid-color: rgba(0, 0, 0, 0.04);
+
+  --vis-panel-bg:       #f0f0f0;
+  --vis-panel-bg-deep:  #ffffff;
+  --vis-panel-bg-inner: #e8e8e8;
+  --vis-panel-border:   rgba(0, 0, 0, 0.10);
+}
+
+/* =============================================================================
+ * THEME: cyberpunk (FUTURE)
+ * Giu lai cyberpunk palette cu de khong mat di
+ * ============================================================================= */
+:root[data-theme="cyberpunk"] {
+  --color-bg-primary:    #070b13;
+  --color-bg-secondary:  #0e1726;
+  --color-bg-surface:    #090f19;
+  --color-bg-hover:      #0d1826;
+  --color-bg-active:     #122030;
+  --color-bg-terminal:   #060a10;
+
+  --color-accent-primary:       #06b6d4;
+  --color-accent-primary-light:  #22d3ee;
+  --color-accent-primary-dark:   #0891b2;
+  --color-accent-primary-glow:   rgba(6, 182, 212, 0.35);
+  --color-accent-primary-dim:    rgba(6, 182, 212, 0.12);
+
+  --color-border-subtle:     rgba(30, 41, 59, 0.8);
+  --color-border-default:    rgba(30, 41, 59, 0.9);
+  --color-border-card:       rgba(6, 182, 212, 0.12);
+  --color-border-card-hover: rgba(6, 182, 212, 0.25);
+  --color-border-focus:      var(--color-accent-primary);
+  --color-border-accent:     rgba(6, 182, 212, 0.35);
+
+  --glass-bg:     rgba(14, 23, 38, 0.75);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+
+  --header-bg:         var(--color-bg-secondary);
+  --header-logo-color: var(--color-accent-primary);
+  --tab-border-active: var(--color-accent-primary);
+
+  --code-bg:         #040810;
+  --code-header-bg:  #060c18;
+  --canvas-bg:       #040810;
+  --canvas-grid-color: rgba(6, 182, 212, 0.03);
+
+  --vis-panel-bg:       #090f19;
+  --vis-panel-bg-deep:  #060c18;
+  --vis-panel-bg-inner: #0d1826;
+  --vis-panel-border:   rgba(6, 182, 212, 0.15);
+}

@@ -13,6 +13,7 @@
 export { default as AlgorithmCanvas }    from './components/AlgorithmCanvas.vue';
 export { default as ArrayBarVisualizer } from './components/ArrayBarVisualizer.vue';
 export { default as CustomInputPanel }   from './components/CustomInputPanel.vue';
+export { default as SortingDetailPanel } from './components/SortingDetailPanel.vue';
 
 // ── Engine (Internal utilities, exported for cross-feature use) ─
 export { PseudocodeSyncer }              from './engine/PseudocodeSyncer';

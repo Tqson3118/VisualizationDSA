@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-shrink-0 flex items-center gap-4 px-4 py-3 bg-slate-900/80 rounded-xl border border-slate-800">
+  <div class="flex-shrink-0 flex items-center gap-4 px-4 py-3 bg-bg-secondary/80 rounded-xl border border-border-subtle">
     <!-- Playback Controls -->
     <div class="flex items-center gap-2">
       <button @click="$emit('stop')" class="vcr-btn" title="Dừng (R)">
@@ -23,21 +23,21 @@
 
     <!-- Timeline Slider -->
     <div class="flex-1 flex items-center gap-3">
-      <span class="text-[10px] text-slate-500 tabular-nums w-16 text-right">{{ stepIndex }} / {{ totalSteps }}</span>
+      <span class="text-[10px] text-text-muted tabular-nums w-16 text-right">{{ stepIndex }} / {{ totalSteps }}</span>
       <input type="range" :min="0" :max="totalSteps" :value="stepIndex"
         @input="e => $emit('scrub', Number((e.target as HTMLInputElement).value))"
         class="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
         :class="isDeadlocked ? 'accent-rose-500' : 'accent-cyan-500'" />
-      <span class="text-[10px] tabular-nums w-8" :class="isDeadlocked ? 'text-rose-400' : 'text-cyan-400'">
+      <span class="text-[10px] tabular-nums w-8" :class="isDeadlocked ? 'text-accent-red' : 'text-accent'">
         {{ progressPercent }}%
       </span>
     </div>
 
     <!-- Speed + Mode -->
     <div class="flex items-center gap-2 flex-shrink-0">
-      <span class="text-[10px] text-slate-400 uppercase tracking-wider">Tốc độ</span>
+      <span class="text-[10px] text-text-secondary uppercase tracking-wider">Tốc độ</span>
       <select :value="playSpeed" @change="e => $emit('speed-change', Number((e.target as HTMLSelectElement).value))"
-        class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-cyan-500">
+        class="bg-bg-surface border border-border-default text-text-secondary text-xs rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-accent">
         <option :value="0.25">0.25x</option><option :value="0.5">0.5x</option>
         <option :value="1">1x</option><option :value="2">2x</option><option :value="4">4x</option>
       </select>
@@ -65,21 +65,40 @@ defineEmits<{
 }>();
 
 const playButtonClass = computed(() => {
-  if (props.playbackMode === 'DEADLOCKED') return 'bg-rose-600/30 text-rose-400 cursor-not-allowed';
-  if (props.playbackMode === 'FINISHED') return 'bg-emerald-600/30 text-emerald-400 hover:bg-emerald-600/50';
-  if (props.isPlaying) return 'bg-cyan-600 text-white hover:bg-cyan-500';
-  return 'bg-cyan-600/30 text-cyan-400 hover:bg-cyan-600/50';
+  if (props.playbackMode === 'DEADLOCKED') return 'bg-accent-red/30 text-accent-red cursor-not-allowed';
+  if (props.playbackMode === 'FINISHED') return 'bg-accent-green/30 text-accent-green hover:bg-accent-green/50';
+  if (props.isPlaying) return 'bg-accent text-text-primary hover:bg-accent-light';
+  return 'bg-accent-cyan/30 text-accent hover:bg-accent-cyan/50';
 });
 
 const modeBadgeClass = computed(() => {
   const map: Record<string, string> = {
-    PLAYING: 'bg-cyan-900/40 text-cyan-400', PAUSED: 'bg-amber-900/40 text-amber-400',
-    FINISHED: 'bg-emerald-900/40 text-emerald-400', DEADLOCKED: 'bg-rose-900/40 text-rose-400',
+    PLAYING: 'bg-accent-cyan/40 text-accent', PAUSED: 'bg-accent-yellow/40 text-accent-yellow',
+    FINISHED: 'bg-accent-green/40 text-accent-green', DEADLOCKED: 'bg-accent-red/40 text-accent-red',
   };
-  return map[props.playbackMode] ?? 'bg-slate-800 text-slate-500';
+  return map[props.playbackMode] ?? 'bg-bg-surface text-text-muted';
 });
 </script>
 
 <style scoped>
-.vcr-btn { @apply w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors; }
+.vcr-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-lg, 8px);
+  background: rgba(30, 41, 59, 0.8);   /* slate-800 equivalent */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(148, 163, 184);           /* slate-400 equivalent */
+  transition: background 0.15s ease, color 0.15s ease;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.vcr-btn:hover {
+  background: rgb(51, 65, 85);         /* slate-700 equivalent */
+  color: #ffffff;
+}
 </style>
+

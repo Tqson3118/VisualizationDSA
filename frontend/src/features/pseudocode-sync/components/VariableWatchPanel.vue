@@ -29,8 +29,8 @@ const watchVariables = computed(() => pseudocodeStore.watchVariablesList);
 .watch-panel-card {
   margin: 0;
   padding: 10px 12px;
-  background: rgba(15, 23, 42, 0.4);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: color-mix(in srgb, var(--color-bg-secondary) 40%, transparent);
+  border-top: 1px solid var(--color-border-subtle);
   flex-shrink: 0;
 }
 
@@ -38,7 +38,7 @@ const watchVariables = computed(() => pseudocodeStore.watchVariablesList);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--color-text-muted);
   margin-bottom: 8px;
   font-weight: 600;
 }
@@ -54,24 +54,24 @@ const watchVariables = computed(() => pseudocodeStore.watchVariablesList);
   flex-direction: column;
   align-items: center;
   padding: 4px 8px;
-  background: rgba(30, 41, 59, 0.6);
+  background: color-mix(in srgb, var(--color-bg-hover) 60%, transparent);
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border-subtle);
   min-width: 48px;
 }
 
 .var-name {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
-  color: #94a3b8;
+  color: var(--color-text-secondary);
 }
 
 .var-value {
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   font-weight: bold;
-  color: #06b6d4;
-  text-shadow: 0 0 6px rgba(6, 182, 212, 0.3);
+  color: var(--color-accent-cyan);
+  text-shadow: 0 0 6px var(--color-accent-cyan-glow);
 }
 
 .var-fade-enter-active {

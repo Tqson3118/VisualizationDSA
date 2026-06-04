@@ -1,6 +1,6 @@
 export const highlightSyntax = (text: string): string => {
   if (!text || text.trim() === "")
-    return '<span class="text-slate-600">//</span>';
+    return '<span class="text-text-disabled">//</span>';
 
   let escaped = text
     .replace(/&/g, "&amp;")

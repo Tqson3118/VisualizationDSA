@@ -1,5 +1,5 @@
 <template>
-  <div class="h-14 rounded-xl overflow-hidden border border-slate-800 shadow-lg bg-slate-900 flex items-center justify-center gap-3 px-4">
+  <div class="vcr-controls-bar">
     <button class="ctrl-btn" @click="$emit('stop')" title="Reset (R)">
       <BaseIcon name="stop" class="w-3.5 h-3.5" />
     </button>
@@ -23,13 +23,13 @@
       min="0"
       :max="Math.max(0, totalSteps - 1)"
       :value="currentIndex"
-      class="flex-1 h-1 accent-cyan-500 cursor-pointer"
+      class="timeline-scrubber"
       @input="onScrub"
     />
 
     <!-- Speed -->
     <select
-      class="bg-slate-800 border border-slate-700 text-xs text-slate-300 rounded px-2 py-1 focus:outline-none focus:border-cyan-500 transition-colors"
+      class="speed-select"
       :value="playbackSpeed"
       @change="onSpeedChange"
     >
@@ -40,7 +40,7 @@
       <option :value="10">10x</option>
     </select>
 
-    <span class="text-[10px] text-slate-500 min-w-[80px] text-right font-mono">
+    <span class="step-counter">
       {{ currentIndex + 1 }} / {{ totalSteps }}
     </span>
   </div>
@@ -75,40 +75,70 @@ function onSpeedChange(e: Event): void {
 </script>
 
 <style scoped>
-.ctrl-btn {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.5rem;
-  background-color: #1e293b;
-  border: 1px solid #334155;
-  color: #cbd5e1;
+.vcr-controls-bar {
+  height: 3.5rem;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-md);
+  background: var(--color-bg-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 12px;
+  padding: 0 16px;
+}
+
+.ctrl-btn {
+  width: 2rem; height: 2rem;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  color: var(--color-text-secondary);
+  display: flex; align-items: center; justify-content: center;
   font-size: 0.875rem;
-  transition: color 0.15s, background-color 0.15s;
+  transition: var(--transition-fast);
   cursor: pointer;
 }
-.ctrl-btn:hover {
-  background-color: #334155;
-  color: #ffffff;
-}
+.ctrl-btn:hover { background: var(--color-bg-hover); color: var(--color-text-primary); }
+
 .ctrl-btn-primary {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 9999px;
-  background-color: #0891b2;
+  width: 2.5rem; height: 2.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-cyan);
   border: none;
   color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  font-weight: 700;
-  transition: background-color 0.15s;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; font-weight: 700;
+  transition: var(--transition-fast);
   cursor: pointer;
 }
-.ctrl-btn-primary:hover {
-  background-color: #06b6d4;
+.ctrl-btn-primary:hover { background: var(--color-accent-primary); }
+
+.timeline-scrubber {
+  flex: 1;
+  height: 4px;
+  accent-color: var(--color-accent-cyan);
+  cursor: pointer;
+}
+
+.speed-select {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  outline: none;
+  transition: var(--transition-fast);
+}
+.speed-select:focus { border-color: var(--color-accent-cyan); }
+
+.step-counter {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  min-width: 80px;
+  text-align: right;
+  font-family: var(--font-mono);
 }
 </style>

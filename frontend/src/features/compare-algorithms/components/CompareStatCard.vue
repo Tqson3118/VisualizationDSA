@@ -1,9 +1,9 @@
 <template>
   <div class="compare-stat-card">
-    <div class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ label }}</div>
+    <div class="text-[10px] font-bold uppercase tracking-widest text-text-secondary mb-2">{{ label }}</div>
     <div class="flex items-center justify-around">
       <span class="text-lg font-extrabold" :style="{ color: '#06B6D4', textShadow: '0 0 8px rgba(6,182,212,0.2)' }">{{ leftValue }}</span>
-      <span class="text-xs font-semibold text-slate-600">vs</span>
+      <span class="text-xs font-semibold text-text-disabled">vs</span>
       <span class="text-lg font-extrabold" :style="{ color: '#10B981', textShadow: '0 0 8px rgba(16,185,129,0.2)' }">{{ rightValue }}</span>
     </div>
 

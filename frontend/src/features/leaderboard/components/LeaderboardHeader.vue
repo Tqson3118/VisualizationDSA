@@ -1,7 +1,7 @@
 <template>
   <div class="panel-header">
     <div class="header-left">
-      <BaseIcon name="trophy" class="w-8 h-8 text-yellow-400 trophy-icon" />
+      <BaseIcon name="trophy" class="w-8 h-8 text-accent-yellow trophy-icon" />
       <div>
         <h2 class="panel-title">Bảng Xếp Hạng</h2>
         <p class="panel-subtitle">Top {{ count }} học viên theo XP</p>

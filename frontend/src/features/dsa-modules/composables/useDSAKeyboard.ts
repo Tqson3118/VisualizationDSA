@@ -1,5 +1,5 @@
 import { onMounted, onBeforeUnmount } from 'vue';
-import type { UseAnimationStore } from '../../animation-engine/store/useAnimationStore';
+import { useAnimationStore } from '../../animation-engine/store/useAnimationStore';
 
 /**
  * Composable: lắng nghe phím tắt DSA Player.
@@ -7,7 +7,7 @@ import type { UseAnimationStore } from '../../animation-engine/store/useAnimatio
  */
 export function useDSAKeyboard(
   isAlgorithmActive: () => boolean,
-  animStore: ReturnType<typeof UseAnimationStore>,
+  animStore: ReturnType<typeof useAnimationStore>,
 ): void {
   function handleKeydown(e: KeyboardEvent): void {
     if (!isAlgorithmActive()) return;

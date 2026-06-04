@@ -1,12 +1,12 @@
 <template>
-  <div class="code-editor-card bg-[#0e1726]/70 backdrop-blur-md border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col gap-5 h-full">
+  <div class="code-editor-card backdrop-blur-md border border-border-subtle/80 rounded-2xl p-6 shadow-xl flex flex-col gap-5 h-full">
     <CodeEditorPresetTabs
       :presets="PRESETS"
       :active-preset="activePreset"
       @select="loadPreset"
     />
     <CodeEditorApiHints />
-    <div class="flex-1 relative flex flex-col min-h-0 bg-[#070b13] rounded-xl border border-slate-800 overflow-hidden">
+    <div class="flex-1 relative flex flex-col min-h-0 editor-wrapper rounded-xl border border-border-subtle overflow-hidden">
       <div ref="editorContainer" class="w-full h-full"></div>
     </div>
   </div>
@@ -16,7 +16,7 @@
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import loader from "@monaco-editor/loader";
 import { useVcrStore } from "../../vcr-player/store/useVcrStore";
-import { MonacoLineSyncerCoordinator } from "../../algorithm-sandbox/MonacoLineSyncerCoordinator";
+import { MonacoLineSyncerCoordinator } from "../../algorithm-sandbox/engine/MonacoLineSyncerCoordinator";
 import CodeEditorPresetTabs from "./CodeEditorPresetTabs.vue";
 import CodeEditorApiHints from "./CodeEditorApiHints.vue";
 
@@ -93,7 +93,8 @@ onBeforeUnmount(() => {
   editorInstance?.dispose();
 });
 
-function loadPreset(key: "bubble" | "selection" | "insertion"): void {
+function loadPreset(key: string): void {
+  if (key !== "bubble" && key !== "selection" && key !== "insertion") return;
   activePreset.value = key;
   const newCode = PRESETS[key].code;
   vcrStore.code = newCode;
@@ -101,3 +102,13 @@ function loadPreset(key: "bubble" | "selection" | "insertion"): void {
   vcrStore.compileAndLoad();
 }
 </script>
+
+<style scoped>
+.code-editor-card {
+  background-color: color-mix(in srgb, var(--vis-panel-bg) 70%, transparent);
+}
+.editor-wrapper {
+  background-color: var(--color-bg-primary);
+}
+</style>
+

@@ -1,7 +1,7 @@
 <template>
-  <div class="absolute bottom-0 left-0 right-0 h-[3px] bg-slate-800/60">
+  <div class="progress-track absolute bottom-0 left-0 right-0 h-[3px]">
     <div
-      class="h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-r-sm transition-[width] duration-150 ease-out shadow-[0_0_8px_rgba(6,182,212,0.6)]"
+      class="progress-bar h-full rounded-r-sm transition-[width] duration-150 ease-out"
       :style="{ width: progressPercent + '%' }"
     />
   </div>
@@ -12,3 +12,14 @@ defineProps<{
   progressPercent: number;
 }>();
 </script>
+
+<style scoped>
+.progress-track {
+  background-color: color-mix(in srgb, var(--color-bg-surface) 60%, transparent);
+}
+
+.progress-bar {
+  background: linear-gradient(to right, var(--color-accent-cyan), var(--color-accent-blue));
+  box-shadow: 0 0 8px var(--color-accent-cyan-glow);
+}
+</style>

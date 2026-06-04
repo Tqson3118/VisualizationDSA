@@ -20,8 +20,8 @@ defineEmits<{ retry: []; close: [] }>();
 
 <style scoped>
 .summary-actions { display: flex; justify-content: center; gap: 10px; }
-.retry-btn { display: flex; align-items: center; gap: 6px; padding: 10px 20px; background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; color: #67e8f9; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-.retry-btn:hover { background: rgba(6, 182, 212, 0.2); border-color: rgba(6, 182, 212, 0.5); }
-.close-btn { padding: 10px 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #94a3b8; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-.close-btn:hover { background: rgba(255, 255, 255, 0.1); color: #e2e8f0; }
+.retry-btn { display: flex; align-items: center; gap: 6px; padding: 10px 20px; background: var(--color-accent-cyan-dim); border: 1px solid color-mix(in srgb, var(--color-accent-cyan) 30%, transparent); border-radius: 12px; color: var(--color-accent-cyan); font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--transition-fast); }
+.retry-btn:hover { background: color-mix(in srgb, var(--color-accent-cyan) 20%, transparent); border-color: color-mix(in srgb, var(--color-accent-cyan) 50%, transparent); }
+.close-btn { padding: 10px 20px; background: var(--color-bg-hover); border: 1px solid var(--color-border-subtle); border-radius: 12px; color: var(--color-text-secondary); font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--transition-fast); }
+.close-btn:hover { background: var(--color-bg-active); color: var(--color-text-primary); }
 </style>

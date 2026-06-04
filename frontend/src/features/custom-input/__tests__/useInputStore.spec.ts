@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useInputStore } from '../store/useInputStore';
 
 describe('useInputStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+    vi.restoreAllMocks();
   });
 
   // ==========================================
@@ -294,6 +295,7 @@ describe('useInputStore', () => {
     });
 
     it('uses dummy fallback when API is unreachable', async () => {
+      vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Network error'));
       const store = useInputStore();
       store.rawText = '5, 3, 8';
       await store.submitCustomInput('bubble-sort');

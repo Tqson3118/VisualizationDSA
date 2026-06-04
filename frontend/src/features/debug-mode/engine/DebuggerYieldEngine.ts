@@ -16,6 +16,9 @@ import type { DebugCompilationResult } from '../types/debug.types';
 const MAX_RECURSION_DEPTH = 500;
 const LOOP_LIMIT = 5000;
 
+/** Tên biến nội bộ engine — không được capture vào Watch Panel */
+const ENGINE_RESERVED_NAMES = new Set(['__loopCounter', '__callStack', '__recursionDepth', 'arr']);
+
 /**
  * Biên dịch mã JS thô sang dạng Generator function* với yield tại mỗi dòng.
  * Trả về chuỗi mã đã tiêm yield, sẵn sàng eval() trong sandbox.
@@ -30,8 +33,11 @@ export function compileToDebugGenerator(rawJsCode: string): DebugCompilationResu
 
     const program = ast as unknown as import('estree').Program;
 
+    // 🆕 Bước 1: Thu thập tên biến THỰC TẾ người dùng khai báo (dynamic scan)
+    const capturedVarNames = extractDeclaredVariableNames(program);
+
     convertFunctionsToGenerators(program);
-    injectYieldStatements(program);
+    injectYieldStatements(program, capturedVarNames);
     injectLoopGuards(program);
     appendAutoInvoke(program);
 
@@ -61,6 +67,41 @@ function extractErrorLine(err: unknown): number | undefined {
 }
 
 /**
+ * 🆕 Quét toàn bộ AST để thu thập tên biến thực tế người dùng khai báo.
+ * Hỗ trợ: let/const/var declarations + biến trong for-loop init + function parameters.
+ * Không capture tên nội bộ engine (ENGINE_RESERVED_NAMES).
+ */
+function extractDeclaredVariableNames(program: import('estree').Program): string[] {
+  const names = new Set<string>();
+
+  walk.simple(program as unknown as acorn.Node, {
+    // let x = ..., const y = ..., var z = ...  (bao gồm cả for-loop init)
+    VariableDeclarator(node: acorn.Node) {
+      const decl = node as unknown as import('estree').VariableDeclarator;
+      if (decl.id.type === 'Identifier') {
+        names.add(decl.id.name);
+      }
+    },
+    // Capture function parameters: function sort(arr, n, l, r)
+    FunctionDeclaration(node: acorn.Node) {
+      const func = node as unknown as import('estree').FunctionDeclaration;
+      for (const param of func.params) {
+        if (param.type === 'Identifier') {
+          names.add(param.name);
+        }
+      }
+    },
+  });
+
+  // Loại bỏ các tên nội bộ engine — không được hiển thị trong Watch Panel
+  for (const reserved of ENGINE_RESERVED_NAMES) {
+    names.delete(reserved);
+  }
+
+  return Array.from(names);
+}
+
+/**
  * Convert all FunctionDeclarations to GeneratorDeclarations (function*).
  */
 function convertFunctionsToGenerators(program: import('estree').Program): void {
@@ -75,21 +116,22 @@ function convertFunctionsToGenerators(program: import('estree').Program): void {
 /**
  * Inject yield statements after each executable line (ExpressionStatement, VariableDeclaration, ReturnStatement).
  * Yield payload contains: lineNumber, arrayState (spread arr), variables in scope, callStack.
+ * 🆕 Nhận capturedVarNames từ dynamic scan thay vì hardcode.
  */
-function injectYieldStatements(program: import('estree').Program): void {
+function injectYieldStatements(program: import('estree').Program, capturedVarNames: string[]): void {
   walk.simple(program as unknown as acorn.Node, {
     BlockStatement(node: acorn.Node) {
       const block = node as unknown as import('estree').BlockStatement;
-      injectYieldsIntoBody(block.body);
+      injectYieldsIntoBody(block.body, capturedVarNames);
     },
     Program(node: acorn.Node) {
       const prog = node as unknown as import('estree').Program;
-      injectYieldsIntoBody(prog.body as import('estree').Statement[]);
+      injectYieldsIntoBody(prog.body as import('estree').Statement[], capturedVarNames);
     },
   });
 }
 
-function injectYieldsIntoBody(body: import('estree').Statement[]): void {
+function injectYieldsIntoBody(body: import('estree').Statement[], capturedVarNames: string[]): void {
   const newBody: import('estree').Statement[] = [];
 
   for (const stmt of body) {
@@ -103,7 +145,7 @@ function injectYieldsIntoBody(body: import('estree').Statement[]): void {
       stmt.type === 'VariableDeclaration' ||
       stmt.type === 'ReturnStatement'
     ) {
-      const yieldStmt = createYieldStatement(line);
+      const yieldStmt = createYieldStatement(line, capturedVarNames);
       newBody.push(yieldStmt);
     }
   }
@@ -119,17 +161,20 @@ function getStatementLine(stmt: import('estree').Statement): number | null {
   return null;
 }
 
-const CAPTURE_VARS_NAMES = ['n', 'i', 'j', 'temp', 'left', 'right', 'pivot', 'mid', 'key', 'low', 'high', 'min', 'max'];
-
 /**
- * Create an inline IIFE that captures block-scoped variables at the yield site.
+ * 🆕 Create an inline IIFE that captures block-scoped variables DYNAMICALLY.
+ * Nhận danh sách tên biến thực tế từ AST scan — không còn hardcode.
  * Arrow function IIFE inherits the enclosing scope, so it can access let-scoped variables.
- * Generates: (() => { var v = {}; try { if (typeof n !== 'undefined') v.n = n; } catch(e) {} ... return v; })()
+ * Nếu biến chưa được khai báo tại điểm yield, try/catch ngăn ReferenceError.
  */
-function createInlineCaptureVars(): import('estree').CallExpression {
+function createInlineCaptureVars(capturedVarNames: string[]): import('estree').CallExpression {
+  const captureLines = capturedVarNames
+    .map(name => `try { if (typeof ${name} !== 'undefined') v.${name} = ${name}; } catch(e) {}`)
+    .join('\n    ');
+
   const captureCode = `(() => {
     var v = {};
-    ${CAPTURE_VARS_NAMES.map(name => `try { if (typeof ${name} !== 'undefined') v.${name} = ${name}; } catch(e) {}`).join('\n    ')}
+    ${captureLines}
     return v;
   })()`;
   const parsed = acorn.parse(captureCode, { ecmaVersion: 2020, sourceType: 'script' });
@@ -141,8 +186,9 @@ function createInlineCaptureVars(): import('estree').CallExpression {
  * Create a yield expression statement:
  * yield { lineNumber: N, arrayState: typeof arr !== 'undefined' ? [...arr] : [],
  *         variables: (() => { ... })(), callStack: [...__callStack] };
+ * 🆕 Nhận capturedVarNames để build IIFE capture động.
  */
-function createYieldStatement(lineNumber: number): import('estree').ExpressionStatement {
+function createYieldStatement(lineNumber: number, capturedVarNames: string[]): import('estree').ExpressionStatement {
   const yieldExpr: import('estree').YieldExpression = {
     type: 'YieldExpression',
     delegate: false,
@@ -195,7 +241,7 @@ function createYieldStatement(lineNumber: number): import('estree').ExpressionSt
           type: 'Property',
           kind: 'init',
           key: { type: 'Identifier', name: 'variables' } as import('estree').Identifier,
-          value: createInlineCaptureVars(),
+          value: createInlineCaptureVars(capturedVarNames),
           computed: false,
           method: false,
           shorthand: false,

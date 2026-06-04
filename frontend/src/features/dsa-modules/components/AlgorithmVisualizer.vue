@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full bg-[#0F172A] relative">
+  <div class="w-full h-full vis-canvas-container relative">
     <component
       :is="activeRenderer"
       :frame="currentFrame"
@@ -11,10 +11,10 @@
       v-if="currentFrame"
       class="absolute top-3 left-4 max-w-[420px] pointer-events-none"
     >
-      <span class="text-[10px] font-bold uppercase tracking-[0.08em] text-cyan-400">
+      <span class="text-[10px] font-bold uppercase tracking-[0.08em] text-accent">
         Step {{ currentFrame.stepId }} / {{ totalSteps }}
       </span>
-      <p class="text-[13px] font-semibold text-slate-100 leading-[1.4] mt-1 drop-shadow-[0_1px_8px_rgba(0,0,0,0.7)]">
+      <p class="text-[13px] font-semibold text-text-primary leading-[1.4] mt-1 drop-shadow-[0_1px_8px_rgba(0,0,0,0.7)]">
         {{ currentFrame.explanation }}
       </p>
     </div>
@@ -24,13 +24,13 @@
       v-if="!currentFrame"
       class="absolute inset-0 flex items-center justify-center"
     >
-      <p class="text-sm text-slate-500 text-center px-8">
+      <p class="text-sm text-text-muted text-center px-8">
         Chọn thuật toán và nhập dữ liệu để bắt đầu trực quan hóa.
       </p>
     </div>
 
     <!-- Progress bar -->
-    <div class="absolute bottom-0 left-0 right-0 h-[3px] bg-slate-800/60">
+    <div class="absolute bottom-0 left-0 right-0 h-[3px] bg-bg-surface/60">
       <div
         class="h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-r-sm transition-[width] duration-100 ease-out shadow-[0_0_8px_rgba(6,182,212,0.6)]"
         :style="{ width: progressPercent + '%' }"
@@ -81,3 +81,10 @@ const rendererProps = computed(() => {
   return {};
 });
 </script>
+
+<style scoped>
+.vis-canvas-container {
+  background-color: var(--canvas-bg);
+}
+</style>
+

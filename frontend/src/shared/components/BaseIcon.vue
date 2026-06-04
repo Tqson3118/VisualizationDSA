@@ -119,6 +119,34 @@
       <line x1="2" y1="9" x2="22" y2="9" />
       <line x1="12" y1="3" x2="12" y2="21" />
     </g>
+    <g v-else-if="name === 'embed'">
+      <rect x="2" y="3" width="20" height="14" rx="2" />
+      <path d="M8 12l-2-2 2-2M16 12l2-2-2-2" />
+      <line x1="12" y1="17" x2="12" y2="21" />
+    </g>
+    <g v-else-if="name === 'export-share'">
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <polyline points="16 6 12 2 8 6" />
+      <line x1="12" y1="2" x2="12" y2="15" />
+    </g>
+    <g v-else-if="name === 'learning-path'">
+      <circle cx="12" cy="18" r="3" />
+      <circle cx="6" cy="6" r="3" />
+      <circle cx="18" cy="6" r="3" />
+      <path d="M6 9a6 6 0 0 0 6 6v0" />
+      <path d="M18 9a6 6 0 0 1-6 6" />
+    </g>
+    <g v-else-if="name === 'multi-view'">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <line x1="9" y1="3" x2="9" y2="21" />
+      <line x1="9" y1="12" x2="21" y2="12" />
+    </g>
+    <g v-else-if="name === 'timeline'">
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <line x1="6" y1="5" x2="6" y2="19" />
+      <line x1="18" y1="5" x2="18" y2="19" />
+      <circle cx="12" cy="12" r="2" fill="currentColor" />
+    </g>
 
     <!-- 2. Utility & Interaction Icons -->
     <g v-else-if="name === 'clock'">

@@ -6,21 +6,21 @@
     >
       <div class="flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
-          fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400">
+          fill="none" stroke="currentColor" stroke-width="2" class="text-text-secondary">
           <polyline points="4 17 10 11 4 5" />
           <line x1="12" y1="19" x2="20" y2="19" />
         </svg>
-        <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">
+        <span class="text-xs font-medium text-text-secondary uppercase tracking-wider">
           Compiler Console
         </span>
-        <span class="text-[10px] text-slate-600 font-mono">
+        <span class="text-[10px] text-text-disabled font-mono">
           {{ logs.length }} dòng
         </span>
       </div>
       <button
         v-if="logs.length > 0"
         @click="compilerStore.clearLogs()"
-        class="text-[10px] text-slate-500 hover:text-slate-300 transition-colors px-2 py-0.5 rounded"
+        class="text-[10px] text-text-muted hover:text-text-secondary transition-colors px-2 py-0.5 rounded"
       >
         Xóa
       </button>
@@ -32,8 +32,8 @@
     >
       <!-- Empty state -->
       <div v-if="logs.length === 0" class="flex items-center justify-center h-full">
-        <p class="text-xs text-slate-600 text-center">
-          Nhấn <span class="text-cyan-500 font-semibold">RUN</span> để bắt đầu biên dịch mã nguồn.
+        <p class="text-xs text-text-disabled text-center">
+          Nhấn <span class="text-accent font-semibold">RUN</span> để bắt đầu biên dịch mã nguồn.
         </p>
       </div>
 
@@ -44,7 +44,7 @@
         class="console-log-line leading-relaxed"
         :class="logLineClass(log.type)"
       >
-        <span class="text-slate-600 text-[11px] mr-2 select-none">{{ log.timestamp }}</span>
+        <span class="text-text-disabled text-[11px] mr-2 select-none">{{ log.timestamp }}</span>
         <span class="font-semibold mr-1.5 text-[11px] uppercase select-none" :class="logBadgeClass(log.type)">
           [{{ logBadgeText(log.type) }}]
         </span>
@@ -85,10 +85,10 @@ function logLineClass(type: ConsoleLogEntry['type']): string {
 
 function logBadgeClass(type: ConsoleLogEntry['type']): string {
   switch (type) {
-    case 'success': return 'text-cyan-400';
-    case 'error': return 'text-rose-400';
-    case 'warn': return 'text-amber-400';
-    default: return 'text-slate-400';
+    case 'success': return 'text-accent';
+    case 'error': return 'text-accent-red';
+    case 'warn': return 'text-accent-yellow';
+    default: return 'text-text-secondary';
   }
 }
 

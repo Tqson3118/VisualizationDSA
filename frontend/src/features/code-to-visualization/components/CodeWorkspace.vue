@@ -24,11 +24,11 @@
         <div v-if="!hasFrames" class="absolute inset-0 flex items-center justify-center" style="background: rgba(15, 23, 42, 0.8);">
           <div class="text-center px-8">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="1.5" class="mx-auto mb-3 text-slate-600">
+              fill="none" stroke="currentColor" stroke-width="1.5" class="mx-auto mb-3 text-text-disabled">
               <polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" />
             </svg>
-            <p class="text-sm text-slate-500">
-              Viết mã sắp xếp bên trái, nhấn <span class="text-cyan-400 font-semibold">RUN</span> để xem hoạt ảnh.
+            <p class="text-sm text-text-muted">
+              Viết mã sắp xếp bên trái, nhấn <span class="text-accent font-semibold">RUN</span> để xem hoạt ảnh.
             </p>
           </div>
         </div>

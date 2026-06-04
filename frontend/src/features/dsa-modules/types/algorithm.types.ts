@@ -32,6 +32,7 @@ export interface HighlightIndices {
   high?: number | null;
   dimmed: number[];
   active: number[];
+  target?: number;
 }
 
 export interface FrameDTO {

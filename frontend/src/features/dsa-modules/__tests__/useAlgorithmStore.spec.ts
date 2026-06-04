@@ -25,13 +25,13 @@ describe('useAlgorithmStore', () => {
     await store.fetchAlgorithms();
 
     expect(store.algorithms.length).toBe(ALGORITHM_CATALOG.length);
-    expect(store.algorithms[0].id).toBe('bubble-sort');
+    expect(store.algorithms[0].id).toBe('linear-search');
     expect(store.isLoading).toBe(false);
   });
 
   it('fetchAlgorithms loads from API when available', async () => {
     const mockAlgorithms = [
-      { id: 'bubble-sort', name: 'Bubble Sort', category: 'Sorting', difficulty: 'Easy', timeComplexity: 'O(N²)', spaceComplexity: 'O(1)' },
+      { id: 'linear-search', name: 'Linear Search', category: 'Searching', difficulty: 'Easy', timeComplexity: 'O(N)', spaceComplexity: 'O(1)' },
     ];
     vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
@@ -42,13 +42,13 @@ describe('useAlgorithmStore', () => {
     await store.fetchAlgorithms();
 
     expect(store.algorithms.length).toBe(1);
-    expect(store.algorithms[0].id).toBe('bubble-sort');
+    expect(store.algorithms[0].id).toBe('linear-search');
   });
 
   it('selectAlgorithm sets currentAlgorithm and loads local metadata', () => {
     const store = useAlgorithmStore();
     store.algorithms = [...ALGORITHM_CATALOG];
-    const algo = ALGORITHM_CATALOG[0]; // bubble-sort
+    const algo = ALGORITHM_CATALOG[0]; // linear-search
 
     store.selectAlgorithm(algo);
 
@@ -72,9 +72,9 @@ describe('useAlgorithmStore', () => {
     const store = useAlgorithmStore();
     store.algorithms = [...ALGORITHM_CATALOG];
 
-    store.setSearchQuery('quick');
+    store.setSearchQuery('sliding');
     expect(store.filteredAlgorithms.length).toBe(1);
-    expect(store.filteredAlgorithms[0].id).toBe('quick-sort');
+    expect(store.filteredAlgorithms[0].id).toBe('sliding-window');
 
     store.setSearchQuery('');
     expect(store.filteredAlgorithms.length).toBe(ALGORITHM_CATALOG.length);
@@ -85,7 +85,7 @@ describe('useAlgorithmStore', () => {
     store.algorithms = [...ALGORITHM_CATALOG];
 
     store.setSearchQuery('searching');
-    expect(store.filteredAlgorithms.length).toBe(2);
+    expect(store.filteredAlgorithms.length).toBe(3);
     expect(store.filteredAlgorithms.every((a) => a.category === 'Searching')).toBe(true);
   });
 
@@ -93,7 +93,7 @@ describe('useAlgorithmStore', () => {
     const store = useAlgorithmStore();
     store.algorithms = [...ALGORITHM_CATALOG];
 
-    expect(store.categories).toContain('Sorting');
+    expect(store.categories).not.toContain('Sorting');
     expect(store.categories).toContain('Searching');
     expect(store.categories).toContain('Stack-Queue');
     expect(store.categories).toContain('Tree');
@@ -104,11 +104,11 @@ describe('useAlgorithmStore', () => {
     const store = useAlgorithmStore();
     store.algorithms = [...ALGORITHM_CATALOG];
 
-    await store.loadAlgorithmDetails('bubble-sort');
+    await store.loadAlgorithmDetails('linear-search');
 
-    expect(store.currentAlgorithm?.id).toBe('bubble-sort');
+    expect(store.currentAlgorithm?.id).toBe('linear-search');
     expect(store.metadata).not.toBeNull();
-    expect(store.metadata?.timeComplexity).toBe('O(N²)');
+    expect(store.metadata?.timeComplexity).toBe('O(N)');
   });
 
   it('has local metadata for all 10 algorithms', () => {

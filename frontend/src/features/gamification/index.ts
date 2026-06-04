@@ -5,11 +5,12 @@
 
 export { default as GamificationPanel } from './components/GamificationPanel.vue';
 
-export {
-  XPEngine,
-  type UserProgress,
-  type Badge,
-  type LevelConfig,
-  type XPEvent,
-  type EmbedConfig,
-} from './XPEngine';
+export { XPEngine } from './XPEngine';
+
+export type {
+  UserProgress,
+  Badge,
+  LevelConfig,
+  XPEvent,
+  EmbedConfig,
+} from './xpConfig';

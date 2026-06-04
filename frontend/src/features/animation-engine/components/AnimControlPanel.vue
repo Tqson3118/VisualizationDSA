@@ -43,13 +43,13 @@
     <!-- State indicator row -->
     <div class="state-indicator-row">
       <span class="state-dot" :class="{
-        'bg-slate-600': store.playbackState === 'UNINITIALIZED',
-        'bg-cyan-500': store.playbackState === 'LOADED',
-        'bg-green-500 animate-pulse': store.playbackState === 'PLAYING',
-        'bg-amber-500': store.playbackState === 'PAUSED',
-        'bg-emerald-500': store.playbackState === 'FINISHED',
+        'state-dot--idle':     store.playbackState === 'UNINITIALIZED',
+        'state-dot--loaded':   store.playbackState === 'LOADED',
+        'state-dot--playing animate-pulse': store.playbackState === 'PLAYING',
+        'state-dot--paused':   store.playbackState === 'PAUSED',
+        'state-dot--finished': store.playbackState === 'FINISHED',
       }" />
-      <span class="text-xs text-slate-500">{{ store.playbackState }}</span>
+      <span class="state-label">{{ store.playbackState }}</span>
     </div>
   </div>
 </template>
@@ -64,9 +64,9 @@ import { useSliderTooltip, truncateText } from '../composables/useSliderTooltip'
 import VcrButtonsRow from './VcrButtonsRow.vue';
 import AnimTimelineSlider from './AnimTimelineSlider.vue';
 
-const store        = useAnimationStore();
-const speedPrefs   = useSpeedPreferences();
-const scrubEngine  = useThrottledScrub();
+const store         = useAnimationStore();
+const speedPrefs    = useSpeedPreferences();
+const scrubEngine   = useThrottledScrub();
 const sliderTooltip = useSliderTooltip();
 const { registerHotkeys } = usePlaybackHotkeys();
 
@@ -102,14 +102,48 @@ onBeforeUnmount(() => { if (cleanupHotkeys) cleanupHotkeys(); });
 </script>
 
 <style scoped>
-.control-panel-container { height: 100%; display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: rgba(15,23,42,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid rgba(148,163,184,0.1); color: #e2e8f0; transition: opacity 0.2s ease; }
-.disabled-panel { opacity: 0.5; pointer-events: none; }
-.vcr-row { display: flex; align-items: center; gap: 16px; flex: 1; min-height: 0; }
-.speed-controls-right { flex-shrink: 0; }
-.speed-select-dropdown { padding: 6px 10px; border-radius: 8px; background: rgba(30,41,59,0.8); border: 1px solid rgba(71,85,105,0.5); color: #94a3b8; font-size: 12px; font-weight: 600; cursor: pointer; outline: none; transition: all 0.15s; }
-.speed-select-dropdown:hover { border-color: #10b981; color: #10b981; }
-.speed-select-dropdown:focus { border-color: #10b981; box-shadow: 0 0 8px rgba(16,185,129,0.2); }
+.control-panel-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--color-bg-secondary);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  transition: opacity 0.2s ease;
+}
+.disabled-panel        { opacity: 0.5; pointer-events: none; }
+.vcr-row               { display: flex; align-items: center; gap: 16px; flex: 1; min-height: 0; }
+.speed-controls-right  { flex-shrink: 0; }
+
+.speed-select-dropdown {
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition-fast);
+}
+.speed-select-dropdown:hover    { border-color: var(--color-accent-green); color: var(--color-accent-green); }
+.speed-select-dropdown:focus    { border-color: var(--color-accent-green); box-shadow: 0 0 8px var(--color-accent-green-glow); }
 .speed-select-dropdown:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* State indicator */
 .state-indicator-row { display: flex; align-items: center; gap: 8px; }
-.state-dot { width: 8px; height: 8px; border-radius: 50%; }
+.state-dot  { width: 8px; height: 8px; border-radius: 50%; }
+.state-label { font-size: var(--text-xs); color: var(--color-text-muted); }
+
+/* State-specific dot colors — semantic, không phụ thuộc theme */
+.state-dot--idle     { background: var(--color-text-disabled); }
+.state-dot--loaded   { background: var(--color-accent-cyan); }
+.state-dot--playing  { background: var(--color-accent-green); }
+.state-dot--paused   { background: var(--color-accent-yellow); }
+.state-dot--finished { background: var(--color-accent-green); }
 </style>

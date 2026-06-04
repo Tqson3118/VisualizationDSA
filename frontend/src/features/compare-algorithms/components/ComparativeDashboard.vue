@@ -11,8 +11,8 @@
     <CompareStatCard label="Tổng bước"
       :left-value="store.leftTotalFrames" :right-value="store.rightTotalFrames">
       <div class="mt-2 text-center">
-        <span class="text-[10px] font-medium text-slate-500">
-          Tỷ lệ: <span class="text-white font-bold">{{ store.efficiencyRatio }}x</span>
+        <span class="text-[10px] font-medium text-text-muted">
+          Tỷ lệ: <span class="text-text-primary font-bold">{{ store.efficiencyRatio }}x</span>
         </span>
       </div>
     </CompareStatCard>

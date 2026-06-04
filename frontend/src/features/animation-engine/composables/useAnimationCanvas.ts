@@ -2,7 +2,7 @@ import { ref, computed, watch, onMounted, onBeforeUnmount, type Ref } from 'vue'
 import { useAnimationStore } from '../store/useAnimationStore';
 import {
   MARGIN_BOTTOM, PADDING_TOP, GAP,
-  COLOR_BG, COLOR_DEFAULT, COLOR_COMPARE, COLOR_SWAP, COLOR_SORTED, COLOR_TEXT,
+  COLOR_DEFAULT, COLOR_COMPARE, COLOR_SWAP, COLOR_SORTED, COLOR_TEXT,
   easeOut, lerp, calculateColumnWidth, calculateColumnHeight, calculateX,
 } from './canvasMathHelpers';
 
@@ -61,7 +61,10 @@ export function useAnimationCanvas(
     const h = canvas.height / dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = COLOR_BG;
+    
+    const style = getComputedStyle(document.documentElement);
+    const colorBg = style.getPropertyValue('--canvas-bg').trim() || '#080808';
+    ctx.fillStyle = colorBg;
     ctx.fillRect(0, 0, w, h);
     const frame = store.currentFrame;
     if (!frame) return;

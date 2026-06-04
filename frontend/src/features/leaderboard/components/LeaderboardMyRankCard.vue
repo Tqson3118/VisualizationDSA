@@ -4,7 +4,7 @@
     <div class="rank-info">
       <span class="rank-number">#{{ rank.rank }}</span>
       <span class="rank-xp">{{ rank.totalXP.toLocaleString() }} XP</span>
-      <span v-if="rank.isInTop" class="top-badge flex items-center gap-1">Top 20 <BaseIcon name="streak" class="w-3.5 h-3.5 text-yellow-400" /></span>
+      <span v-if="rank.isInTop" class="top-badge flex items-center gap-1">Top 20 <BaseIcon name="streak" class="w-3.5 h-3.5 text-accent-yellow" /></span>
     </div>
   </div>
 </template>

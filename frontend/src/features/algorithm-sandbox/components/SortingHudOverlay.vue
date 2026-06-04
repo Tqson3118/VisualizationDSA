@@ -1,9 +1,9 @@
 <template>
-  <div class="absolute top-3.5 left-4 flex flex-col gap-1 pointer-events-none">
-    <span class="text-[10px] font-bold uppercase tracking-[0.08em] text-cyan-400">
+  <div class="flex flex-col gap-1 pointer-events-none flex-1 min-w-0">
+    <span class="viewport-label text-[10px] font-bold uppercase tracking-[0.08em]">
       Algorithm Viewport
     </span>
-    <span class="text-[13px] font-semibold text-slate-100 max-w-[340px] leading-[1.4] drop-shadow-[0_1px_8px_rgba(0,0,0,0.7)]">
+    <span class="step-desc text-[13px] font-semibold leading-[1.4] drop-shadow-[0_1px_8px_rgba(0,0,0,0.7)] line-clamp-2">
       {{ stepDescription }}
     </span>
   </div>
@@ -14,3 +14,13 @@ defineProps<{
   stepDescription: string;
 }>();
 </script>
+
+<style scoped>
+.viewport-label {
+  color: var(--color-accent-cyan);
+}
+
+.step-desc {
+  color: var(--color-text-primary);
+}
+</style>

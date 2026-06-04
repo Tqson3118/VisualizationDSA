@@ -20,12 +20,12 @@
           :deadlocked-thread-ids="store.deadlockedThreadIds"
         />
       </div>
-      <div class="col-span-1 min-h-0 bg-slate-900 rounded-xl border border-slate-800 overflow-hidden flex flex-col">
-        <div class="px-3 py-2 border-b border-slate-800 bg-slate-800/50">
-          <span class="text-[10px] text-slate-400 uppercase tracking-wider">Mã giả đa luồng</span>
+      <div class="col-span-1 min-h-0 bg-bg-secondary rounded-xl border border-border-subtle overflow-hidden flex flex-col">
+        <div class="px-3 py-2 border-b border-border-subtle bg-bg-surface/50">
+          <span class="text-[10px] text-text-secondary uppercase tracking-wider">Mã giả đa luồng</span>
         </div>
         <div class="flex-1 overflow-auto p-3">
-          <pre class="text-[11px] text-slate-300 font-mono leading-relaxed whitespace-pre-wrap">{{ store.activeScenario?.pseudocode ?? '' }}</pre>
+          <pre class="text-[11px] text-text-secondary font-mono leading-relaxed whitespace-pre-wrap">{{ store.activeScenario?.pseudocode ?? '' }}</pre>
         </div>
       </div>
     </div>

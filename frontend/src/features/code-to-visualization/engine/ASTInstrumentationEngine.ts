@@ -219,7 +219,7 @@ function replaceInNode(node: Node, replacements: Map<Node, Node>): void {
 
   for (const key of Object.keys(node)) {
     if (key === 'type') continue;
-    const value = (node as Record<string, unknown>)[key];
+    const value = (node as unknown as Record<string, unknown>)[key];
 
     if (Array.isArray(value)) {
       for (let i = 0; i < value.length; i++) {
@@ -233,10 +233,10 @@ function replaceInNode(node: Node, replacements: Map<Node, Node>): void {
           }
         }
       }
-    } else if (value && typeof value === 'object' && 'type' in (value as Record<string, unknown>)) {
+    } else if (value && typeof value === 'object' && 'type' in (value as unknown as Record<string, unknown>)) {
       const replacement = replacements.get(value as Node);
       if (replacement) {
-        (node as Record<string, unknown>)[key] = replacement;
+        (node as unknown as Record<string, unknown>)[key] = replacement;
       } else {
         replaceInNode(value as Node, replacements);
       }

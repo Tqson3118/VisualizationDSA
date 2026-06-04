@@ -1,5 +1,5 @@
 <template>
-  <div ref="containerRef" class="w-full h-full bg-[#0F172A] relative">
+  <div ref="containerRef" class="w-full h-full vis-canvas-container relative">
     <canvas ref="canvasRef" class="w-full h-full block" />
   </div>
 </template>
@@ -17,14 +17,6 @@ const MARGIN_BOTTOM = 40;
 const PADDING_TOP = 20;
 const GAP = 6;
 
-const COLOR_BG = '#0F172A';
-const COLOR_DEFAULT = '#38BDF8';
-const COLOR_COMPARE = '#FBBF24';
-const COLOR_SWAP = '#EF4444';
-const COLOR_SORTED = '#10B981';
-const COLOR_PIVOT = '#8B5CF6';
-const COLOR_TEXT = '#FFFFFF';
-
 const containerRef = ref<HTMLDivElement | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let resizeObserver: ResizeObserver | null = null;
@@ -40,12 +32,12 @@ function resizeCanvas(): void {
   renderCanvas();
 }
 
-function determineColor(index: number, frame: FrameDTO): string {
-  if (frame.highlights.sorted.includes(index)) return COLOR_SORTED;
-  if (frame.highlights.pivot === index) return COLOR_PIVOT;
-  if (frame.highlights.swap.includes(index)) return COLOR_SWAP;
-  if (frame.highlights.compare.includes(index)) return COLOR_COMPARE;
-  return COLOR_DEFAULT;
+function determineColor(index: number, frame: FrameDTO, colors: Record<string, string>): string {
+  if (frame.highlights.sorted.includes(index)) return colors.sorted;
+  if (frame.highlights.pivot === index) return colors.pivot;
+  if (frame.highlights.swap.includes(index)) return colors.swap;
+  if (frame.highlights.compare.includes(index)) return colors.compare;
+  return colors.default;
 }
 
 function renderCanvas(): void {
@@ -54,13 +46,32 @@ function renderCanvas(): void {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
+  // Retrieve theme colors dynamically
+  const style = getComputedStyle(document.documentElement);
+  const colorBg = style.getPropertyValue('--canvas-bg').trim() || '#080808';
+  const colorDefault = style.getPropertyValue('--color-accent-cyan').trim() || '#38BDF8';
+  const colorCompare = style.getPropertyValue('--color-accent-yellow').trim() || '#FBBF24';
+  const colorSwap = style.getPropertyValue('--color-accent-red').trim() || '#EF4444';
+  const colorSorted = style.getPropertyValue('--color-accent-green').trim() || '#10B981';
+  const colorPivot = style.getPropertyValue('--color-accent-purple').trim() || '#8B5CF6';
+  const colorText = style.getPropertyValue('--color-text-primary').trim() || '#FFFFFF';
+  const colorMuted = style.getPropertyValue('--color-text-muted').trim() || '#94A3B8';
+
+  const colors = {
+    default: colorDefault,
+    compare: colorCompare,
+    swap: colorSwap,
+    sorted: colorSorted,
+    pivot: colorPivot
+  };
+
   const dpr = window.devicePixelRatio || 1;
   const w = canvas.width / dpr;
   const h = canvas.height / dpr;
 
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = COLOR_BG;
+  ctx.fillStyle = colorBg;
   ctx.fillRect(0, 0, w, h);
 
   const frame = props.frame;
@@ -77,17 +88,17 @@ function renderCanvas(): void {
     const x = MARGIN + i * (colW + GAP);
     const y = h - MARGIN_BOTTOM - barH;
 
-    ctx.fillStyle = determineColor(i, frame);
+    ctx.fillStyle = determineColor(i, frame, colors);
     ctx.beginPath();
     ctx.roundRect(x, y, colW, barH, 3);
     ctx.fill();
 
-    ctx.fillStyle = COLOR_TEXT;
+    ctx.fillStyle = colorText;
     ctx.font = `bold ${Math.min(12, colW * 0.5)}px monospace`;
     ctx.textAlign = 'center';
     ctx.fillText(String(val), x + colW / 2, h - MARGIN_BOTTOM + 14);
 
-    ctx.fillStyle = '#94A3B8';
+    ctx.fillStyle = colorMuted;
     ctx.font = `${Math.min(9, colW * 0.35)}px monospace`;
     ctx.fillText(String(i), x + colW / 2, h - MARGIN_BOTTOM + 24);
   }
@@ -105,3 +116,10 @@ onBeforeUnmount(() => {
   resizeObserver?.disconnect();
 });
 </script>
+
+<style scoped>
+.vis-canvas-container {
+  background-color: var(--canvas-bg);
+}
+</style>
+

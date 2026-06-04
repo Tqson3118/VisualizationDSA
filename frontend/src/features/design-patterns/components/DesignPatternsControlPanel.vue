@@ -3,7 +3,7 @@
     <!-- Scenario info -->
     <div class="panel-section">
       <div class="panel-label">Kịch bản</div>
-      <div class="panel-value text-cyan-400">{{ scenarioTitle }}</div>
+      <div class="panel-value text-accent">{{ scenarioTitle }}</div>
     </div>
 
     <!-- Strategy controls -->

@@ -2,8 +2,8 @@
   <div class="checkout-container flex items-center justify-center min-h-screen px-4 py-8">
     <div class="glass-panel main-card w-full max-w-4xl overflow-hidden grid grid-cols-1 md:grid-cols-12 gap-0 relative">
       <!-- Decorative background glows -->
-      <div class="absolute -top-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full blur-3xl opacity-20 pointer-events-none"></div>
-      <div class="absolute -bottom-40 -right-40 w-80 h-80 bg-rose-500 rounded-full blur-3xl opacity-20 pointer-events-none"></div>
+      <div class="absolute -top-40 -left-40 w-80 h-80 bg-accent rounded-full blur-3xl opacity-20 pointer-events-none"></div>
+      <div class="absolute -bottom-40 -right-40 w-80 h-80 bg-accent-red rounded-full blur-3xl opacity-20 pointer-events-none"></div>
 
       <!-- Left Column: Marketing / Pricing -->
       <PremiumMarketingCard />
@@ -88,6 +88,6 @@ onUnmounted(() => { stopTimer(); stopPolling(); });
 </script>
 
 <style scoped>
-.checkout-container { background: radial-gradient(circle at center, #0e1726 0%, #070b13 100%); min-height: 100vh; }
+.checkout-container { background: radial-gradient(circle at center, var(--color-bg-secondary) 0%, var(--color-bg-primary) 100%); min-height: 100vh; }
 .main-card { border-color: var(--border-color); box-shadow: 0 0 50px -15px rgba(6,182,212,0.15); }
 </style>

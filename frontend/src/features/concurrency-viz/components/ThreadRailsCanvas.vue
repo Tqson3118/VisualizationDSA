@@ -6,7 +6,7 @@
   >
     <!-- Deadlock Alert Overlay -->
     <div v-if="isDeadlocked" class="deadlock-alert-overlay">
-      <svg class="w-5 h-5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <svg class="w-5 h-5 text-accent-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <span>DEADLOCK: Chu trình nghẽn khép kín!</span>
@@ -41,16 +41,16 @@
 
           <!-- Thread runner node -->
           <div class="thread-runner-node" :class="threadNodeClass(thread)" :style="{ left: `calc(${thread.progress}% - 12px)` }">
-            <span class="text-[8px] font-bold text-white absolute inset-0 flex items-center justify-center">{{ thread.id }}</span>
+            <span class="text-[8px] font-bold text-text-primary absolute inset-0 flex items-center justify-center">{{ thread.id }}</span>
           </div>
 
           <!-- Progress markers -->
           <div class="absolute inset-0 flex items-center pointer-events-none">
-            <div class="absolute left-0 top-1/2 w-1 h-1 rounded-full bg-slate-600 -translate-y-1/2"></div>
-            <div class="absolute left-1/4 top-1/2 w-1 h-1 rounded-full bg-slate-600 -translate-y-1/2"></div>
-            <div class="absolute left-1/2 top-1/2 w-1.5 h-1.5 rounded-full bg-slate-500 -translate-y-1/2"></div>
-            <div class="absolute left-3/4 top-1/2 w-1 h-1 rounded-full bg-slate-600 -translate-y-1/2"></div>
-            <div class="absolute right-0 top-1/2 w-1 h-1 rounded-full bg-slate-600 -translate-y-1/2"></div>
+            <div class="absolute left-0 top-1/2 w-1 h-1 rounded-full bg-bg-hover -translate-y-1/2"></div>
+            <div class="absolute left-1/4 top-1/2 w-1 h-1 rounded-full bg-bg-hover -translate-y-1/2"></div>
+            <div class="absolute left-1/2 top-1/2 w-1.5 h-1.5 rounded-full bg-bg-hover -translate-y-1/2"></div>
+            <div class="absolute left-3/4 top-1/2 w-1 h-1 rounded-full bg-bg-hover -translate-y-1/2"></div>
+            <div class="absolute right-0 top-1/2 w-1 h-1 rounded-full bg-bg-hover -translate-y-1/2"></div>
           </div>
         </div>
 
@@ -64,8 +64,8 @@
     <!-- Shared Counter -->
     <div class="absolute bottom-4 right-4 flex items-center gap-3">
       <div class="counter-display">
-        <span class="text-[10px] text-slate-400 uppercase tracking-wider">Counter</span>
-        <span class="text-2xl font-bold tabular-nums" :class="isDeadlocked ? 'text-rose-400' : 'text-emerald-400'">{{ sharedCounter }}</span>
+        <span class="text-[10px] text-text-secondary uppercase tracking-wider">Counter</span>
+        <span class="text-2xl font-bold tabular-nums" :class="isDeadlocked ? 'text-accent-red' : 'text-accent-green'">{{ sharedCounter }}</span>
       </div>
     </div>
   </div>
