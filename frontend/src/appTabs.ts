@@ -28,4 +28,10 @@ export const APP_TABS: readonly (TabGroup | TabItem)[] = [
       { id: 'system',   path: '/system',   name: 'System Design' }
     ]
   },
+  {
+    groupName: 'Account',
+    items: [
+      { id: 'checkout', path: '/checkout', name: 'Premium' },
+    ]
+  },
 ] as const;

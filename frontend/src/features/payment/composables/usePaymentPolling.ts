@@ -9,7 +9,7 @@ export function usePaymentPolling() {
     orderId: string,
     token: string,
     onSuccess: () => void,
-    onError?: (err: any) => void
+    onError?: (err: unknown) => void
   ) {
     stopPolling();
     isPolling.value = true;

@@ -1958,3 +1958,18 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 1593 | **Auth Frontend** | User badge in header | Avatar initial + name + XP + level conditionally rendered | 🟢PASSED |
 | 1594 | **Auth Frontend** | Logout flow | Session cleared, header reverts to guest mode | 🟢PASSED |
 | 1595 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend vue-tsc --noEmit 0 errors | 🟢PASSED |
+| 1600 | **Payment API** | GET /concepts/payment/config | Returns price, bank, features | 🟢PASSED |
+| 1601 | **Payment API** | POST /concepts/payment/checkout | Creates order + QR URL + paymentCode | 🟢PASSED |
+| 1602 | **Payment API** | GET /concepts/payment/orders/{id}/status | Pending → Completed tracking | 🟢PASSED |
+| 1603 | **Payment API** | POST /concepts/payment/simulate-webhook | Status flips Completed + Premium | 🟢PASSED |
+| 1604 | **Payment API** | POST /concepts/payment/verify | Status → Completed, user Premium | 🟢PASSED |
+| 1605 | **Payment API** | GET /concepts/payment/premium-status | isPremium + plan + features | 🟢PASSED |
+| 1606 | **Payment API** | POST checkout when already Premium | 409 ALREADY_PREMIUM | 🟢PASSED |
+| 1607 | **Payment API** | GET /concepts/payment/check-access | Gating by premium/free feature | 🟢PASSED |
+| 1608 | **Payment API** | GET /concepts/payment/transactions | Transaction log entries | 🟢PASSED |
+| 1609 | **Payment API** | GET order not found | 404 ORDER_NOT_FOUND | 🟢PASSED |
+| 1610 | **Payment Frontend** | PremiumCheckoutView refactored | Uses Pinia store, no any types | 🟢PASSED |
+| 1611 | **Payment Frontend** | Premium crown badge + PRO tag | Crown glow + gold avatar + PRO | 🟢PASSED |
+| 1612 | **Payment Frontend** | PremiumGate component | Blur + overlay for free users | 🟢PASSED |
+| 1613 | **Payment Frontend** | Sidebar Premium tab | Account group with Premium nav | 🟢PASSED |
+| 1614 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |

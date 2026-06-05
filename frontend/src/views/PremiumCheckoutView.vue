@@ -12,82 +12,97 @@
       <div class="col-span-12 md:col-span-7 p-8 flex flex-col justify-center min-h-[480px]">
         <!-- Screen 1: Idle -->
         <CheckoutIdleScreen
-          v-if="state === 'idle'"
-          :is-loading="isLoading"
-          :error="error"
+          v-if="paymentStore.checkoutState === 'idle'"
+          :is-loading="paymentStore.isLoading"
+          :error="paymentStore.paymentError"
           @start="initiatePayment"
         />
 
         <!-- Screen 2: QR Payment -->
         <QrPaymentPanel
-          v-else-if="state === 'paying'"
-          :order="order"
+          v-else-if="paymentStore.checkoutState === 'paying'"
+          :order="paymentStore.currentOrder"
           :formattedTime="formattedTime"
           :isExpired="isExpired"
           :isWarningTime="isWarningTime"
           @retry="initiatePayment"
         />
 
+        <!-- Screen 2b: Verifying -->
+        <div v-else-if="paymentStore.checkoutState === 'verifying'" class="text-center py-12">
+          <div class="spinner-lg mx-auto mb-4"></div>
+          <p class="text-sm text-[var(--text-secondary)]">Đang xác nhận thanh toán...</p>
+        </div>
+
         <!-- Screen 3: Success -->
-        <CheckoutSuccessScreen v-else-if="state === 'success'" @finish="finishCheckout" />
+        <CheckoutSuccessScreen v-else-if="paymentStore.checkoutState === 'success'" @finish="finishCheckout" />
+
+        <!-- Screen 4: Error -->
+        <div v-else-if="paymentStore.checkoutState === 'error'" class="text-center py-12">
+          <p class="text-accent-red mb-4">{{ paymentStore.paymentError }}</p>
+          <button class="px-6 py-2 bg-accent rounded-lg" @click="paymentStore.resetCheckout()">Thử lại</button>
+        </div>
+
+        <!-- Simulate Payment Button (dev mode) -->
+        <div v-if="paymentStore.checkoutState === 'paying'" class="mt-4 text-center">
+          <button
+            class="px-4 py-2 text-xs bg-accent-green/20 border border-accent-green/40 rounded-lg hover:bg-accent-green/30 transition"
+            @click="handleSimulatePayment"
+          >
+            🧪 Mô phỏng: Xác nhận đã thanh toán
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../features/auth/store/useAuthStore';
-import * as paymentApi from '../features/payment/services/paymentApi';
-import type { OrderDto } from '../features/payment/services/paymentApi';
+import { usePaymentStore } from '../features/payment/store/usePaymentStore';
 import PremiumMarketingCard from '../features/payment/components/PremiumMarketingCard.vue';
 import QrPaymentPanel from '../features/payment/components/QrPaymentPanel.vue';
 import CheckoutIdleScreen from '../features/payment/components/CheckoutIdleScreen.vue';
 import CheckoutSuccessScreen from '../features/payment/components/CheckoutSuccessScreen.vue';
 import { usePaymentTimer } from '../features/payment/composables/usePaymentTimer';
-import { usePaymentPolling } from '../features/payment/composables/usePaymentPolling';
 
-type CheckoutState = 'idle' | 'paying' | 'success';
-
-const router    = useRouter();
-const authStore = useAuthStore();
-const state     = ref<CheckoutState>('idle');
-const isLoading = ref(false);
-const error     = ref<string | null>(null);
-const order     = ref<OrderDto | null>(null);
+const router = useRouter();
+const paymentStore = usePaymentStore();
 
 const { isExpired, isWarningTime, formattedTime, startTimer, stopTimer } = usePaymentTimer(900);
-const { startPolling, stopPolling } = usePaymentPolling();
+
+onMounted(() => {
+  paymentStore.loadConfig();
+  paymentStore.resetCheckout();
+});
 
 async function initiatePayment(): Promise<void> {
-  const token = authStore.getAccessToken();
-  if (!token) { error.value = 'Bạn cần đăng nhập để thực hiện giao dịch.'; return; }
-  isLoading.value = true;
-  error.value = null;
-  try {
-    const res = await paymentApi.createOrder(token);
-    order.value  = res;
-    state.value  = 'paying';
+  await paymentStore.startCheckout('vietqr');
+  if (paymentStore.checkoutState === 'paying') {
     startTimer(900);
-    startPolling(res.id, token, () => {
-      stopTimer();
-      if (authStore.currentUser) authStore.currentUser.isPremium = true;
-      state.value = 'success';
-    });
-  } catch (err: any) {
-    error.value = err instanceof Error ? err.message : 'Không thể khởi tạo hóa đơn.';
-  } finally {
-    isLoading.value = false;
   }
 }
 
-function finishCheckout(): void { router.push('/sorting'); }
+async function handleSimulatePayment(): Promise<void> {
+  stopTimer();
+  await paymentStore.simulatePaymentSuccess();
+}
 
-onUnmounted(() => { stopTimer(); stopPolling(); });
+function finishCheckout(): void {
+  paymentStore.resetCheckout();
+  router.push('/sorting');
+}
+
+onUnmounted(() => {
+  stopTimer();
+  paymentStore.resetCheckout();
+});
 </script>
 
 <style scoped>
 .checkout-container { background: radial-gradient(circle at center, var(--color-bg-secondary) 0%, var(--color-bg-primary) 100%); min-height: 100vh; }
 .main-card { border-color: var(--border-color); box-shadow: 0 0 50px -15px rgba(6,182,212,0.15); }
+.spinner-lg { width: 2rem; height: 2rem; border: 3px solid rgba(255,255,255,0.2); border-radius: 50%; border-top-color: var(--color-accent-primary); animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
