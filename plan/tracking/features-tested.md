@@ -2002,3 +2002,13 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 1731 | **Motion CSS** | cinematic.css | spring-hover, glass-panel, vcr-frame-enter, stagger-enter | 🟢PASSED |
 | 1732 | **Dependencies** | canvas-confetti + @vueuse/motion | Installed + MotionPlugin registered | 🟢PASSED |
 | 1733 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
+| 1740 | **Design Tokens** | design-tokens.css | 65+ CSS variables centralized | 🟢PASSED |
+| 1741 | **Component** | VcrControls.vue | Shared VCR playback panel | 🟢PASSED |
+| 1742 | **Component** | ConceptScenarioPicker.vue | Shared scenario picker | 🟢PASSED |
+| 1743 | **Component** | VcrExplanationBanner.vue | Shared VCR banner with transition | 🟢PASSED |
+| 1744 | **Refactor** | DesignPatternsWorkspace | Uses shared VCR components | 🟢PASSED |
+| 1745 | **Refactor** | SOLIDVisualizerWorkspace | Uses shared VCR components | 🟢PASSED |
+| 1746 | **Refactor** | DISandbox | Uses shared VCR components | 🟢PASSED |
+| 1747 | **Backend OCP** | AlgorithmDIConfiguration | RegisterByInterface<T> reflection | 🟢PASSED |
+| 1748 | **Architecture** | Domain.csproj | 0 outward dependencies verified | 🟢PASSED |
+| 1749 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
