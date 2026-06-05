@@ -2,7 +2,7 @@
  * diContainerApi — Service layer calling backend DI Container API.
  */
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5050';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5055';
 
 export interface DIContainerFrameResponse {
   stepIndex: number;

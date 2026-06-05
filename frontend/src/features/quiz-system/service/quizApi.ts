@@ -6,7 +6,7 @@
  * Nếu user chưa đăng nhập hoặc offline, silently skip (không báo lỗi người dùng).
  */
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5050';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5055';
 
 /** Payload gửi lên server khi hoàn thành một checkpoint quiz */
 export interface QuizAttemptPayload {

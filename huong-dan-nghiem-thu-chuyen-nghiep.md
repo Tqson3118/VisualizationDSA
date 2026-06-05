@@ -24,7 +24,7 @@ dotnet run --urls "http://0.0.0.0:5050"
 
 # Tab 2: Frontend
 cd frontend
-VITE_API_BASE_URL=http://localhost:5050 npx vite --host 0.0.0.0 --port 5173
+VITE_API_BASE_URL=http://localhost:5055 npx vite --host 0.0.0.0 --port 5173
 ```
 
 ---
@@ -34,7 +34,7 @@ VITE_API_BASE_URL=http://localhost:5050 npx vite --host 0.0.0.0 --port 5173
 ### 2.1 Health Check
 
 ```bash
-curl -s http://localhost:5050/api/v1/diagnostics/health | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/diagnostics/health | python3 -m json.tool
 ```
 
 **Kỳ vọng:**
@@ -49,7 +49,7 @@ curl -s http://localhost:5050/api/v1/diagnostics/health | python3 -m json.tool
 ### 2.2 Mô phỏng lỗi 500 (Internal Server Error)
 
 ```bash
-curl -s http://localhost:5050/api/v1/diagnostics/simulate-error?type=500 | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/diagnostics/simulate-error?type=500 | python3 -m json.tool
 ```
 
 **Kỳ vọng:**
@@ -71,7 +71,7 @@ curl -s http://localhost:5050/api/v1/diagnostics/simulate-error?type=500 | pytho
 ### 2.3 Mô phỏng lỗi 400 (Validation Error)
 
 ```bash
-curl -s http://localhost:5050/api/v1/diagnostics/simulate-error?type=400 | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/diagnostics/simulate-error?type=400 | python3 -m json.tool
 ```
 
 **Kỳ vọng:**
@@ -82,7 +82,7 @@ curl -s http://localhost:5050/api/v1/diagnostics/simulate-error?type=400 | pytho
 ### 2.4 Mô phỏng lỗi 401 (Unauthorized)
 
 ```bash
-curl -s http://localhost:5050/api/v1/diagnostics/simulate-error?type=401 | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/diagnostics/simulate-error?type=401 | python3 -m json.tool
 ```
 
 **Kỳ vọng:**
@@ -92,7 +92,7 @@ curl -s http://localhost:5050/api/v1/diagnostics/simulate-error?type=401 | pytho
 ### 2.5 Mô phỏng lỗi 404 (Not Found)
 
 ```bash
-curl -s http://localhost:5050/api/v1/diagnostics/simulate-error?type=404 | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/diagnostics/simulate-error?type=404 | python3 -m json.tool
 ```
 
 **Kỳ vọng:**
@@ -102,7 +102,7 @@ curl -s http://localhost:5050/api/v1/diagnostics/simulate-error?type=404 | pytho
 ### 2.6 Mô phỏng lỗi 409 (Conflict)
 
 ```bash
-curl -s http://localhost:5050/api/v1/diagnostics/simulate-error?type=409 | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/diagnostics/simulate-error?type=409 | python3 -m json.tool
 ```
 
 **Kỳ vọng:**
@@ -112,7 +112,7 @@ curl -s http://localhost:5050/api/v1/diagnostics/simulate-error?type=409 | pytho
 ### 2.7 Mô phỏng lỗi 501 (Not Implemented)
 
 ```bash
-curl -s http://localhost:5050/api/v1/diagnostics/simulate-error?type=501 | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/diagnostics/simulate-error?type=501 | python3 -m json.tool
 ```
 
 **Kỳ vọng:**

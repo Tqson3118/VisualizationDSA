@@ -1,6 +1,6 @@
 import type { OOPFrame } from '../types/oop-visualization.types';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5050';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5055';
 
 /** Response của GET /scenarios */
 interface OOPScenariosResponse {

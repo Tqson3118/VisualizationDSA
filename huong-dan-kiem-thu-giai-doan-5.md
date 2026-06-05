@@ -40,7 +40,7 @@ dotnet run --urls "http://0.0.0.0:5050"
 
 ```bash
 cd frontend
-VITE_API_BASE_URL=http://localhost:5050 npx vite --host 0.0.0.0 --port 5173
+VITE_API_BASE_URL=http://localhost:5055 npx vite --host 0.0.0.0 --port 5173
 ```
 
 ---
@@ -50,7 +50,7 @@ VITE_API_BASE_URL=http://localhost:5050 npx vite --host 0.0.0.0 --port 5173
 ### 3.1 Lấy cấu hình thanh toán
 
 ```bash
-curl -s http://localhost:5050/api/v1/concepts/payment/config | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/concepts/payment/config | python3 -m json.tool
 ```
 
 **Kỳ vọng:**
@@ -62,7 +62,7 @@ curl -s http://localhost:5050/api/v1/concepts/payment/config | python3 -m json.t
 ### 3.2 Tạo hóa đơn thanh toán (checkout)
 
 ```bash
-curl -s -X POST http://localhost:5050/api/v1/concepts/payment/checkout \
+curl -s -X POST http://localhost:5055/api/v1/concepts/payment/checkout \
   -H "Content-Type: application/json" \
   -d '{"userId":"demo-user-001","paymentMethod":"vietqr"}' | python3 -m json.tool
 ```
@@ -81,7 +81,7 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/payment/checkout \
 ```bash
 ORDER_ID="<paste id từ bước 3.2>"
 
-curl -s "http://localhost:5050/api/v1/concepts/payment/orders/$ORDER_ID/status?userId=demo-user-001" | python3 -m json.tool
+curl -s "http://localhost:5055/api/v1/concepts/payment/orders/$ORDER_ID/status?userId=demo-user-001" | python3 -m json.tool
 ```
 
 **Kỳ vọng:** `status: "Pending"` (chưa thanh toán)
@@ -89,7 +89,7 @@ curl -s "http://localhost:5050/api/v1/concepts/payment/orders/$ORDER_ID/status?u
 ### 3.4 Mô phỏng webhook ngân hàng (xác nhận đã nhận tiền)
 
 ```bash
-curl -s -X POST http://localhost:5050/api/v1/concepts/payment/simulate-webhook \
+curl -s -X POST http://localhost:5055/api/v1/concepts/payment/simulate-webhook \
   -H "Content-Type: application/json" \
   -d "{\"orderId\":\"$ORDER_ID\"}" | python3 -m json.tool
 ```
@@ -102,12 +102,12 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/payment/simulate-webhook \
 
 ```bash
 # Tạo hóa đơn mới để test verify
-NEW_ORDER=$(curl -s -X POST http://localhost:5050/api/v1/concepts/payment/checkout \
+NEW_ORDER=$(curl -s -X POST http://localhost:5055/api/v1/concepts/payment/checkout \
   -H "Content-Type: application/json" \
   -d '{"userId":"demo-user-001","paymentMethod":"vietqr"}')
 NEW_ORDER_ID=$(echo $NEW_ORDER | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
 
-curl -s -X POST http://localhost:5050/api/v1/concepts/payment/verify \
+curl -s -X POST http://localhost:5055/api/v1/concepts/payment/verify \
   -H "Content-Type: application/json" \
   -d "{\"orderId\":\"$NEW_ORDER_ID\",\"userId\":\"demo-user-001\"}" | python3 -m json.tool
 ```
@@ -117,7 +117,7 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/payment/verify \
 ### 3.6 Kiểm tra trạng thái Premium
 
 ```bash
-curl -s "http://localhost:5050/api/v1/concepts/payment/premium-status?userId=demo-user-001" | python3 -m json.tool
+curl -s "http://localhost:5055/api/v1/concepts/payment/premium-status?userId=demo-user-001" | python3 -m json.tool
 ```
 
 **Kỳ vọng:**
@@ -128,7 +128,7 @@ curl -s "http://localhost:5050/api/v1/concepts/payment/premium-status?userId=dem
 ### 3.7 Tạo hóa đơn khi đã Premium (trùng)
 
 ```bash
-curl -s -X POST http://localhost:5050/api/v1/concepts/payment/checkout \
+curl -s -X POST http://localhost:5055/api/v1/concepts/payment/checkout \
   -H "Content-Type: application/json" \
   -d '{"userId":"demo-user-001","paymentMethod":"vietqr"}' | python3 -m json.tool
 ```
@@ -139,13 +139,13 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/payment/checkout \
 
 ```bash
 # Tính năng Premium (khi đã Premium → có quyền)
-curl -s "http://localhost:5050/api/v1/concepts/payment/check-access?featureId=unlimited-runs&userId=demo-user-001" | python3 -m json.tool
+curl -s "http://localhost:5055/api/v1/concepts/payment/check-access?featureId=unlimited-runs&userId=demo-user-001" | python3 -m json.tool
 
 # Tính năng Premium (khi chưa Premium → KHÔNG có quyền)
-curl -s "http://localhost:5050/api/v1/concepts/payment/check-access?featureId=unlimited-runs&userId=new-user-999" | python3 -m json.tool
+curl -s "http://localhost:5055/api/v1/concepts/payment/check-access?featureId=unlimited-runs&userId=new-user-999" | python3 -m json.tool
 
 # Tính năng miễn phí (luôn có quyền)
-curl -s "http://localhost:5050/api/v1/concepts/payment/check-access?featureId=basic-viz&userId=new-user-999" | python3 -m json.tool
+curl -s "http://localhost:5055/api/v1/concepts/payment/check-access?featureId=basic-viz&userId=new-user-999" | python3 -m json.tool
 ```
 
 **Kỳ vọng:**
@@ -156,7 +156,7 @@ curl -s "http://localhost:5050/api/v1/concepts/payment/check-access?featureId=ba
 ### 3.9 Lấy lịch sử giao dịch
 
 ```bash
-curl -s "http://localhost:5050/api/v1/concepts/payment/transactions?userId=demo-user-001" | python3 -m json.tool
+curl -s "http://localhost:5055/api/v1/concepts/payment/transactions?userId=demo-user-001" | python3 -m json.tool
 ```
 
 **Kỳ vọng:** Mảng giao dịch với các entry `CHECKOUT_CREATED`, `PAYMENT_VERIFIED`/`WEBHOOK_CONFIRMED`
@@ -164,7 +164,7 @@ curl -s "http://localhost:5050/api/v1/concepts/payment/transactions?userId=demo-
 ### 3.10 Hóa đơn không tồn tại
 
 ```bash
-curl -s "http://localhost:5050/api/v1/concepts/payment/orders/invalid-order/status" | python3 -m json.tool
+curl -s "http://localhost:5055/api/v1/concepts/payment/orders/invalid-order/status" | python3 -m json.tool
 ```
 
 **Kỳ vọng:** HTTP 404 với `error: "ORDER_NOT_FOUND"`
@@ -216,7 +216,7 @@ curl -s "http://localhost:5050/api/v1/concepts/payment/orders/invalid-order/stat
 | QR code không hiển thị | URL vietqr.io bị chặn | Kiểm tra mạng, QR URL chỉ cần hiển thị đúng format |
 | "ALREADY_PREMIUM" khi checkout | User đã Premium | Restart server để reset in-memory state |
 | Crown badge không hiển thị | isPremium chưa sync | F5 reload, kiểm tra localStorage có `vdsa_stateless_user_id` |
-| Payment lỗi "Không thể tạo hóa đơn" | Backend chưa chạy | Kiểm tra `curl http://localhost:5050/api/v1/concepts/payment/config` |
+| Payment lỗi "Không thể tạo hóa đơn" | Backend chưa chạy | Kiểm tra `curl http://localhost:5055/api/v1/concepts/payment/config` |
 
 ---
 

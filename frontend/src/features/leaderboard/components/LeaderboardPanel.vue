@@ -64,7 +64,7 @@ const entries    = ref<LeaderboardEntry[]>([]);
 const myRank     = ref<UserRank | null>(null);
 const isLoading  = ref(false);
 const error      = ref<string | null>(null);
-const API_BASE   = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5050';
+const API_BASE   = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5055';
 
 async function fetchLeaderboard(): Promise<void> {
   isLoading.value = true;

@@ -2023,3 +2023,8 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 1758 | **BugFix** | DesignPatternsWorkspace | width: 100% fills parent | 🟢PASSED |
 | 1759 | **Config** | vite.config.ts | port: 5173 + strictPort: true | 🟢PASSED |
 | 1760 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
+| 1761 | **Automation** | run-project.bat | Windows startup script (backend+frontend) | 🟢PASSED |
+| 1762 | **Automation** | run-project.sh | macOS/Linux startup script with cleanup trap | 🟢PASSED |
+| 1763 | **Port Migration** | 21 frontend service files | localhost:5050 → localhost:5055 | 🟢PASSED |
+| 1764 | **Port Migration** | 4 Vietnamese test guides | curl commands updated to 5055 | 🟢PASSED |
+| 1765 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |

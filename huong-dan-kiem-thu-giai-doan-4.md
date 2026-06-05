@@ -38,7 +38,7 @@ dotnet run --urls "http://0.0.0.0:5050"
 
 **Kiểm tra:**
 ```bash
-curl http://localhost:5050/api/v1/concepts/auth/demo-credentials
+curl http://localhost:5055/api/v1/concepts/auth/demo-credentials
 # Phải trả về: {"email":"demo@algolens.dev","password":"Demo@2024",...}
 ```
 
@@ -46,7 +46,7 @@ curl http://localhost:5050/api/v1/concepts/auth/demo-credentials
 
 ```bash
 cd frontend
-VITE_API_BASE_URL=http://localhost:5050 npx vite --host 0.0.0.0 --port 5173
+VITE_API_BASE_URL=http://localhost:5055 npx vite --host 0.0.0.0 --port 5173
 ```
 
 Mở trình duyệt: `http://localhost:5173`
@@ -58,7 +58,7 @@ Mở trình duyệt: `http://localhost:5173`
 ### 3.1 Lấy thông tin tài khoản demo
 
 ```bash
-curl -s http://localhost:5050/api/v1/concepts/auth/demo-credentials | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/concepts/auth/demo-credentials | python3 -m json.tool
 ```
 
 **Kỳ vọng:** `email: "demo@algolens.dev"`, `password: "Demo@2024"`
@@ -66,7 +66,7 @@ curl -s http://localhost:5050/api/v1/concepts/auth/demo-credentials | python3 -m
 ### 3.2 Đăng nhập với tài khoản demo
 
 ```bash
-curl -s -X POST http://localhost:5050/api/v1/concepts/auth/login \
+curl -s -X POST http://localhost:5055/api/v1/concepts/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"demo@algolens.dev","password":"Demo@2024"}' | python3 -m json.tool
 ```
@@ -80,7 +80,7 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/auth/login \
 ### 3.3 Đăng nhập sai mật khẩu
 
 ```bash
-curl -s -X POST http://localhost:5050/api/v1/concepts/auth/login \
+curl -s -X POST http://localhost:5055/api/v1/concepts/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"demo@algolens.dev","password":"WrongPassword"}' | python3 -m json.tool
 ```
@@ -90,7 +90,7 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/auth/login \
 ### 3.4 Đăng ký tài khoản mới
 
 ```bash
-curl -s -X POST http://localhost:5050/api/v1/concepts/auth/register \
+curl -s -X POST http://localhost:5055/api/v1/concepts/auth/register \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","username":"TestUser","password":"Test@12345"}' | python3 -m json.tool
 ```
@@ -102,7 +102,7 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/auth/register \
 ### 3.5 Đăng ký trùng email
 
 ```bash
-curl -s -X POST http://localhost:5050/api/v1/concepts/auth/register \
+curl -s -X POST http://localhost:5055/api/v1/concepts/auth/register \
   -H "Content-Type: application/json" \
   -d '{"email":"demo@algolens.dev","username":"NewUser","password":"Test@12345"}' | python3 -m json.tool
 ```
@@ -112,7 +112,7 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/auth/register \
 ### 3.6 Đăng ký mật khẩu yếu
 
 ```bash
-curl -s -X POST http://localhost:5050/api/v1/concepts/auth/register \
+curl -s -X POST http://localhost:5055/api/v1/concepts/auth/register \
   -H "Content-Type: application/json" \
   -d '{"email":"weak@example.com","username":"WeakUser","password":"123"}' | python3 -m json.tool
 ```
@@ -125,7 +125,7 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/auth/register \
 # Lưu refreshToken từ bước 3.2 vào biến:
 REFRESH_TOKEN="<paste refreshToken từ bước 3.2>"
 
-curl -s -X POST http://localhost:5050/api/v1/concepts/auth/refresh \
+curl -s -X POST http://localhost:5055/api/v1/concepts/auth/refresh \
   -H "Content-Type: application/json" \
   -d "{\"refreshToken\":\"$REFRESH_TOKEN\"}" | python3 -m json.tool
 ```
@@ -135,7 +135,7 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/auth/refresh \
 ### 3.8 Logout
 
 ```bash
-curl -s -X POST http://localhost:5050/api/v1/concepts/auth/logout \
+curl -s -X POST http://localhost:5055/api/v1/concepts/auth/logout \
   -H "Content-Type: application/json" \
   -d "{\"refreshToken\":\"$REFRESH_TOKEN\"}"
 ```
@@ -149,7 +149,7 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/auth/logout \
 ### 4.1 Lấy profile demo user
 
 ```bash
-curl -s http://localhost:5050/api/v1/concepts/auth/me | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/concepts/auth/me | python3 -m json.tool
 ```
 
 **Kỳ vọng:** `id: "demo-user-001"`, `username: "AlgoLens Student"`, `totalXP: 150`
@@ -157,7 +157,7 @@ curl -s http://localhost:5050/api/v1/concepts/auth/me | python3 -m json.tool
 ### 4.2 Lấy profile theo userId
 
 ```bash
-curl -s "http://localhost:5050/api/v1/concepts/auth/me?userId=demo-user-001" | python3 -m json.tool
+curl -s "http://localhost:5055/api/v1/concepts/auth/me?userId=demo-user-001" | python3 -m json.tool
 ```
 
 **Kỳ vọng:** Cùng kết quả như 4.1
@@ -165,7 +165,7 @@ curl -s "http://localhost:5050/api/v1/concepts/auth/me?userId=demo-user-001" | p
 ### 4.3 Lấy tiến trình học tập
 
 ```bash
-curl -s http://localhost:5050/api/v1/concepts/auth/progress | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/concepts/auth/progress | python3 -m json.tool
 ```
 
 **Kỳ vọng:**
@@ -177,7 +177,7 @@ curl -s http://localhost:5050/api/v1/concepts/auth/progress | python3 -m json.to
 ### 4.4 Cộng XP
 
 ```bash
-curl -s -X POST http://localhost:5050/api/v1/concepts/auth/award-xp \
+curl -s -X POST http://localhost:5055/api/v1/concepts/auth/award-xp \
   -H "Content-Type: application/json" \
   -d '{"amount":200,"reason":"Hoàn thành module Sorting"}' | python3 -m json.tool
 ```
@@ -187,7 +187,7 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/auth/award-xp \
 ### 4.5 Cập nhật profile
 
 ```bash
-curl -s -X PUT http://localhost:5050/api/v1/concepts/auth/profile \
+curl -s -X PUT http://localhost:5055/api/v1/concepts/auth/profile \
   -H "Content-Type: application/json" \
   -d '{"username":"AlgoLens Pro Student"}' | python3 -m json.tool
 ```
@@ -197,7 +197,7 @@ curl -s -X PUT http://localhost:5050/api/v1/concepts/auth/profile \
 ### 4.6 User không tồn tại
 
 ```bash
-curl -s "http://localhost:5050/api/v1/concepts/auth/me?userId=invalid-id" | python3 -m json.tool
+curl -s "http://localhost:5055/api/v1/concepts/auth/me?userId=invalid-id" | python3 -m json.tool
 ```
 
 **Kỳ vọng:** HTTP 404 với `error: "USER_NOT_FOUND"`
@@ -261,7 +261,7 @@ curl -s "http://localhost:5050/api/v1/concepts/auth/me?userId=invalid-id" | pyth
 | Triệu chứng | Nguyên nhân | Cách khắc phục |
 |---|---|---|
 | Modal không đóng sau login | API trả lỗi CORS | Set `ASPNETCORE_ENVIRONMENT=Development` |
-| "Đăng nhập thất bại" dù nhập đúng | Backend chưa chạy hoặc sai port | Kiểm tra `curl http://localhost:5050/api/v1/concepts/auth/demo-credentials` |
+| "Đăng nhập thất bại" dù nhập đúng | Backend chưa chạy hoặc sai port | Kiểm tra `curl http://localhost:5055/api/v1/concepts/auth/demo-credentials` |
 | F5 mất session | localStorage bị xóa | Kiểm tra DevTools → Application → Local Storage → `vdsa_refresh_token` |
 | Avatar không hiển thị | authStore chưa init | Kiểm tra `onMounted` trong App.vue gọi `statelessInit()` |
 
