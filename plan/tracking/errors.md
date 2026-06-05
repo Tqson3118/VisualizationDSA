@@ -297,3 +297,18 @@ Tài liệu này tổng hợp các mã lỗi, kịch bản sự cố và cách t
     - `SystemDesignWorkspace.vue`: thêm Scenario Picker, VCR Playback Panel, Explanation Banner
     - Interactive sandbox mode vẫn hoạt động khi không ở VCR mode
 *   **Files sửa:** `useSystemDesignStore.ts`, `SystemDesignWorkspace.vue`, `system-design-viz.types.ts`, `systemDesignApi.ts` (mới), `useSystemDesignStore.spec.ts`
+
+### 140. Phase 3 OOP Full-Stack Integration — Backend API Frames with VCR Playback
+*   **ID:** FEAT-OOP-PHASE3
+*   **Mô tả:** Kết nối OOP Visualization frontend với backend API. Store `useOOPVisualizerStore.ts` giờ fetch frames từ `POST /api/v1/concepts/oop/execute` thay vì dùng kịch bản hardcoded.
+*   **Kiến trúc:**
+    - Dual-mode: API mode (backend frames) với fallback sang local scenarios khi backend không khả dụng
+    - `oopApi.ts`: service layer mới cho OOP backend calls
+    - `OOPFrame` + `HeapObjectSnapshot` types tương ứng C# `OOPFrameDto`
+    - `loadScenario()` async — try API first, fallback local
+    - `applyApiFrame()` áp dụng state snapshot backend → reactive refs (convert JSON objects → Maps)
+    - `snapshotToInstance()` chuyển đổi `Record<string, unknown>` → `Map<string, unknown>` cho fieldsData/vTable
+    - `totalSteps`, `currentExplanation`, `currentActionName` computed properties phục vụ cả 2 mode
+    - `OOPConceptsVisualizerWorkspace.vue`: thêm action name badge, API loading/error indicators
+    - Tests: mock oopApi, async loadScenario/setPillar
+*   **Files sửa:** `useOOPVisualizerStore.ts`, `OOPConceptsVisualizerWorkspace.vue`, `oop-visualization.types.ts`, `oopApi.ts` (mới), `useOOPVisualizerStore.spec.ts`
