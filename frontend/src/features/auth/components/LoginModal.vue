@@ -95,8 +95,9 @@ async function handleSubmit(): Promise<void> {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,13 +105,17 @@ async function handleSubmit(): Promise<void> {
 }
 
 .modal-card {
-  background: var(--color-bg-secondary, #1a1a2e);
-  border: 1px solid var(--color-border-default, #333);
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   width: 100%;
   max-width: 400px;
   padding: 24px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5),
+              0 0 40px rgba(6, 182, 212, 0.06),
+              inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .modal-header {
@@ -222,8 +227,18 @@ async function handleSubmit(): Promise<void> {
 }
 
 /* Transition */
-.modal-fade-enter-active,
-.modal-fade-leave-active { transition: opacity 0.2s ease; }
-.modal-fade-enter-from,
-.modal-fade-leave-to { opacity: 0; }
+.modal-fade-enter-active {
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.modal-fade-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.modal-fade-enter-from {
+  opacity: 0;
+  transform: scale(0.92) translateY(10px);
+}
+.modal-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.96) translateY(-5px);
+}
 </style>

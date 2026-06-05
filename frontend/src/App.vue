@@ -194,8 +194,10 @@ onMounted(() => {
 /* ── HEADER ─────────────────────────────────────────────── */
 .app-header {
   flex-shrink: 0;
-  background: var(--header-bg);
-  border-bottom: 1px solid var(--header-border);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   height: var(--header-height);
   position: relative;
   z-index: var(--z-raised);
@@ -267,15 +269,16 @@ onMounted(() => {
   width: 100%;
   height: 48px;
   flex-shrink: 0;
-  background: var(--header-bg);
-  border-bottom: 1px solid var(--header-border);
+  background: rgba(15, 23, 42, 0.55);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   flex-direction: row;
   align-items: center;
   overflow-x: auto;
   overflow-y: hidden;
   padding: 0 var(--space-3);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
   scrollbar-width: none; /* Hide scrollbar on mobile */
   -ms-overflow-style: none;
 }
@@ -286,7 +289,7 @@ onMounted(() => {
     width: 230px;
     height: 100%;
     border-bottom: none;
-    border-right: 1px solid var(--header-border);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
     flex-direction: column;
     align-items: stretch;
     overflow-y: auto;

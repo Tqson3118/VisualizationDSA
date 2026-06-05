@@ -21,7 +21,7 @@ let resizeObserver: ResizeObserver | null = null;
 const animatedState = ref<AnimatedState | null>(null);
 let animationFrameId: number | null = null;
 let animStartTime = 0;
-const ANIM_DURATION = 350; // Smooth 350ms duration is optimal for playback pacing
+const ANIM_DURATION = 420; // Cinematic 420ms pacing with ease-out-quart physics
 
 let startState: AnimatedState | null = null;
 let targetState: AnimatedState | null = null;
@@ -74,9 +74,9 @@ function renderCanvas(): void {
   drawBoxArray(ctx, w, h, frame, colors, animatedState.value ?? undefined);
 }
 
-// Cubic easing out function for premium visual feel
-function easeOutCubic(x: number): number {
-  return 1 - Math.pow(1 - x, 3);
+// Quartic easing out for cinematic fluid physics
+function easeOutQuart(x: number): number {
+  return 1 - Math.pow(1 - x, 4);
 }
 
 function animateFrame(now: number): void {
@@ -84,7 +84,7 @@ function animateFrame(now: number): void {
 
   const elapsed = now - animStartTime;
   const progress = Math.min(1, elapsed / ANIM_DURATION);
-  const t = easeOutCubic(progress);
+  const t = easeOutQuart(progress);
 
   // Interpolate search state fields smoothly
   animatedState.value = {

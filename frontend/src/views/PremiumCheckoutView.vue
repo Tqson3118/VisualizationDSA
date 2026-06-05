@@ -66,11 +66,13 @@ import QrPaymentPanel from '../features/payment/components/QrPaymentPanel.vue';
 import CheckoutIdleScreen from '../features/payment/components/CheckoutIdleScreen.vue';
 import CheckoutSuccessScreen from '../features/payment/components/CheckoutSuccessScreen.vue';
 import { usePaymentTimer } from '../features/payment/composables/usePaymentTimer';
+import { useConfetti } from '../composables/useConfetti';
 
 const router = useRouter();
 const paymentStore = usePaymentStore();
 
 const { isExpired, isWarningTime, formattedTime, startTimer, stopTimer } = usePaymentTimer(900);
+const { firePremium } = useConfetti();
 
 onMounted(() => {
   paymentStore.loadConfig();
@@ -87,6 +89,9 @@ async function initiatePayment(): Promise<void> {
 async function handleSimulatePayment(): Promise<void> {
   stopTimer();
   await paymentStore.simulatePaymentSuccess();
+  if (paymentStore.checkoutState === 'success') {
+    firePremium();
+  }
 }
 
 function finishCheckout(): void {

@@ -1988,3 +1988,17 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 1712 | **Skeleton Loaders** | BackendQuizWorkspace skeleton | 6 shimmer cards on loading | 🟢PASSED |
 | 1713 | **Page Transitions** | slide-up + fade enhanced | translateY 8px enter, -4px leave | 🟢PASSED |
 | 1714 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
+| 1720 | **Confetti** | useConfetti composable | firePremium/fireQuizPass/fireSuccess functions | 🟢PASSED |
+| 1721 | **Confetti** | PremiumCheckoutView integration | firePremium on payment success state | 🟢PASSED |
+| 1722 | **Confetti** | BackendQuizWorkspace integration | fireQuizPass on backendResult.passed watch | 🟢PASSED |
+| 1723 | **VCR Physics** | BoxArrayRenderer easing | easeOutQuart + 420ms duration | 🟢PASSED |
+| 1724 | **VCR Transitions** | DesignPatternsWorkspace | vcr-banner-fade Transition wrapper | 🟢PASSED |
+| 1725 | **VCR Transitions** | SOLIDVisualizerWorkspace | vcr-banner-fade Transition wrapper | 🟢PASSED |
+| 1726 | **VCR Transitions** | DISandbox | vcr-banner-fade Transition wrapper | 🟢PASSED |
+| 1727 | **Glassmorphism** | App sidebar | blur(20px) saturate(1.4) glassmorphic | 🟢PASSED |
+| 1728 | **Glassmorphism** | App header | blur(16px) saturate(1.3) glassmorphic | 🟢PASSED |
+| 1729 | **Glassmorphism** | Login Modal | blur(24px) saturate(1.5) + spring scale transition | 🟢PASSED |
+| 1730 | **Glassmorphism** | Dashboard Cards | blur(12px) + spring hover animation | 🟢PASSED |
+| 1731 | **Motion CSS** | cinematic.css | spring-hover, glass-panel, vcr-frame-enter, stagger-enter | 🟢PASSED |
+| 1732 | **Dependencies** | canvas-confetti + @vueuse/motion | Installed + MotionPlugin registered | 🟢PASSED |
+| 1733 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |

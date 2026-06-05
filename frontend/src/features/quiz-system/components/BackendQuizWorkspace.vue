@@ -159,11 +159,19 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import { useQuizStore } from '../store/useQuizStore';
 import SkeletonCard from '../../../components/SkeletonCard.vue';
+import { useConfetti } from '../../../composables/useConfetti';
 
 const store = useQuizStore();
+const { fireQuizPass } = useConfetti();
+
+watch(() => store.backendResult, (result) => {
+  if (result?.passed) {
+    fireQuizPass();
+  }
+});
 
 function difficultyClass(difficulty: string): string {
   switch (difficulty) {
