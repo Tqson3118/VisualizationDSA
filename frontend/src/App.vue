@@ -137,21 +137,33 @@
     </div>
   </div>
 
+  <!-- Login Modal -->
+  <LoginModal :visible="showLoginModal" @close="showLoginModal = false" />
+
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { RouterView, RouterLink } from 'vue-router';
 import { useAuthStore } from './features/auth/store/useAuthStore';
 import { APP_TABS } from './appTabs';
 import BaseIcon from './shared/components/BaseIcon.vue';
+import LoginModal from './features/auth/components/LoginModal.vue';
 
 const authStore      = useAuthStore();
 const showLoginModal = ref(false);
 
 async function handleLogout(): Promise<void> {
-  await authStore.logOut();
+  if (authStore.isStatelessMode) {
+    await authStore.statelessLogout();
+  } else {
+    await authStore.logOut();
+  }
 }
+
+onMounted(() => {
+  authStore.statelessInit();
+});
 </script>
 
 <style scoped>

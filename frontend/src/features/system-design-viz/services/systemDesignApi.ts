@@ -1,6 +1,6 @@
 import type { SystemDesignFrame, SystemNode, NetworkLink } from '../types/system-design-viz.types';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5050';
 
 /** Payload cho endpoint POST /execute */
 interface SystemDesignExecuteRequest {

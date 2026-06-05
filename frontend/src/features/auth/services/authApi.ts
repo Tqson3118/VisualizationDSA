@@ -3,7 +3,7 @@
  * Tương ứng backend: POST /api/v1/auth/login|register|refresh|logout
  */
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5050';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

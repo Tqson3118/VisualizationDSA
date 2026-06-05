@@ -770,3 +770,19 @@ Tất cả các mục tiêu Sprint 5 đã đạt:
 | **DI Registration** | Singleton strategies in DI container | ✅ CODE DONE | `AlgorithmDIConfiguration.cs` — `QuizBankStrategy`, `GamificationStrategy` registered |
 | **Vietnamese Test Guide** | Manual testing documentation | ✅ CODE DONE | `huong-dan-kiem-thu-giai-doan-3.md` — 16 test cases covering API + UI |
 | **Compilation** | dotnet build 0 errors + vue-tsc 0 errors | ✅ CODE DONE | Backend 0 errors (42 pre-existing warnings), Frontend vue-tsc --noEmit clean |
+
+## 18. Phase 6 — Authentication & User Management Infrastructure
+
+| Hạng mục / Task | Nội dung | Trạng thái CODE | Chi tiết |
+| :--- | :--- | :--- | :--- |
+| **Backend Auth Strategy** | Stateless in-memory auth (register/login/refresh/logout) | ✅ CODE DONE | `StatelessAuthStrategy.cs` — ConcurrentDictionary user store, SHA256 password hashing, mock JWT generation, refresh token rotation |
+| **Backend Auth DTOs** | Domain-layer DTOs for auth flow | ✅ CODE DONE | `StatelessAuthDto.cs` — `StatelessAuthResponse`, `StatelessUserDto`, `StatelessRegisterRequest`, `StatelessLoginRequest`, `StatelessUserProgressDto` |
+| **Backend Auth Controller** | REST API for auth + profile + progress | ✅ CODE DONE | `StatelessAuthController.cs` (`/api/v1/concepts/auth/`) — POST register/login/refresh/logout, GET me/progress/demo-credentials, PUT profile, POST award-xp |
+| **Frontend Auth API** | Service layer for stateless auth endpoints | ✅ CODE DONE | `statelessAuthApi.ts` — register(), login(), refresh(), logout(), getMe(), getProgress(), updateProfile() |
+| **Frontend Auth Store** | Pinia store stateless backend integration | ✅ CODE DONE | `useAuthStore.ts` — statelessLogin(), statelessRegister(), statelessLogout(), statelessInit(), loadStatelessProfile() with localStorage persistence |
+| **Login Modal** | Full login/register modal component | ✅ CODE DONE | `LoginModal.vue` — Teleport modal with email/password form, register toggle, error display, demo credentials info |
+| **App.vue Integration** | Login modal + header user badge + session init | ✅ CODE DONE | `App.vue` — LoginModal wired, handleLogout detects stateless mode, onMounted calls statelessInit() for session persistence |
+| **API Base URL Fix** | Standardized port 5000 → 5050 across all services | ✅ CODE DONE | Fixed 12 files: authApi.ts, userProgressApi.ts, oopApi.ts, systemDesignApi.ts, apiClient.ts (×2), signalR, quizApi, paymentApi, LeaderboardPanel, inputStore, algorithmApi |
+| **DI Registration** | Singleton strategy in DI container | ✅ CODE DONE | `AlgorithmDIConfiguration.cs` — `StatelessAuthStrategy` registered |
+| **Vietnamese Test Guide** | Manual testing documentation | ✅ CODE DONE | `huong-dan-kiem-thu-giai-doan-4.md` — 17 test cases covering API + UI |
+| **Compilation** | dotnet build 0 errors + vue-tsc 0 errors | ✅ CODE DONE | Backend 0 errors, Frontend vue-tsc --noEmit clean |
