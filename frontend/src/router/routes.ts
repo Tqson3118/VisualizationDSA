@@ -26,8 +26,8 @@ export const routes: RouteRecordRaw[] = [
   { path: '/solid',         name: 'solid',         component: () => import('../views/SOLIDVisualizationView.vue'),meta: { title: 'SOLID Viz',       icon: 'solid' } },
   // { path: '/state',         name: 'state',         component: () => import('../views/StateInspectorView.vue'),   meta: { title: 'State Inspector', icon: 'state' } },
   { path: '/system',        name: 'system',        component: () => import('../views/SystemDesignVizView.vue'),  meta: { title: 'System Design',  icon: 'system' } },
-  // { path: '/quiz',          name: 'quiz',          component: () => import('../views/SmartQuizView.vue'),        meta: { title: 'Smart Quiz',      icon: 'quiz' } },
-  // { path: '/gamification',  name: 'gamification',  component: () => import('../views/GamificationEngineView.vue'),meta: { title: 'Gamification+',   icon: 'gamification' } },
+  { path: '/quiz',          name: 'quiz',          component: () => import('../views/BackendQuizView.vue'),      meta: { title: 'Quiz System',     icon: 'quiz' } },
+  { path: '/gamification',  name: 'gamification',  component: () => import('../views/GamificationEngineView.vue'),meta: { title: 'Gamification+',   icon: 'gamification' } },
 
   // --- Completely New Phase 2 Routes ---
   { path: '/embed',         name: 'embed',         component: () => import('../views/EmbedWidgetView.vue'),      meta: { title: 'Embed',           icon: 'embed' } },

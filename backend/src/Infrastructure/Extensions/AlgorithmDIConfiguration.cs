@@ -31,6 +31,8 @@ public static class AlgorithmDIConfiguration
         services.AddSingleton<SOLIDPrinciplesStrategy>();
         services.AddSingleton<DesignPatternsStrategy>();
         services.AddSingleton<DIContainerStrategy>();
+        services.AddSingleton<QuizBankStrategy>();
+        services.AddSingleton<GamificationStrategy>();
 
         return services;
     }

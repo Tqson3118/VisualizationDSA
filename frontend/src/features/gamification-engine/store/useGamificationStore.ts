@@ -7,6 +7,8 @@ import type { LeaderboardEntry, UserProgressState } from '../types/gamification.
 import { gamificationApi } from '../../../services/gamificationApi';
 import { leaderboardApi } from '../../../services/leaderboardApi';
 import { getStoredToken } from '../../../services/apiClient';
+import { statelessGamificationApi } from '../service/statelessGamificationApi';
+import type { StatelessUserProfile, StatelessBadge, StatelessLeaderboardEntry } from '../service/statelessGamificationApi';
 
 export const useGamificationStore = defineStore('gamification-engine', () => {
   const currentXP = ref(0), activeStreak = ref(0), lastActiveDate = ref('');
@@ -85,10 +87,89 @@ export const useGamificationStore = defineStore('gamification-engine', () => {
     finally { isSyncing.value = false; }
   }
 
+  // ── Stateless Backend Integration ──────────────────────────────
+  const backendProfile = ref<StatelessUserProfile | null>(null);
+  const backendBadges = ref<StatelessBadge[]>([]);
+  const backendLeaderboard = ref<StatelessLeaderboardEntry[]>([]);
+  const isBackendLoading = ref(false);
+  const backendError = ref<string | null>(null);
+
+  const backendLevelName = computed(() => backendProfile.value?.levelName ?? '');
+  const backendXpProgress = computed(() => {
+    if (!backendProfile.value) return 0;
+    const xp = backendProfile.value.totalXp;
+    const levelThresholds = [0, 100, 300, 600, 1000, 1500, 2200, 3000];
+    const level = backendProfile.value.currentLevel;
+    if (level >= 8) return 100;
+    const current = levelThresholds[level - 1] ?? 0;
+    const next = levelThresholds[level] ?? 3000;
+    return Math.min(100, Math.round(((xp - current) / (next - current)) * 100));
+  });
+
+  async function loadBackendProfile(): Promise<void> {
+    try {
+      isBackendLoading.value = true;
+      backendError.value = null;
+      backendProfile.value = await statelessGamificationApi.getProfile();
+      currentXP.value = backendProfile.value.totalXp;
+      activeStreak.value = backendProfile.value.streakDays;
+      unlockedBadges.value = backendProfile.value.earnedBadges.map(b => b.id);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Không thể tải profile';
+      backendError.value = msg;
+    } finally {
+      isBackendLoading.value = false;
+    }
+  }
+
+  async function awardXpViaBackend(amount: number, reason: string): Promise<void> {
+    try {
+      isBackendLoading.value = true;
+      backendError.value = null;
+      backendProfile.value = await statelessGamificationApi.awardXp(amount, reason);
+      currentXP.value = backendProfile.value.totalXp;
+      activeStreak.value = backendProfile.value.streakDays;
+      unlockedBadges.value = backendProfile.value.earnedBadges.map(b => b.id);
+      const prevBadgeCount = unlockedBadges.value.length;
+      if (backendProfile.value.earnedBadges.length > prevBadgeCount) triggerConfettiRain();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Không thể cộng XP';
+      backendError.value = msg;
+    } finally {
+      isBackendLoading.value = false;
+    }
+  }
+
+  async function loadBackendBadges(): Promise<void> {
+    try {
+      backendBadges.value = await statelessGamificationApi.getBadges();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Không thể tải badges';
+      backendError.value = msg;
+    }
+  }
+
+  async function loadBackendLeaderboard(limit: number = 10): Promise<void> {
+    try {
+      isBackendLoading.value = true;
+      backendError.value = null;
+      backendLeaderboard.value = await statelessGamificationApi.getLeaderboard(limit);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Không thể tải bảng xếp hạng';
+      backendError.value = msg;
+    } finally {
+      isBackendLoading.value = false;
+    }
+  }
+
   return {
     currentXP, activeStreak, lastActiveDate, unlockedBadges, showConfetti, leaderboardRank, streakFreezesCount, leaderboardData, isSyncing, syncError,
     allBadges, lockedBadges, nextBadgeXPThreshold, xpProgressPercent, streakStatus, isOnlineMode,
     earnXPLocal, checkAndUnlockBadges, triggerConfettiRain, useStreakFreeze, setLeaderboardData, setStreakForTesting,
-    earnXPWithSync, syncProgressFromServer, checkBadgesFromServer, fetchLeaderboardFromServer
+    earnXPWithSync, syncProgressFromServer, checkBadgesFromServer, fetchLeaderboardFromServer,
+    // Stateless backend
+    backendProfile, backendBadges, backendLeaderboard, isBackendLoading, backendError,
+    backendLevelName, backendXpProgress,
+    loadBackendProfile, awardXpViaBackend, loadBackendBadges, loadBackendLeaderboard,
   };
 });

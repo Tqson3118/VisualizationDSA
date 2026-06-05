@@ -8,6 +8,8 @@ import type { QuizQuestion, QuizCheckpoint, CanvasNodeDTO } from '../types/quiz.
 import { submitQuizAttempt } from '../service/quizApi';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { resetActiveQuestionState, verifyAndRecordOption } from './quizStoreHelpers';
+import { statelessQuizApi } from '../service/statelessQuizApi';
+import type { StatelessQuizSummary, StatelessQuizDetail, StatelessAttemptResult } from '../service/statelessQuizApi';
 
 export const useQuizStore = defineStore('quizSystem', () => {
   const lectureStore = useLectureStore();
@@ -84,6 +86,94 @@ export const useQuizStore = defineStore('quizSystem', () => {
     await submitQuizAttempt({ quizId, score: sessionCorrect.value, maxScore: sessionTotal.value, passed }, authStore.getAccessToken());
   }
 
+  // ── Standalone Backend Quiz Mode ──────────────────────────────
+  const quizCatalog = ref<StatelessQuizSummary[]>([]);
+  const activeBackendQuiz = ref<StatelessQuizDetail | null>(null);
+  const backendQuizIndex = ref(0);
+  const backendAnswers = ref<(number | null)[]>([]);
+  const backendResult = ref<StatelessAttemptResult | null>(null);
+  const isBackendQuizLoading = ref(false);
+  const backendQuizError = ref<string | null>(null);
+  const isBackendQuizMode = ref(false);
+
+  const currentBackendQuestion = computed(() =>
+    activeBackendQuiz.value?.questions[backendQuizIndex.value] ?? null
+  );
+  const backendQuizProgress = computed(() =>
+    activeBackendQuiz.value
+      ? `${backendQuizIndex.value + 1} / ${activeBackendQuiz.value.questions.length}`
+      : ''
+  );
+
+  async function loadQuizCatalog(): Promise<void> {
+    try {
+      isBackendQuizLoading.value = true;
+      backendQuizError.value = null;
+      quizCatalog.value = await statelessQuizApi.getAllQuizzes();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Không thể tải danh sách quiz';
+      backendQuizError.value = msg;
+    } finally {
+      isBackendQuizLoading.value = false;
+    }
+  }
+
+  async function startBackendQuiz(quizId: string): Promise<void> {
+    try {
+      isBackendQuizLoading.value = true;
+      backendQuizError.value = null;
+      backendResult.value = null;
+      activeBackendQuiz.value = await statelessQuizApi.getQuizById(quizId);
+      backendQuizIndex.value = 0;
+      backendAnswers.value = new Array(activeBackendQuiz.value.questions.length).fill(null);
+      isBackendQuizMode.value = true;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Không thể tải quiz';
+      backendQuizError.value = msg;
+    } finally {
+      isBackendQuizLoading.value = false;
+    }
+  }
+
+  function selectBackendAnswer(index: number): void {
+    backendAnswers.value[backendQuizIndex.value] = index;
+  }
+
+  function nextBackendQuestion(): void {
+    if (activeBackendQuiz.value && backendQuizIndex.value < activeBackendQuiz.value.questions.length - 1)
+      backendQuizIndex.value++;
+  }
+
+  function prevBackendQuestion(): void {
+    if (backendQuizIndex.value > 0) backendQuizIndex.value--;
+  }
+
+  async function submitBackendQuiz(): Promise<void> {
+    if (!activeBackendQuiz.value) return;
+    const answers = backendAnswers.value.map(a => a ?? -1);
+    try {
+      isBackendQuizLoading.value = true;
+      backendResult.value = await statelessQuizApi.submitAttempt(
+        activeBackendQuiz.value.id,
+        answers
+      );
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Không thể gửi bài';
+      backendQuizError.value = msg;
+    } finally {
+      isBackendQuizLoading.value = false;
+    }
+  }
+
+  function exitBackendQuiz(): void {
+    isBackendQuizMode.value = false;
+    activeBackendQuiz.value = null;
+    backendResult.value = null;
+    backendQuizIndex.value = 0;
+    backendAnswers.value = [];
+    backendQuizError.value = null;
+  }
+
   return {
     activeQuestion, selectedAnswerIndex, isSubmitted, isCorrect, feedbackExplanation,
     matchedNodeId, isCanvasTargetMode, checkpoints, completedCheckpointIndexes,
@@ -92,5 +182,11 @@ export const useQuizStore = defineStore('quizSystem', () => {
     loadCheckpoints, checkFrameForQuiz, triggerCheckpointQuestion,
     submitOptionAnswer, handleCanvasClickAnswer, dismissQuestionAndContinue,
     resetQuizStore, syncSessionToServer,
+    // Backend quiz mode
+    quizCatalog, activeBackendQuiz, backendQuizIndex, backendAnswers, backendResult,
+    isBackendQuizLoading, backendQuizError, isBackendQuizMode,
+    currentBackendQuestion, backendQuizProgress,
+    loadQuizCatalog, startBackendQuiz, selectBackendAnswer,
+    nextBackendQuestion, prevBackendQuestion, submitBackendQuiz, exitBackendQuiz,
   };
 });
