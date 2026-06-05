@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { useAnimationStore } from '../../animation-engine/store/useAnimationStore';
 import { generateDummyBubbleSortResult } from '../../animation-engine/services/algorithmApi';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5050';
 
 const ARRAY_FORMAT_REGEX = /^([+-]?\d+)(\s*,\s*[+-]?\d+)*$/;
 

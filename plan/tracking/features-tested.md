@@ -1942,3 +1942,19 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 1577 | **Gamification Frontend** | Leaderboard from backend | 10 entries with rank/username/XP/level, current user highlighted | 🟢PASSED |
 | 1578 | **Gamification Frontend** | +50 XP via backend API | Button calls award-xp endpoint, XP updates reactively | 🟢PASSED |
 | 1579 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend vue-tsc --noEmit 0 errors | 🟢PASSED |
+| 1580 | **Auth API** | POST /concepts/auth/login (correct) | Returns accessToken + refreshToken + user with 150 XP | 🟢PASSED |
+| 1581 | **Auth API** | POST /concepts/auth/login (wrong password) | HTTP 401 LOGIN_FAILED | 🟢PASSED |
+| 1582 | **Auth API** | POST /concepts/auth/register (new) | Returns accessToken + new user with 0 XP | 🟢PASSED |
+| 1583 | **Auth API** | POST /concepts/auth/register (duplicate email) | HTTP 400 REGISTRATION_FAILED | 🟢PASSED |
+| 1584 | **Auth API** | POST /concepts/auth/register (weak password) | HTTP 400 password < 8 chars | 🟢PASSED |
+| 1585 | **Auth API** | POST /concepts/auth/refresh | New token pair, old token revoked (rotation) | 🟢PASSED |
+| 1586 | **Auth API** | POST /concepts/auth/logout | HTTP 204 No Content | 🟢PASSED |
+| 1587 | **Auth API** | GET /concepts/auth/me | Demo user profile (150 XP, Level 2) | 🟢PASSED |
+| 1588 | **Auth API** | GET /concepts/auth/progress | Level progress with XP thresholds | 🟢PASSED |
+| 1589 | **Auth API** | POST /concepts/auth/award-xp | XP increases, level-up triggers | 🟢PASSED |
+| 1590 | **Auth API** | PUT /concepts/auth/profile | Username updated | 🟢PASSED |
+| 1591 | **Auth Frontend** | LoginModal component | Modal opens/closes, form validation, demo credentials shown | 🟢PASSED |
+| 1592 | **Auth Frontend** | Session persistence (F5 reload) | Refresh token in localStorage auto-restores session | 🟢PASSED |
+| 1593 | **Auth Frontend** | User badge in header | Avatar initial + name + XP + level conditionally rendered | 🟢PASSED |
+| 1594 | **Auth Frontend** | Logout flow | Session cleared, header reverts to guest mode | 🟢PASSED |
+| 1595 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend vue-tsc --noEmit 0 errors | 🟢PASSED |

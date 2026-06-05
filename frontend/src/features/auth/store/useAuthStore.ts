@@ -12,6 +12,8 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import * as authApi from '../services/authApi';
 import { setSession, clearSession, getSavedRefreshToken } from './authSessionHelpers';
+import { statelessAuthApi } from '../services/statelessAuthApi';
+import type { StatelessUserDto, StatelessAuthResponse } from '../services/statelessAuthApi';
 
 export const useAuthStore = defineStore('auth', () => {
   // ── State ──────────────────────────────────────────────────────────────────
@@ -74,9 +76,99 @@ export const useAuthStore = defineStore('auth', () => {
   /** Lấy access token hiện tại — gọi trước mỗi API call cần auth */
   function getAccessToken(): string | null { return accessToken.value; }
 
+  // ── Stateless Backend Integration ──────────────────────────────
+  const statelessUser = ref<StatelessUserDto | null>(null);
+  const isStatelessMode = ref(false);
+
+  function _applyStatelessAuth(response: StatelessAuthResponse): void {
+    accessToken.value = response.accessToken;
+    statelessUser.value = response.user;
+    isStatelessMode.value = true;
+    currentUser.value = {
+      id: response.user.id,
+      email: response.user.email,
+      username: response.user.username,
+      totalXP: response.user.totalXP,
+      currentLevel: response.user.currentLevel,
+      streakDays: response.user.streakDays,
+      createdAt: response.user.createdAt,
+      badges: response.user.badges,
+      isPremium: response.user.isPremium,
+    };
+    localStorage.setItem('vdsa_refresh_token', response.refreshToken);
+    localStorage.setItem('vdsa_access_expires', String(Date.now() + response.expiresIn * 1000));
+    localStorage.setItem('vdsa_stateless_user_id', response.user.id);
+  }
+
+  async function statelessLogin(email: string, password: string): Promise<void> {
+    isLoading.value = true; authError.value = null;
+    try {
+      const response = await statelessAuthApi.login(email, password);
+      _applyStatelessAuth(response);
+    } catch (err: unknown) {
+      authError.value = err instanceof Error ? err.message : 'Đăng nhập thất bại.';
+      throw err;
+    } finally { isLoading.value = false; }
+  }
+
+  async function statelessRegister(email: string, username: string, password: string): Promise<void> {
+    isLoading.value = true; authError.value = null;
+    try {
+      const response = await statelessAuthApi.register(email, username, password);
+      _applyStatelessAuth(response);
+    } catch (err: unknown) {
+      authError.value = err instanceof Error ? err.message : 'Đăng ký thất bại.';
+      throw err;
+    } finally { isLoading.value = false; }
+  }
+
+  async function statelessLogout(): Promise<void> {
+    const savedRefresh = getSavedRefreshToken();
+    if (savedRefresh) await statelessAuthApi.logout(savedRefresh);
+    accessToken.value = null;
+    currentUser.value = null;
+    statelessUser.value = null;
+    isStatelessMode.value = false;
+    localStorage.removeItem('vdsa_refresh_token');
+    localStorage.removeItem('vdsa_access_expires');
+    localStorage.removeItem('vdsa_stateless_user_id');
+  }
+
+  async function statelessInit(): Promise<void> {
+    const savedRefresh = getSavedRefreshToken();
+    const savedUserId = localStorage.getItem('vdsa_stateless_user_id');
+    if (!savedRefresh || !savedUserId) return;
+
+    try {
+      const response = await statelessAuthApi.refresh(savedRefresh);
+      _applyStatelessAuth(response);
+    } catch {
+      // Refresh failed — clear session
+      localStorage.removeItem('vdsa_refresh_token');
+      localStorage.removeItem('vdsa_access_expires');
+      localStorage.removeItem('vdsa_stateless_user_id');
+    }
+  }
+
+  async function loadStatelessProfile(): Promise<void> {
+    const userId = statelessUser.value?.id ?? localStorage.getItem('vdsa_stateless_user_id');
+    if (!userId) return;
+    try {
+      statelessUser.value = await statelessAuthApi.getMe(userId);
+      if (currentUser.value) {
+        currentUser.value.totalXP = statelessUser.value.totalXP;
+        currentUser.value.currentLevel = statelessUser.value.currentLevel;
+        currentUser.value.streakDays = statelessUser.value.streakDays;
+      }
+    } catch { /* silent — profile load is optional */ }
+  }
+
   return {
     currentUser, isLoading, authError,
     isAuthenticated, userName, userLevel, userXP, isPremium,
     init, register, logIn, logOut, getAccessToken,
+    // Stateless backend
+    statelessUser, isStatelessMode,
+    statelessLogin, statelessRegister, statelessLogout, statelessInit, loadStatelessProfile,
   };
 });
