@@ -253,3 +253,9 @@ Tài liệu này tổng hợp các mã lỗi, kịch bản sự cố và cách t
 *   **Mã Lỗi:** `ERR_OOP_INSTANTIATE_HEAP_WIPE`
 *   **Nguyên nhân gốc:** Logic scenario step handler gộp chung việc reset heap vào mỗi bước INSTANTIATE thay vì chỉ thực hiện ở bước RESET/CLONE_MEMBERS.
 *   **Cách khắc phục:** Xóa dòng `heapObjects.value = [];` khỏi nhánh `INSTANTIATE`, chỉ giữ lại việc tạo đối tượng mới qua `instantiateNewObject()`. Heap chỉ được xóa ở các bước RESET và CLONE_MEMBERS. File sửa: `useOOPVisualizerStore.ts` dòng 374.
+
+### 🚨 Lỗi 134: Động Cơ Khói Sự Cố Server Không Được Render — System Design Viz (BUG-SD-1)
+*   **Mô tả:** `FailureSmokeEmitterEngine.ts` được triển khai đầy đủ nhưng không có Vue component nào render canvas cho nó. Store dispatch `CustomEvent('SERVER_FAILED_SMOKE_BURST')` đến `window` khi server fail, nhưng không có listener xử lý — hiệu ứng khói hoàn toàn chết.
+*   **Mã Lỗi:** `ERR_SYSDESIGN_SMOKE_NOT_WIRED`
+*   **Nguyên nhân gốc:** Thiếu component Vue overlay kết nối engine particle với canvas rendering. Ngoài ra, engine không có giới hạn số lượng particle → nguy cơ tràn bộ nhớ (MEM-SD-1).
+*   **Cách khắc phục:** Tạo component `FailureSmokeOverlay.vue` với canvas overlay `pointer-events: none` trên `.architecture-canvas`. Component lắng nghe `SERVER_FAILED_SMOKE_BURST`, tạo instance `FailureSmokeEmitterEngine` cho mỗi node bị lỗi, render particle lên canvas chung. Áp dụng `MAX_PARTICLES = 200` cap để tránh tràn bộ nhớ. Mount vào `SystemDesignWorkspace.vue`. File tạo mới: `FailureSmokeOverlay.vue`. File sửa: `SystemDesignWorkspace.vue`.

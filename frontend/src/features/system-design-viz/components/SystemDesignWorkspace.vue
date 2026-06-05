@@ -5,6 +5,7 @@ import SystemNodeCard from './SystemNodeCard.vue';
 import NeonPacketDot from './NeonPacketDot.vue';
 import NetworkLinkSVG from './NetworkLinkSVG.vue';
 import ReplicationLagPanel from './ReplicationLagPanel.vue';
+import FailureSmokeOverlay from './FailureSmokeOverlay.vue';
 
 const store = useSystemDesignStore();
 
@@ -99,6 +100,9 @@ onUnmounted(() => {
         :node="node"
         @toggle-status="store.toggleServerStatus"
       />
+
+      <!-- Failure Smoke Overlay -->
+      <FailureSmokeOverlay />
 
       <!-- Neon Packets -->
       <NeonPacketDot
