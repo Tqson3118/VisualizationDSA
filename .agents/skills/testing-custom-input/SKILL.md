@@ -1,6 +1,6 @@
 ---
 name: testing-visualization-dsa
-description: Test the VisualizationDSA app end-to-end — OOP, System Design, and Algorithm Dashboard modules. Use when verifying animation, heap memory, packet routing, scenario playback, or sorting/searching algorithm changes.
+description: Test the VisualizationDSA app end-to-end — OOP, System Design, Algorithm Dashboard, SOLID, Design Patterns, and DI/IoC modules. Use when verifying animation, heap memory, packet routing, scenario playback, sorting/searching algorithms, or architecture module VCR changes.
 ---
 
 # Testing VisualizationDSA Modules
@@ -19,14 +19,17 @@ None — no authentication required for any module.
 
 ### Frontend
 ```bash
-cd frontend && npx vite --host 0.0.0.0 --port 5173
+cd frontend && VITE_API_BASE_URL=http://localhost:5050 npx vite --host 0.0.0.0 --port 5173
 ```
 Note: If port 5173 is in use, Vite will auto-increment. Check terminal output.
 
 ### Backend (.NET 9.0)
 ```bash
+export ASPNETCORE_ENVIRONMENT=Development
 cd backend/src/WebApi && dotnet run --urls "http://0.0.0.0:5050"
 ```
+**IMPORTANT:** The `ASPNETCORE_ENVIRONMENT=Development` is required for CORS headers. Without it, browser fetch requests from localhost:5173 will fail with "Failed to fetch" even though curl works fine from CLI. The Development environment loads `appsettings.json` which has `localhost:5173` in AllowedOrigins.
+
 Note: PostgreSQL connection errors are expected and non-fatal — algorithm/concept endpoints are stateless frame generators that work without a database.
 
 If port 5050 is busy: `fuser -k 5050/tcp` then restart.
@@ -35,13 +38,70 @@ If port 5050 is busy: `fuser -k 5050/tcp` then restart.
 
 | Module | Route | Sidebar Label |
 |--------|-------|---------------|
-| Sorting Sandbox | `/sorting` (default tab) | "Sorting" under ALGORITHMS |
-| Algorithm Dashboard | `/sorting` (2nd tab) | Click "Searching & Linear DSA" tab |
-| Graph | `/graph` | "Graph" under ALGORITHMS |
-| OOP Visualization | `/oop` | "OOP Viz" under CONCEPTS |
-| System Design | `/system` | "System Design" under CONCEPTS |
+| Sorting Sandbox | `/#/sorting` (default tab) | "Sorting" under ALGORITHMS |
+| Algorithm Dashboard | `/#/sorting` (2nd tab) | Click "Searching & Linear DSA" tab |
+| Graph | `/#/graph` | "Graph" under ALGORITHMS |
+| Code Debugger | `/#/code-ide` | "Code Debugger" under ALGORITHMS |
+| OOP Visualization | `/#/oop` | "OOP Viz" under CONCEPTS |
+| SOLID Visualization | `/#/solid` | "SOLID Viz" under CONCEPTS |
+| Design Patterns | `/#/patterns` | "Patterns" under CONCEPTS |
+| DI/IoC Container | `/#/di` | "DI/IoC" under CONCEPTS |
+| System Design | `/#/system` | "System Design" under CONCEPTS |
 
-The app uses hash routing: `localhost:5173/#/sorting`, `localhost:5173/#/oop`, etc.
+The app uses hash routing: `localhost:5173/#/solid`, `localhost:5173/#/patterns`, etc.
+
+## SOLID Visualization Module Testing
+
+### Key UI Elements
+- **Scenario Picker** (3 buttons): "SRP — God Class", "OCP — Open/Closed", "LSP — Substitution"
+- **Lesson tabs** (sandbox mode): SRP, OCP, LSP, ISP, DIP
+- **VCR Playback Panel**: Prev/Next/Reset + frame counter + "Exit VCR → Sandbox"
+- **Explanation Banner**: actionType badge (e.g., SHOW_VIOLATION) + Vietnamese text
+
+### VCR Scenario Test
+1. Navigate to `/#/solid`
+2. Verify lesson tabs (SRP/OCP/LSP/ISP/DIP) visible in sandbox mode
+3. Click "SRP — God Class" button
+4. **Key verification**: Banner shows SHOW_VIOLATION + Vietnamese "VI PHẠM SRP" (text exists ONLY in backend C#)
+5. Frame counter shows "Frame 1 / 4", Prev button disabled
+6. Lesson tabs should be HIDDEN in VCR mode
+7. Click Next → frame counter increments, badge changes
+8. Click Reset → returns to Frame 1 / 4
+9. Click "Exit VCR → Sandbox" → lesson tabs reappear
+
+## Design Patterns Module Testing
+
+### Key UI Elements
+- **Scenario Picker** (3 buttons): "Strategy Pattern", "Observer Pattern", "Singleton Pattern"
+- **Scenario tabs** (sandbox mode): Strategy Pattern, Observer Pattern, DIP Sandbox
+- **Canvas**: SVG UML class diagram with nodes
+- **VCR controls**: same pattern as SOLID
+
+### VCR Scenario Test
+1. Navigate to `/#/patterns`
+2. Verify canvas + scenario tabs visible
+3. Click "Observer Pattern"
+4. **Key verification**: SETUP badge + Vietnamese text about "IObserver" and "notify()"
+5. Frame 1/4 → navigate to Frame 4/4 (CONCLUSION) → Next should be disabled
+6. Canvas and control panel hidden in VCR mode
+7. Exit VCR → canvas with UML nodes restored
+
+## DI/IoC Container Module Testing
+
+### Key UI Elements
+- **Scenario Picker** (2 buttons): "Lifetime Demo", "Cycle Detection"
+- **Sandbox panels**: IoC concept box, Registered Services, Dependency Graph, Resolution Demo
+- **VCR controls**: same pattern as SOLID/Patterns
+
+### VCR Scenario Test
+1. Navigate to `/#/di`
+2. Verify IoC box + service panels + graph visible
+3. Click "Lifetime Demo"
+4. **Key verification**: REGISTER_SERVICES badge + Vietnamese "Đăng ký 3 service vào DI Container"
+5. Frame 1/**5** (Lifetime has 5 frames, Cycle has 4)
+6. All sandbox panels hidden in VCR mode
+7. Next → Frame 2/5 RESOLVE_SINGLETON_NEW (badge changes)
+8. Exit VCR → all panels restored
 
 ## Algorithm Dashboard Testing (Searching & Linear DSA Tab)
 
@@ -60,12 +120,11 @@ The app uses hash routing: `localhost:5173/#/sorting`, `localhost:5173/#/oop`, e
 ### Full-Stack Integration Test (Binary Search)
 1. Click "Mo phong" on binary-search card
 2. VCR loads with frames from backend API (`POST /api/v1/algorithms/execute`)
-3. **Key verification**: Explanation text is in Vietnamese (e.g., "Bắt đầu Tìm kiếm nhị phân...") — this text exists ONLY in backend C# strategy code. If you see English or no text, the API connection failed and it fell back to local generators.
+3. **Key verification**: Explanation text is in Vietnamese — this text exists ONLY in backend C# strategy code. If you see English or no text, the API connection failed and it fell back to local generators.
 4. Frame navigation: Step Forward (→) and Step Back (←) buttons
 5. Step counter shows `X / N` format
 
 ### Catalog Verification (via Browser Console)
-To verify the full algorithm catalog (including sorting algorithms not visible on this tab):
 ```javascript
 const app = document.querySelector('#app').__vue_app__;
 const pinia = app.config.globalProperties.$pinia;
@@ -98,14 +157,25 @@ Expected last frame: `[9, 12, 32, 45, 85]`
 ### All 7 Sorting Algorithm IDs
 `bubble-sort`, `quick-sort`, `merge-sort`, `heap-sort`, `radix-sort`, `counting-sort`, `bucket-sort`
 
-### OOP Concepts API
+### Architecture Module APIs
 ```bash
+# SOLID Principles
+curl -s http://localhost:5050/api/v1/concepts/solid/scenarios
+curl -s -X POST http://localhost:5050/api/v1/concepts/solid/execute -H "Content-Type: application/json" -d '{"scenarioId":"srp"}'
+
+# Design Patterns
+curl -s http://localhost:5050/api/v1/concepts/design-patterns/scenarios
+curl -s -X POST http://localhost:5050/api/v1/concepts/design-patterns/execute -H "Content-Type: application/json" -d '{"scenarioId":"observer"}'
+
+# DI Container
+curl -s http://localhost:5050/api/v1/concepts/di-container/scenarios
+curl -s -X POST http://localhost:5050/api/v1/concepts/di-container/execute -H "Content-Type: application/json" -d '{"scenarioId":"lifetime"}'
+
+# OOP Concepts
 curl -s http://localhost:5050/api/v1/concepts/oop/scenarios
 curl -s -X POST http://localhost:5050/api/v1/concepts/oop/execute -H "Content-Type: application/json" -d '{"scenarioId":"encapsulation"}'
-```
 
-### System Design API
-```bash
+# System Design
 curl -s http://localhost:5050/api/v1/concepts/system-design/topology
 curl -s -X POST http://localhost:5050/api/v1/concepts/system-design/execute -H "Content-Type: application/json" -d '{"scenarioId":"server-failover"}'
 ```
@@ -153,9 +223,11 @@ Expected: All tests pass (1528+ tests).
 
 ## Common Issues
 
+- **CORS errors in browser**: Make sure backend is started with `ASPNETCORE_ENVIRONMENT=Development`. Without it, the Production config blocks localhost:5173.
 - The Algorithm Dashboard tab is the **2nd tab** ("Searching & Linear DSA"), not the default "Sorting Sandbox" tab.
 - The dashboard only shows algorithms matching `allowedCategories` filter — sorting algorithms won't appear on the Searching tab (by design). Use console to verify full catalog.
 - Backend might show PostgreSQL connection errors on startup — this is normal. Algorithm endpoints work without a database.
 - Port conflicts: Kill existing processes with `fuser -k <port>/tcp` before restarting.
 - CountingSortStrategy: Watch for sorting-by-ones-digit bugs. The correct implementation uses `(value - minVal)` offset indexing, not `% 10`.
 - The ⏭ (next step) button in scenario mode can be hard to click precisely — it's a small button in the VCR control bar.
+- **Vietnamese text is the key signal**: All explanation text in VCR banners comes from backend C# code. If Vietnamese appears, the API works. If English or empty, it fell back to local generators.
