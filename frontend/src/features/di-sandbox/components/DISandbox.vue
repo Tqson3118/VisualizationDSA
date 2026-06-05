@@ -13,43 +13,36 @@
       <span class="text-[10px] font-bold uppercase tracking-wider bg-accent-cyan/40 text-accent border border-accent-cyan/40 px-2 py-1 rounded-lg">Sprint 8</span>
     </div>
 
-    <!-- Backend Scenario Picker (VCR) -->
-    <div class="vcr-picker">
-      <h4 class="vcr-title">Backend Scenarios (VCR)</h4>
-      <div class="vcr-btn-group">
-        <button v-for="scenario in diScenarios" :key="scenario.id"
-          class="vcr-btn vcr-btn-scenario" :disabled="vcrStore.isVcrLoading"
-          @click="vcrStore.loadVcrScenario(scenario.id)">
-          {{ scenario.label }}
-        </button>
-      </div>
-    </div>
+    <!-- Backend Scenario Picker -->
+    <ConceptScenarioPicker
+      :scenarios="diScenarios"
+      :loading="vcrStore.isVcrLoading"
+      label="Backend Scenarios (VCR)"
+      @select="vcrStore.loadVcrScenario($event)"
+    />
 
     <!-- VCR Explanation Banner -->
-    <Transition name="vcr-banner-fade" mode="out-in">
-      <div v-if="vcrStore.isVcrMode && vcrStore.vcrCurrentFrame" :key="vcrCurrentIndex" class="vcr-banner vcr-frame-enter">
-        <span class="vcr-banner-action">{{ vcrStore.vcrCurrentFrame.actionType }}</span>
-        <span class="vcr-banner-text">{{ vcrStore.vcrCurrentFrame.explanation }}</span>
-      </div>
-    </Transition>
+    <VcrExplanationBanner
+      v-if="vcrStore.isVcrMode && vcrStore.vcrCurrentFrame"
+      :action-type="vcrStore.vcrCurrentFrame.actionType"
+      :explanation="vcrStore.vcrCurrentFrame.explanation"
+      :frame-key="vcrCurrentIndex"
+    />
 
     <!-- VCR Loading / Error -->
     <div v-if="vcrStore.isVcrLoading" class="vcr-api-status vcr-loading">Loading from backend...</div>
     <div v-if="vcrStore.vcrError" class="vcr-api-status vcr-error">{{ vcrStore.vcrError }}</div>
 
     <!-- VCR Playback Controls -->
-    <div v-if="vcrStore.isVcrMode" class="vcr-playback">
-      <h4 class="vcr-title">VCR Playback</h4>
-      <div class="vcr-row">
-        <div class="vcr-btn-group">
-          <button class="vcr-btn vcr-btn-nav" :disabled="vcrCurrentIndex <= 0" @click="vcrStore.vcrPrev()">◀ Prev</button>
-          <button class="vcr-btn vcr-btn-nav" :disabled="vcrCurrentIndex >= vcrStore.vcrTotalFrames - 1" @click="vcrStore.vcrNext()">Next ▶</button>
-          <button class="vcr-btn vcr-btn-nav" @click="vcrStore.vcrReset()">⏮ Reset</button>
-        </div>
-        <div class="vcr-frame-indicator">Frame {{ vcrCurrentIndex + 1 }} / {{ vcrStore.vcrTotalFrames }}</div>
-        <button class="vcr-btn vcr-btn-exit" @click="vcrStore.exitVcrMode()">Exit VCR → Sandbox</button>
-      </div>
-    </div>
+    <VcrControls
+      v-if="vcrStore.isVcrMode"
+      :current-index="vcrCurrentIndex"
+      :total-frames="vcrStore.vcrTotalFrames"
+      @prev="vcrStore.vcrPrev()"
+      @next="vcrStore.vcrNext()"
+      @reset="vcrStore.vcrReset()"
+      @exit="vcrStore.exitVcrMode()"
+    />
 
     <!-- IoC Concept Explanation (hidden in VCR mode) -->
     <div v-if="!vcrStore.isVcrMode" class="ioc-concept-box p-4 border border-border-subtle rounded-xl flex items-center gap-3">
@@ -88,12 +81,14 @@ import { useDIContainerStore } from '../store/useDIContainerStore';
 import DIServiceList from './DIServiceList.vue';
 import DIDependencyGraph from './DIDependencyGraph.vue';
 import DIResolutionDemo from './DIResolutionDemo.vue';
+import VcrControls from '../../../components/VcrControls.vue';
+import VcrExplanationBanner from '../../../components/VcrExplanationBanner.vue';
+import ConceptScenarioPicker from '../../../components/ConceptScenarioPicker.vue';
 
 const vcrStore = useDIContainerStore();
 const vcrCurrentIndex = computed(() => vcrStore.vcrCurrentIndex);
 
-interface DiScenario { id: string; label: string; }
-const diScenarios: DiScenario[] = [
+const diScenarios = [
   { id: 'lifetime-demo', label: 'Lifetime Demo' },
   { id: 'cycle-detection', label: 'Cycle Detection' },
 ];
@@ -146,36 +141,9 @@ onMounted(() => registerSampleServices());
   background-color: color-mix(in srgb, var(--color-bg-primary) 60%, transparent);
 }
 
-/* === VCR Scenario Picker === */
-.vcr-picker { background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 12px 16px; backdrop-filter: blur(8px); }
-.vcr-title { color: #a78bfa; font-size: 12px; font-weight: 600; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px; }
-.vcr-btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
-.vcr-btn { padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #94a3b8; }
-.vcr-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); }
-.vcr-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.vcr-btn-scenario { color: #a78bfa; border-color: rgba(167, 139, 250, 0.3); }
-
-/* === VCR Playback Controls === */
-.vcr-playback { background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(167, 139, 250, 0.3); border-radius: 12px; padding: 12px 16px; backdrop-filter: blur(8px); }
-.vcr-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.vcr-btn-nav { color: #c4b5fd; border-color: rgba(196, 181, 253, 0.3); }
-.vcr-frame-indicator { font-size: 12px; color: #a78bfa; font-weight: 600; padding: 4px 10px; background: rgba(139, 92, 246, 0.1); border-radius: 6px; }
-.vcr-btn-exit { color: #f97316; border-color: rgba(249, 115, 22, 0.3); margin-left: auto; }
-
-/* === Explanation Banner === */
-.vcr-banner { background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
-.vcr-banner-action { font-size: 11px; font-weight: 700; color: #a78bfa; background: rgba(139, 92, 246, 0.2); padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-.vcr-banner-text { font-size: 13px; color: #cbd5e1; }
-
-/* === API Status === */
+/* === API Status (local) === */
 .vcr-api-status { text-align: center; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; }
 .vcr-loading { color: #06b6d4; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.2); }
 .vcr-error { color: #ef4444; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); }
-
-/* VCR banner transition */
-.vcr-banner-fade-enter-active { transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
-.vcr-banner-fade-leave-active { transition: opacity 0.12s ease, transform 0.12s ease; }
-.vcr-banner-fade-enter-from { opacity: 0; transform: translateY(8px) scale(0.97); }
-.vcr-banner-fade-leave-to { opacity: 0; transform: translateY(-4px) scale(0.98); }
 </style>
 

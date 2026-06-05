@@ -14,43 +14,36 @@
       </div>
     </div>
 
-    <!-- Backend Scenario Picker (VCR) -->
-    <div class="vcr-picker">
-      <h4 class="vcr-title">Backend Scenarios (VCR)</h4>
-      <div class="vcr-btn-group">
-        <button v-for="scenario in backendScenarios" :key="scenario.id"
-          class="vcr-btn vcr-btn-scenario" :disabled="store.isVcrLoading"
-          @click="store.loadVcrScenario(scenario.id)">
-          {{ scenario.label }}
-        </button>
-      </div>
-    </div>
+    <!-- Backend Scenario Picker -->
+    <ConceptScenarioPicker
+      :scenarios="backendScenarios"
+      :loading="store.isVcrLoading"
+      label="Backend Scenarios (VCR)"
+      @select="store.loadVcrScenario($event)"
+    />
 
     <!-- VCR Explanation Banner -->
-    <Transition name="vcr-banner-fade" mode="out-in">
-      <div v-if="store.isVcrMode && store.vcrCurrentFrame" :key="vcrCurrentIndex" class="vcr-banner vcr-frame-enter">
-        <span class="vcr-banner-action">{{ store.vcrCurrentFrame.actionType }}</span>
-        <span class="vcr-banner-text">{{ store.vcrCurrentFrame.explanation }}</span>
-      </div>
-    </Transition>
+    <VcrExplanationBanner
+      v-if="store.isVcrMode && store.vcrCurrentFrame"
+      :action-type="store.vcrCurrentFrame.actionType"
+      :explanation="store.vcrCurrentFrame.explanation"
+      :frame-key="vcrCurrentIndex"
+    />
 
     <!-- VCR Loading / Error -->
     <div v-if="store.isVcrLoading" class="vcr-api-status vcr-loading">Loading from backend...</div>
     <div v-if="store.vcrError" class="vcr-api-status vcr-error">{{ store.vcrError }}</div>
 
     <!-- VCR Playback Controls -->
-    <div v-if="store.isVcrMode" class="vcr-playback">
-      <h4 class="vcr-title">VCR Playback</h4>
-      <div class="vcr-row">
-        <div class="vcr-btn-group">
-          <button class="vcr-btn vcr-btn-nav" :disabled="vcrCurrentIndex <= 0" @click="store.vcrPrev()">◀ Prev</button>
-          <button class="vcr-btn vcr-btn-nav" :disabled="vcrCurrentIndex >= store.vcrTotalFrames - 1" @click="store.vcrNext()">Next ▶</button>
-          <button class="vcr-btn vcr-btn-nav" @click="store.vcrReset()">⏮ Reset</button>
-        </div>
-        <div class="vcr-frame-indicator">Frame {{ vcrCurrentIndex + 1 }} / {{ store.vcrTotalFrames }}</div>
-        <button class="vcr-btn vcr-btn-exit" @click="store.exitVcrMode()">Exit VCR → Sandbox</button>
-      </div>
-    </div>
+    <VcrControls
+      v-if="store.isVcrMode"
+      :current-index="vcrCurrentIndex"
+      :total-frames="store.vcrTotalFrames"
+      @prev="store.vcrPrev()"
+      @next="store.vcrNext()"
+      @reset="store.vcrReset()"
+      @exit="store.exitVcrMode()"
+    />
 
     <!-- Scenario Tabs (hidden in VCR mode) -->
     <div v-if="!store.isVcrMode" class="scenario-tabs">
@@ -86,13 +79,15 @@ import { useDesignPatternsStore } from '../store/useDesignPatternsStore';
 import { getAllScenarioIds, SCENARIO_LABELS } from '../scenarios/scenarioData';
 import DesignPatternsCanvas from './DesignPatternsCanvas.vue';
 import DesignPatternsControlPanel from './DesignPatternsControlPanel.vue';
+import VcrControls from '../../../components/VcrControls.vue';
+import VcrExplanationBanner from '../../../components/VcrExplanationBanner.vue';
+import ConceptScenarioPicker from '../../../components/ConceptScenarioPicker.vue';
 
 const store = useDesignPatternsStore();
 const scenarioIds = getAllScenarioIds();
 const vcrCurrentIndex = computed(() => store.vcrCurrentIndex);
 
-interface BackendScenario { id: string; label: string; }
-const backendScenarios: BackendScenario[] = [
+const backendScenarios = [
   { id: 'strategy-pattern', label: 'Strategy Pattern' },
   { id: 'observer-pattern', label: 'Observer Pattern' },
   { id: 'singleton-pattern', label: 'Singleton Pattern' },
@@ -103,47 +98,20 @@ onUnmounted(() => store.cleanup());
 </script>
 
 <style scoped>
-.design-patterns-workspace { display: flex; flex-direction: column; gap: 12px; padding: 16px; background: rgba(14,23,38,0.7); backdrop-filter: blur(12px); border: 1px solid rgba(100,116,139,0.2); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); height: 100%; overflow: hidden; }
-.workspace-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.design-patterns-workspace { display: flex; flex-direction: column; gap: 12px; padding: 16px; background: var(--glass-bg); backdrop-filter: var(--glass-blur-light); border: 1px solid rgba(100,116,139,0.2); border-radius: 16px; box-shadow: var(--shadow-elevated); height: 100%; overflow: hidden; }
+.workspace-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid var(--glass-border); }
 .header-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; padding: 3px 8px; border-radius: 6px; }
 .badge-nodes { background: rgba(6,182,212,0.1); color: #06b6d4; border: 1px solid rgba(6,182,212,0.2); }
 .badge-links { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
-.scenario-tabs { display: flex; gap: 6px; padding: 4px; background: rgba(15,23,42,0.5); border-radius: 10px; }
-.scenario-tab { flex: 1; padding: 8px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; color: #94a3b8; background: transparent; border: 1px solid transparent; cursor: pointer; transition: all .2s; }
+.scenario-tabs { display: flex; gap: 6px; padding: 4px; background: var(--glass-bg-card); border-radius: 10px; }
+.scenario-tab { flex: 1; padding: 8px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; color: #94a3b8; background: transparent; border: 1px solid transparent; cursor: pointer; transition: all var(--duration-normal); }
 .scenario-tab:hover { color: #e2e8f0; }
 .scenario-tab.active { background: rgba(6,182,212,0.1); color: #06b6d4; border-color: rgba(6,182,212,0.25); }
 .workspace-body { display: flex; gap: 12px; flex: 1; min-height: 0; overflow: hidden; }
 .canvas-area { flex: 1; min-width: 0; }
 
-/* === VCR Scenario Picker === */
-.vcr-picker { background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 12px 16px; backdrop-filter: blur(8px); }
-.vcr-title { color: #a78bfa; font-size: 12px; font-weight: 600; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px; }
-.vcr-btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
-.vcr-btn { padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #94a3b8; }
-.vcr-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); }
-.vcr-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.vcr-btn-scenario { color: #a78bfa; border-color: rgba(167, 139, 250, 0.3); }
-
-/* === VCR Playback Controls === */
-.vcr-playback { background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(167, 139, 250, 0.3); border-radius: 12px; padding: 12px 16px; backdrop-filter: blur(8px); }
-.vcr-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.vcr-btn-nav { color: #c4b5fd; border-color: rgba(196, 181, 253, 0.3); }
-.vcr-frame-indicator { font-size: 12px; color: #a78bfa; font-weight: 600; padding: 4px 10px; background: rgba(139, 92, 246, 0.1); border-radius: 6px; }
-.vcr-btn-exit { color: #f97316; border-color: rgba(249, 115, 22, 0.3); margin-left: auto; }
-
-/* === Explanation Banner === */
-.vcr-banner { background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
-.vcr-banner-action { font-size: 11px; font-weight: 700; color: #a78bfa; background: rgba(139, 92, 246, 0.2); padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-.vcr-banner-text { font-size: 13px; color: #cbd5e1; }
-
 /* === API Status === */
 .vcr-api-status { text-align: center; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; }
 .vcr-loading { color: #06b6d4; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.2); }
 .vcr-error { color: #ef4444; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); }
-
-/* VCR banner transition */
-.vcr-banner-fade-enter-active { transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
-.vcr-banner-fade-leave-active { transition: opacity 0.12s ease, transform 0.12s ease; }
-.vcr-banner-fade-enter-from { opacity: 0; transform: translateY(8px) scale(0.97); }
-.vcr-banner-fade-leave-to { opacity: 0; transform: translateY(-4px) scale(0.98); }
 </style>

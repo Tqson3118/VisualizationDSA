@@ -827,3 +827,17 @@ Tất cả các mục tiêu Sprint 5 đã đạt:
 | **Glassmorphism** | Ultra-modern glass panels | ✅ CODE DONE | Sidebar: blur(20px) saturate(1.4) rgba(15,23,42,0.55). Header: blur(16px) saturate(1.3). Login Modal: blur(24px) saturate(1.5) + scale spring transition. Dashboard Cards: blur(12px) + spring hover translateY(-4px) scale(1.015) |
 | **Motion Utilities** | Global cinematic CSS | ✅ CODE DONE | `cinematic.css` — .spring-hover (cubic-bezier 0.34,1.56), .glass-panel, .vcr-frame-enter (slide+blur), .vcr-active-glow, .stagger-enter. Imported via style.css |
 | **Compilation** | dotnet build 0 errors + vue-tsc 0 errors | ✅ CODE DONE | Backend 0 errors, Frontend vue-tsc --noEmit clean, 0 any usages |
+
+## 22. Deep Architecture Refactoring — Clean Architecture & Component De-duplication
+
+| Hạng mục / Task | Nội dung | Trạng thái CODE | Chi tiết |
+| :--- | :--- | :--- | :--- |
+| **Design Tokens** | Centralized premium tokens CSS | ✅ CODE DONE | `assets/styles/design-tokens.css` — 65+ CSS variables: glassmorphism (--glass-bg/blur/border), neon glow (--glow-accent), spring physics (--ease-spring), VCR theme (--vcr-accent), animation durations. Imported globally via style.css |
+| **VcrControls.vue** | Shared VCR playback component | ✅ CODE DONE | `components/VcrControls.vue` — Props: currentIndex, totalFrames. Events: prev/next/reset/exit. BEM naming. Uses design tokens for all styles |
+| **ConceptScenarioPicker.vue** | Shared scenario picker | ✅ CODE DONE | `components/ConceptScenarioPicker.vue` — Props: scenarios[], label, loading. Event: select. ScenarioOption interface exported |
+| **VcrExplanationBanner.vue** | Shared VCR explanation banner | ✅ CODE DONE | `components/VcrExplanationBanner.vue` — Props: actionType, explanation, frameKey. Uses vcr-banner-fade transition from cinematic.css |
+| **Component De-duplication** | SOLID/Patterns/DI workspaces | ✅ CODE DONE | Removed ~200 lines of duplicated VCR CSS/HTML from 3 workspace components. All now use shared VcrControls + ConceptScenarioPicker + VcrExplanationBanner |
+| **cinematic.css Tokens** | Token-based motion utilities | ✅ CODE DONE | Refactored all hardcoded values to design tokens (var(--duration-*), var(--ease-*), var(--glass-*), var(--shadow-*)) |
+| **Backend OCP** | Reflection-based DI registration | ✅ CODE DONE | AlgorithmDIConfiguration: generic RegisterByInterface<T>() method scans assembly. IConceptStrategy now auto-registered via reflection like IAlgorithmStrategy. Adding new concept = 0 edits to DI config |
+| **Domain Isolation** | Zero outward dependencies | ✅ CODE DONE | Domain.csproj: 0 project references. 0 imports from Application/Infrastructure/WebApi. Perfect Clean Architecture onion |
+| **Compilation** | dotnet build 0 errors + vue-tsc 0 errors | ✅ CODE DONE | Backend 0 errors, Frontend vue-tsc --noEmit clean, 0 any usages |
