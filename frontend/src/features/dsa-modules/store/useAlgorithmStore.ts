@@ -4,7 +4,7 @@ import type { Algorithm, AlgorithmMetadata } from '../types/algorithm.types';
 import { ALGORITHM_CATALOG } from '../services/algorithmCatalog';
 import { LOCAL_METADATA } from './algorithmLocalMetadata';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5050';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5055';
 
 export const useAlgorithmStore = defineStore('algorithm', () => {
   const algorithms = ref<Algorithm[]>([]);

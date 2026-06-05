@@ -6,7 +6,7 @@
 import { getActivePinia } from 'pinia';
 import { useAuthStore } from '../features/auth/store/useAuthStore';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5050/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5055/api/v1';
 
 const REFRESH_TOKEN_KEY = 'vdsa_refresh_token';
 

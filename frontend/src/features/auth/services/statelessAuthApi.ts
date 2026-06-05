@@ -3,7 +3,7 @@
  * Giao tiếp với: /api/v1/concepts/auth/* (in-memory, không cần PostgreSQL)
  */
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5050';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5055';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

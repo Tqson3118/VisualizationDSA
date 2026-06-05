@@ -42,7 +42,7 @@ dotnet run --urls "http://0.0.0.0:5050"
 **Kiểm tra khởi động thành công:**
 
 ```bash
-curl http://localhost:5050/api/v1/concepts/quiz/all
+curl http://localhost:5055/api/v1/concepts/quiz/all
 # Phải trả về JSON array chứa 6 quiz
 ```
 
@@ -52,7 +52,7 @@ curl http://localhost:5050/api/v1/concepts/quiz/all
 
 ```bash
 cd frontend
-VITE_API_BASE_URL=http://localhost:5050 npx vite --host 0.0.0.0 --port 5173
+VITE_API_BASE_URL=http://localhost:5055 npx vite --host 0.0.0.0 --port 5173
 ```
 
 Mở trình duyệt tại: `http://localhost:5173`
@@ -66,7 +66,7 @@ Mở trình duyệt tại: `http://localhost:5173`
 #### 3.1.1 Lấy danh sách quiz
 
 ```bash
-curl -s http://localhost:5050/api/v1/concepts/quiz/all | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/concepts/quiz/all | python3 -m json.tool
 ```
 
 **Kỳ vọng:** Trả về 6 quiz với ID:
@@ -82,7 +82,7 @@ curl -s http://localhost:5050/api/v1/concepts/quiz/all | python3 -m json.tool
 #### 3.1.2 Lấy chi tiết quiz theo ID
 
 ```bash
-curl -s http://localhost:5050/api/v1/concepts/quiz/sorting-fundamentals | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/concepts/quiz/sorting-fundamentals | python3 -m json.tool
 ```
 
 **Kỳ vọng:** JSON chứa `title: "Cơ bản về Sắp xếp"`, `questions` array có 5 phần tử, mỗi phần tử có `text`, `options` (4 đáp án), `correctIndex`, và `explanation` bằng tiếng Việt.
@@ -90,7 +90,7 @@ curl -s http://localhost:5050/api/v1/concepts/quiz/sorting-fundamentals | python
 #### 3.1.3 Lấy quiz theo chủ đề
 
 ```bash
-curl -s http://localhost:5050/api/v1/concepts/quiz/topic/solid | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/concepts/quiz/topic/solid | python3 -m json.tool
 ```
 
 **Kỳ vọng:** Trả về array chứa quiz `solid-principles`.
@@ -98,7 +98,7 @@ curl -s http://localhost:5050/api/v1/concepts/quiz/topic/solid | python3 -m json
 #### 3.1.4 Submit bài làm (đúng hết)
 
 ```bash
-curl -s -X POST http://localhost:5050/api/v1/concepts/quiz/submit \
+curl -s -X POST http://localhost:5055/api/v1/concepts/quiz/submit \
   -H "Content-Type: application/json" \
   -d '{"quizId":"sorting-fundamentals","answers":[2,2,1,0,2]}' | python3 -m json.tool
 ```
@@ -111,7 +111,7 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/quiz/submit \
 #### 3.1.5 Submit bài làm (sai 3 câu)
 
 ```bash
-curl -s -X POST http://localhost:5050/api/v1/concepts/quiz/submit \
+curl -s -X POST http://localhost:5055/api/v1/concepts/quiz/submit \
   -H "Content-Type: application/json" \
   -d '{"quizId":"sorting-fundamentals","answers":[0,0,0,0,2]}' | python3 -m json.tool
 ```
@@ -123,7 +123,7 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/quiz/submit \
 #### 3.1.6 Quiz không tồn tại
 
 ```bash
-curl -s http://localhost:5050/api/v1/concepts/quiz/invalid-id | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/concepts/quiz/invalid-id | python3 -m json.tool
 ```
 
 **Kỳ vọng:** HTTP 404 với `error: "QUIZ_NOT_FOUND"`.
@@ -168,7 +168,7 @@ curl -s http://localhost:5050/api/v1/concepts/quiz/invalid-id | python3 -m json.
 #### 4.1.1 Lấy profile người dùng demo
 
 ```bash
-curl -s http://localhost:5050/api/v1/concepts/gamification/profile | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/concepts/gamification/profile | python3 -m json.tool
 ```
 
 **Kỳ vọng:**
@@ -181,7 +181,7 @@ curl -s http://localhost:5050/api/v1/concepts/gamification/profile | python3 -m 
 #### 4.1.2 Cộng XP
 
 ```bash
-curl -s -X POST http://localhost:5050/api/v1/concepts/gamification/award-xp \
+curl -s -X POST http://localhost:5055/api/v1/concepts/gamification/award-xp \
   -H "Content-Type: application/json" \
   -d '{"amount":100,"reason":"Hoàn thành bài quiz OOP"}' | python3 -m json.tool
 ```
@@ -195,7 +195,7 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/gamification/award-xp \
 
 ```bash
 # Cộng thêm 200 XP → tổng = 450 → đạt ngưỡng sorting-wizard (300 XP)
-curl -s -X POST http://localhost:5050/api/v1/concepts/gamification/award-xp \
+curl -s -X POST http://localhost:5055/api/v1/concepts/gamification/award-xp \
   -H "Content-Type: application/json" \
   -d '{"amount":200,"reason":"Hoàn thành module Sorting"}' | python3 -m json.tool
 ```
@@ -207,7 +207,7 @@ curl -s -X POST http://localhost:5050/api/v1/concepts/gamification/award-xp \
 #### 4.1.4 Lấy danh sách badges
 
 ```bash
-curl -s http://localhost:5050/api/v1/concepts/gamification/badges | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/concepts/gamification/badges | python3 -m json.tool
 ```
 
 **Kỳ vọng:** 8 badges, mỗi badge có `id`, `name`, `description` (tiếng Việt), `icon`, `color`, `earnedAt` (chuỗi rỗng nếu chưa đạt).
@@ -215,7 +215,7 @@ curl -s http://localhost:5050/api/v1/concepts/gamification/badges | python3 -m j
 #### 4.1.5 Lấy bảng xếp hạng
 
 ```bash
-curl -s http://localhost:5050/api/v1/concepts/gamification/leaderboard?limit=5 | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/concepts/gamification/leaderboard?limit=5 | python3 -m json.tool
 ```
 
 **Kỳ vọng:** 5 entries, rank 1-5, mỗi entry có `username`, `totalXp`, `level`, `levelName`, `badgeCount`, `streakDays`.
@@ -223,7 +223,7 @@ curl -s http://localhost:5050/api/v1/concepts/gamification/leaderboard?limit=5 |
 #### 4.1.6 Lấy config gamification
 
 ```bash
-curl -s http://localhost:5050/api/v1/concepts/gamification/config | python3 -m json.tool
+curl -s http://localhost:5055/api/v1/concepts/gamification/config | python3 -m json.tool
 ```
 
 **Kỳ vọng:** JSON có `levels` (8 cấp), `badges` (8 badges), `xpEvents` (4 loại).
@@ -231,7 +231,7 @@ curl -s http://localhost:5050/api/v1/concepts/gamification/config | python3 -m j
 #### 4.1.7 XP không hợp lệ
 
 ```bash
-curl -s -X POST http://localhost:5050/api/v1/concepts/gamification/award-xp \
+curl -s -X POST http://localhost:5055/api/v1/concepts/gamification/award-xp \
   -H "Content-Type: application/json" \
   -d '{"amount":0,"reason":"Invalid"}' | python3 -m json.tool
 ```
@@ -292,9 +292,9 @@ Kiểm tra lần lượt các URL sau không bị lỗi trắng:
 | Triệu chứng | Nguyên nhân | Cách khắc phục |
 |---|---|---|
 | `Failed to fetch` trong browser console | Thiếu CORS headers | Set `ASPNETCORE_ENVIRONMENT=Development` trước `dotnet run` |
-| Quiz catalog trống (0 thẻ) | Backend chưa chạy hoặc sai port | Kiểm tra `curl http://localhost:5050/api/v1/concepts/quiz/all` |
+| Quiz catalog trống (0 thẻ) | Backend chưa chạy hoặc sai port | Kiểm tra `curl http://localhost:5055/api/v1/concepts/quiz/all` |
 | Gamification hiển thị 0 XP | API profile trả về lỗi | Kiểm tra backend console log, đảm bảo DI đã đăng ký `GamificationStrategy` |
-| Leaderboard trống | Backend chưa chạy | Kiểm tra `curl http://localhost:5050/api/v1/concepts/gamification/leaderboard` |
+| Leaderboard trống | Backend chưa chạy | Kiểm tra `curl http://localhost:5055/api/v1/concepts/gamification/leaderboard` |
 | Port 5173 bị chiếm | Process cũ chưa tắt | `lsof -i :5173` và `kill` process cũ |
 | Port 5050 bị chiếm | .NET process cũ chưa tắt | `lsof -i :5050` và `kill` process cũ |
 

@@ -4,7 +4,7 @@
  * Vietnamese quiz bank with DSA/OOP/SOLID/Patterns/DI topics.
  */
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5050';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5055';
 
 export interface StatelessQuizSummary {
   id: string;

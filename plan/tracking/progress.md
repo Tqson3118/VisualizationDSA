@@ -852,3 +852,13 @@ Tất cả các mục tiêu Sprint 5 đã đạt:
 | **BUG-4: Patterns Layout** | Fix narrow canvas strip with empty black sides | ✅ CODE DONE | `PatternsView.vue`: removed `items-center justify-center`, added `w-full p-4`. `DesignPatternsWorkspace.vue`: added `width: 100%`. `DesignPatternsCanvas.vue`: `height: 100%; min-height: 400px` + ResizeObserver for responsive width |
 | **BUG-5: Port Standardization** | Lock Vite dev server to port 5173 | ✅ CODE DONE | `vite.config.ts`: added `server: { port: 5173, strictPort: true }` |
 | **Compilation** | dotnet build 0 errors + vue-tsc 0 errors | ✅ CODE DONE | Backend 0 errors (42 warnings, pre-existing), Frontend vue-tsc --noEmit clean |
+
+## 24. Automation Bootstrapper & Port Standardization
+
+| Hạng mục / Task | Nội dung | Trạng thái CODE | Chi tiết |
+| :--- | :--- | :--- | :--- |
+| **run-project.bat** | Windows 1-click startup script | ✅ CODE DONE | Spawns backend (`dotnet run --urls http://localhost:5055`) and frontend (`VITE_API_BASE_URL=http://localhost:5055 npm run dev`) in separate terminal windows |
+| **run-project.sh** | macOS/Linux 1-click startup script | ✅ CODE DONE | Background jobs with trap-based cleanup (SIGINT/SIGTERM), PID tracking, graceful shutdown |
+| **Port Migration 5050→5055** | 21 frontend service files updated | ✅ CODE DONE | All `localhost:5050` fallbacks changed to `localhost:5055` across API services, stores, and apiClient.ts |
+| **Test Guides Updated** | 4 Vietnamese test guides | ✅ CODE DONE | `huong-dan-kiem-thu-giai-doan-{3,4,5}.md` + `huong-dan-nghiem-thu-chuyen-nghiep.md` — all curl commands updated to port 5055 |
+| **Compilation** | dotnet build 0 errors + vue-tsc 0 errors | ✅ CODE DONE | Backend Build succeeded, Frontend vue-tsc --noEmit clean |
