@@ -79,6 +79,21 @@ Similar pattern to OOP:
 - Frame navigation: Next/Prev/Reset all update topology visualization
 - Exit VCR restores interactive sandbox with packet injection controls
 
+### System Design Key UI Elements
+- **"HTTP Request" button** — injects a single packet into the network
+- **"Xa lu 10 hat" button** — injects 10 packets at once (burst mode)
+- **"Sap nguon" buttons** — toggles server failure (on Server A / Server B)
+- **"Ghi du lieu (DB Write)" button** — triggers database replication
+- **Sync Delay slider** — controls replication lag (100ms–5000ms)
+- **Packets badge** (top-right) — shows current in-flight packet count
+
+## OOP Module Key UI Elements
+- **Pillar tabs** (top bar): Dong Goi, Ke Thua, Da Hinh, Truu Tuong
+- **"+ new Shape()" / "+ new Circle()" buttons** — manual heap object instantiation
+- **Heap Memory Allocator panel** (right side) — shows objects with hex addresses
+- **Scenario cards** (left panel) — 4 predefined OOP scenarios
+- **VCR controls** (when scenario active): ⏮ ▶Play 🔄 ⏭ and step counter (e.g., "2 / 4")
+
 ## Troubleshooting
 
 - **API calls going to wrong port:** Check that `VITE_API_BASE_URL=http://localhost:5050` is set. Vite env vars are baked at startup — restart vite if changed.
@@ -86,6 +101,8 @@ Similar pattern to OOP:
 - **Backend not starting:** May need `dotnet restore` first. Check that .NET 9.0 SDK is installed.
 - **Fallback mode instead of API mode:** If "Backend Frame" badge doesn't appear, the API call failed silently and fell back to local scenarios. Check backend is running and CORS is configured.
 - **HeapObject Maps not working:** Backend returns plain JSON objects for `fieldsData`/`vTable`. Frontend converts via `snapshotToInstance()` using `new Map(Object.entries(...))`. If heap fields show as empty, the conversion may have failed.
+- The app redirects to `/sorting` by default. Navigate via the sidebar or directly to the route.
+- Port 5173 might already be in use from a previous session. Check Vite output for the actual port.
 
 ## Running Unit Tests
 ```bash
