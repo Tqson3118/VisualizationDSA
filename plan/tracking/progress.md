@@ -750,3 +750,23 @@ Tất cả các mục tiêu Sprint 5 đã đạt:
 | **VCR UI — Design Patterns** | Scenario Picker + VCR Panel + Explanation Banner | ✅ CODE DONE | `DesignPatternsWorkspace.vue` — 3 scenario buttons (Strategy/Observer/Singleton), frame navigation, Vietnamese banner, v-if sandbox toggle |
 | **VCR UI — DI/IoC** | Scenario Picker + VCR Panel + Explanation Banner | ✅ CODE DONE | `DISandbox.vue` — 2 scenario buttons (Lifetime Demo/Cycle Detection), frame navigation, Vietnamese banner, v-if sandbox toggle |
 | **E2E Testing** | Browser verification all 3 modules | ✅ CODE DONE | 9/9 API tests passed (curl), 3/3 VCR UI tests passed (browser recording) — Vietnamese text confirms API connectivity |
+
+## 17. Phase 5 — Quiz System & Gamification Engine Full-Stack Integration
+
+| Hạng mục / Task | Nội dung | Trạng thái CODE | Chi tiết |
+| :--- | :--- | :--- | :--- |
+| **Quiz Backend Strategy** | Stateless quiz bank with 6 quizzes (27 questions total) | ✅ CODE DONE | `QuizBankStrategy.cs` — Vietnamese questions/explanations for sorting, graph, OOP, SOLID, design-patterns, DI topics |
+| **Quiz Backend DTOs** | Stateless quiz data contracts | ✅ CODE DONE | `QuizFrameDto.cs` — `StatelessQuizDto`, `StatelessQuestionDto`, `StatelessQuizAttemptRequest/Result` |
+| **Quiz Controller** | REST API endpoints for quiz CRUD + grading | ✅ CODE DONE | `StatelessQuizController.cs` (`/api/v1/concepts/quiz/`) — GET all/topics/{id}/topic/{topic}, POST submit |
+| **Gamification Backend Strategy** | Stateless XP/level/badge/leaderboard engine | ✅ CODE DONE | `GamificationStrategy.cs` — 8 levels, 8 badges, mock leaderboard (10 entries), XP award with auto badge unlock |
+| **Gamification Controller** | REST API for profile/XP/badges/leaderboard | ✅ CODE DONE | `StatelessGamificationController.cs` (`/api/v1/concepts/gamification/`) — GET profile/badges/leaderboard/config, POST award-xp |
+| **Frontend Quiz API** | Service layer calling backend quiz endpoints | ✅ CODE DONE | `statelessQuizApi.ts` — getAllQuizzes(), getQuizById(), submitAttempt() with typed responses |
+| **Frontend Quiz Store** | Pinia store backend quiz mode integration | ✅ CODE DONE | `useQuizStore.ts` — loadQuizCatalog(), startBackendQuiz(), selectBackendAnswer(), submitBackendQuiz(), exitBackendQuiz() |
+| **Frontend Quiz UI** | BackendQuizWorkspace component | ✅ CODE DONE | `BackendQuizWorkspace.vue` — quiz catalog grid, question flow with A/B/C/D options, navigation, result card with explanations |
+| **Frontend Gamification API** | Service layer calling backend gamification endpoints | ✅ CODE DONE | `statelessGamificationApi.ts` — getProfile(), awardXp(), getBadges(), getLeaderboard() |
+| **Frontend Gamification Store** | Pinia store backend integration | ✅ CODE DONE | `useGamificationStore.ts` — loadBackendProfile(), awardXpViaBackend(), loadBackendBadges(), loadBackendLeaderboard() |
+| **Frontend Gamification UI** | GamificationWorkspace backend integration | ✅ CODE DONE | `GamificationWorkspace.vue` — server profile display, backend leaderboard, backend badges, +50 XP via API |
+| **Route Activation** | Quiz + Gamification routes enabled | ✅ CODE DONE | `routes.ts` — `/#/quiz` (BackendQuizView), `/#/gamification` (GamificationEngineView) |
+| **DI Registration** | Singleton strategies in DI container | ✅ CODE DONE | `AlgorithmDIConfiguration.cs` — `QuizBankStrategy`, `GamificationStrategy` registered |
+| **Vietnamese Test Guide** | Manual testing documentation | ✅ CODE DONE | `huong-dan-kiem-thu-giai-doan-3.md` — 16 test cases covering API + UI |
+| **Compilation** | dotnet build 0 errors + vue-tsc 0 errors | ✅ CODE DONE | Backend 0 errors (42 pre-existing warnings), Frontend vue-tsc --noEmit clean |

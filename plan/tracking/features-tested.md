@@ -1926,3 +1926,19 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 1561 | **DI VCR** | Lifetime Scenario VCR Playback | Click Lifetime Demo → REGISTER_SERVICES + Vietnamese "DI Container", Frame 1/5 (5 frames) | 🟢 PASSED |
 | 1562 | **DI VCR** | Frame Badge Change | Next → Frame 2/5 RESOLVE_SINGLETON_NEW, badge changed from REGISTER_SERVICES | 🟢 PASSED |
 | 1563 | **DI VCR** | Exit VCR Sandbox Restore | Exit → IoC concept box + service panels + dependency graph + Resolution Demo restored | 🟢 PASSED |
+| 1564 | **Quiz API** | GET /concepts/quiz/all | Returns 6 quizzes with Vietnamese titles (sorting, graph, OOP, SOLID, patterns, DI) | 🟢PASSED |
+| 1565 | **Quiz API** | GET /concepts/quiz/{id} | Returns quiz detail with questions, options, correctIndex, Vietnamese explanations | 🟢PASSED |
+| 1566 | **Quiz API** | POST /concepts/quiz/submit (correct) | score=5, maxScore=5, passed=true, xpAwarded=50, all isCorrect=true | 🟢PASSED |
+| 1567 | **Quiz API** | POST /concepts/quiz/submit (wrong) | score<70%, passed=false, xpAwarded=0, incorrect items marked | 🟢PASSED |
+| 1568 | **Quiz API** | GET /concepts/quiz/invalid-id | HTTP 404 with QUIZ_NOT_FOUND error | 🟢PASSED |
+| 1569 | **Gamification API** | GET /concepts/gamification/profile | demo-user profile with 150 XP, Level 2 Explorer, 3 streak, 1 badge | 🟢PASSED |
+| 1570 | **Gamification API** | POST /concepts/gamification/award-xp | XP increments, level updates, new badges auto-awarded at thresholds | 🟢PASSED |
+| 1571 | **Gamification API** | GET /concepts/gamification/badges | 8 badges with Vietnamese descriptions, earned/locked status | 🟢PASSED |
+| 1572 | **Gamification API** | GET /concepts/gamification/leaderboard | 10 mock entries ranked by XP with level names | 🟢PASSED |
+| 1573 | **Gamification API** | GET /concepts/gamification/config | Levels (8) + badges (8) + xpEvents (4) config | 🟢PASSED |
+| 1574 | **Quiz Frontend** | Quiz catalog loads from backend | 6 quiz cards displayed with difficulty badges and XP rewards | 🟢PASSED |
+| 1575 | **Quiz Frontend** | Quiz flow (select→navigate→submit) | A/B/C/D options, prev/next, submit, result with explanations | 🟢PASSED |
+| 1576 | **Gamification Frontend** | Profile loads from backend | XP + Level + LevelName from server displayed in header | 🟢PASSED |
+| 1577 | **Gamification Frontend** | Leaderboard from backend | 10 entries with rank/username/XP/level, current user highlighted | 🟢PASSED |
+| 1578 | **Gamification Frontend** | +50 XP via backend API | Button calls award-xp endpoint, XP updates reactively | 🟢PASSED |
+| 1579 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend vue-tsc --noEmit 0 errors | 🟢PASSED |
