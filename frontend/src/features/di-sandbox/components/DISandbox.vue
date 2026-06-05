@@ -26,10 +26,12 @@
     </div>
 
     <!-- VCR Explanation Banner -->
-    <div v-if="vcrStore.isVcrMode && vcrStore.vcrCurrentFrame" class="vcr-banner">
-      <span class="vcr-banner-action">{{ vcrStore.vcrCurrentFrame.actionType }}</span>
-      <span class="vcr-banner-text">{{ vcrStore.vcrCurrentFrame.explanation }}</span>
-    </div>
+    <Transition name="vcr-banner-fade" mode="out-in">
+      <div v-if="vcrStore.isVcrMode && vcrStore.vcrCurrentFrame" :key="vcrCurrentIndex" class="vcr-banner vcr-frame-enter">
+        <span class="vcr-banner-action">{{ vcrStore.vcrCurrentFrame.actionType }}</span>
+        <span class="vcr-banner-text">{{ vcrStore.vcrCurrentFrame.explanation }}</span>
+      </div>
+    </Transition>
 
     <!-- VCR Loading / Error -->
     <div v-if="vcrStore.isVcrLoading" class="vcr-api-status vcr-loading">Loading from backend...</div>
@@ -169,5 +171,11 @@ onMounted(() => registerSampleServices());
 .vcr-api-status { text-align: center; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; }
 .vcr-loading { color: #06b6d4; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.2); }
 .vcr-error { color: #ef4444; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); }
+
+/* VCR banner transition */
+.vcr-banner-fade-enter-active { transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+.vcr-banner-fade-leave-active { transition: opacity 0.12s ease, transform 0.12s ease; }
+.vcr-banner-fade-enter-from { opacity: 0; transform: translateY(8px) scale(0.97); }
+.vcr-banner-fade-leave-to { opacity: 0; transform: translateY(-4px) scale(0.98); }
 </style>
 

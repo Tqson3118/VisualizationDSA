@@ -816,3 +816,14 @@ Tất cả các mục tiêu Sprint 5 đã đạt:
 | **Page Transitions** | Enhanced slide-up + fade transitions | ✅ CODE DONE | `App.vue` — enter: translateY(8px)→0 + opacity 0→1 (0.2s), leave: translateY(0)→-4px + opacity 1→0 (0.12s) |
 | **Vietnamese Test Guide** | Manual testing documentation | ✅ CODE DONE | `huong-dan-nghiem-thu-chuyen-nghiep.md` — 20 test cases covering API error simulation + UI toast/skeleton/transitions |
 | **Compilation** | dotnet build 0 errors + vue-tsc 0 errors | ✅ CODE DONE | Backend 0 errors, Frontend vue-tsc --noEmit clean |
+
+## 21. Cinematic UI/UX Upgrades — Motion Frameworks, Confetti & Glassmorphism
+
+| Hạng mục / Task | Nội dung | Trạng thái CODE | Chi tiết |
+| :--- | :--- | :--- | :--- |
+| **Dependencies** | canvas-confetti + @vueuse/motion | ✅ CODE DONE | npm install canvas-confetti @vueuse/motion @types/canvas-confetti. MotionPlugin registered in main.ts |
+| **Confetti Celebrations** | Epic reward blasts | ✅ CODE DONE | `useConfetti.ts` — `firePremium()` (3s gold cascade + grand finale burst), `fireQuizPass()` (rainbow center burst + dual sides). Integrated into PremiumCheckoutView (on payment success) + BackendQuizWorkspace (on quiz pass via watch) |
+| **VCR Timeline Physics** | Cinematic easing upgrade | ✅ CODE DONE | BoxArrayRenderer.vue — easeOutCubic→easeOutQuart, duration 350ms→420ms. VCR banners in SOLID/Patterns/DI wrapped with `<Transition name="vcr-banner-fade">` + slide+scale animation |
+| **Glassmorphism** | Ultra-modern glass panels | ✅ CODE DONE | Sidebar: blur(20px) saturate(1.4) rgba(15,23,42,0.55). Header: blur(16px) saturate(1.3). Login Modal: blur(24px) saturate(1.5) + scale spring transition. Dashboard Cards: blur(12px) + spring hover translateY(-4px) scale(1.015) |
+| **Motion Utilities** | Global cinematic CSS | ✅ CODE DONE | `cinematic.css` — .spring-hover (cubic-bezier 0.34,1.56), .glass-panel, .vcr-frame-enter (slide+blur), .vcr-active-glow, .stagger-enter. Imported via style.css |
+| **Compilation** | dotnet build 0 errors + vue-tsc 0 errors | ✅ CODE DONE | Backend 0 errors, Frontend vue-tsc --noEmit clean, 0 any usages |
