@@ -37,12 +37,17 @@
 
           <!-- Authenticated user badge -->
           <template v-if="authStore.isAuthenticated">
-            <div class="user-badge">
-              <div class="user-badge__avatar">
+            <!-- Premium Crown Badge -->
+            <span v-if="authStore.isPremium" class="premium-crown" title="Premium Member">👑</span>
+            <div class="user-badge" :class="{ 'user-badge--premium': authStore.isPremium }">
+              <div class="user-badge__avatar" :class="{ 'user-badge__avatar--premium': authStore.isPremium }">
                 {{ authStore.userName.charAt(0).toUpperCase() }}
               </div>
               <div class="user-badge__info">
-                <span class="user-badge__name">{{ authStore.userName }}</span>
+                <span class="user-badge__name">
+                  {{ authStore.userName }}
+                  <span v-if="authStore.isPremium" class="premium-tag">PRO</span>
+                </span>
                 <span class="user-badge__meta">
                   Lv.{{ authStore.userLevel }}&nbsp;&middot;&nbsp;{{ authStore.userXP }} XP
                 </span>
@@ -554,5 +559,41 @@ onMounted(() => {
 .page-fade-enter-from,
 .page-fade-leave-to {
   opacity: 0;
+}
+
+/* ── PREMIUM STYLES ──────────────────────────────────────── */
+.premium-crown {
+  font-size: 16px;
+  filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
+  animation: crown-glow 2s ease-in-out infinite alternate;
+}
+@keyframes crown-glow {
+  from { filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.4)); }
+  to   { filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8)); }
+}
+
+.user-badge--premium {
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+  padding: 2px 6px;
+  background: rgba(255, 215, 0, 0.05);
+}
+
+.user-badge__avatar--premium {
+  background: linear-gradient(135deg, #ffd700, #ff8c00) !important;
+  color: #000 !important;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+.premium-tag {
+  font-size: 8px;
+  font-weight: 700;
+  background: linear-gradient(90deg, #ffd700, #ff8c00);
+  color: #000;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+  vertical-align: middle;
+  letter-spacing: 0.5px;
 }
 </style>

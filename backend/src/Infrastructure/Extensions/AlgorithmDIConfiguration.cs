@@ -34,6 +34,7 @@ public static class AlgorithmDIConfiguration
         services.AddSingleton<QuizBankStrategy>();
         services.AddSingleton<GamificationStrategy>();
         services.AddSingleton<StatelessAuthStrategy>();
+        services.AddSingleton<StatelessPaymentStrategy>();
 
         return services;
     }

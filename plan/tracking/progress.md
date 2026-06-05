@@ -786,3 +786,21 @@ Tất cả các mục tiêu Sprint 5 đã đạt:
 | **DI Registration** | Singleton strategy in DI container | ✅ CODE DONE | `AlgorithmDIConfiguration.cs` — `StatelessAuthStrategy` registered |
 | **Vietnamese Test Guide** | Manual testing documentation | ✅ CODE DONE | `huong-dan-kiem-thu-giai-doan-4.md` — 17 test cases covering API + UI |
 | **Compilation** | dotnet build 0 errors + vue-tsc 0 errors | ✅ CODE DONE | Backend 0 errors, Frontend vue-tsc --noEmit clean |
+
+## 19. Phase 7 — Payment Integration & Premium Feature System
+
+| Hạng mục / Task | Nội dung | Trạng thái CODE | Chi tiết |
+| :--- | :--- | :--- | :--- |
+| **Backend Payment Strategy** | Stateless in-memory payment (checkout/verify/webhook/premium status) | ✅ CODE DONE | `StatelessPaymentStrategy.cs` — ConcurrentDictionary order store, VietQR URL generation, simulate webhook, premium user tracking, feature access gating, transaction log |
+| **Backend Payment DTOs** | Domain-layer DTOs for payment flow | ✅ CODE DONE | `StatelessPaymentDto.cs` — `StatelessOrderDto`, `StatelessCheckoutRequest`, `StatelessVerifyRequest`, `StatelessPaymentConfigDto`, `StatelessPremiumStatusDto`, `StatelessTransactionLogEntry` |
+| **Backend Payment Controller** | REST API for payment + premium status | ✅ CODE DONE | `StatelessPaymentController.cs` (`/api/v1/concepts/payment/`) — POST checkout/verify/simulate-webhook, GET config/orders/{id}/status/premium-status/check-access/transactions |
+| **Frontend Payment API** | Service layer for stateless payment endpoints | ✅ CODE DONE | `statelessPaymentApi.ts` — checkout(), verify(), getOrderStatus(), simulateWebhook(), getPremiumStatus(), checkFeatureAccess(), getTransactions() |
+| **Frontend Payment Store** | Pinia store for checkout flow + premium status | ✅ CODE DONE | `usePaymentStore.ts` — startCheckout(), verifyPayment(), simulatePaymentSuccess(), loadPremiumStatus(), checkFeatureAccess(), isPremium computed |
+| **PremiumCheckoutView** | Refactored to use stateless payment store | ✅ CODE DONE | `PremiumCheckoutView.vue` — uses usePaymentStore instead of direct API calls, removed `any` type, added simulate webhook button, verifying state |
+| **Premium Crown Badge** | Header premium visual indicators | ✅ CODE DONE | `App.vue` — 👑 crown with glow animation, gold avatar gradient, "PRO" tag, premium-specific CSS classes |
+| **PremiumGate Component** | Feature gatekeeping for premium content | ✅ CODE DONE | `PremiumGate.vue` — blur overlay + upgrade CTA for non-premium users, slot-based wrapping |
+| **Sidebar Premium Tab** | Account group with Premium navigation | ✅ CODE DONE | `appTabs.ts` — "Account" group with "Premium" tab → `/#/checkout` |
+| **Payment Polling Fix** | Removed `any` from usePaymentPolling | ✅ CODE DONE | `usePaymentPolling.ts` — `onError?: (err: unknown)` replaces `err: any` |
+| **DI Registration** | Singleton strategy in DI container | ✅ CODE DONE | `AlgorithmDIConfiguration.cs` — `StatelessPaymentStrategy` registered |
+| **Vietnamese Test Guide** | Manual testing documentation | ✅ CODE DONE | `huong-dan-kiem-thu-giai-doan-5.md` — 15 test cases covering API + UI |
+| **Compilation** | dotnet build 0 errors + vue-tsc 0 errors | ✅ CODE DONE | Backend 0 errors, Frontend vue-tsc --noEmit clean |
