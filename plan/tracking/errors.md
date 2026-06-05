@@ -283,3 +283,17 @@ Tài liệu này tổng hợp các mã lỗi, kịch bản sự cố và cách t
 *   **Mã Lỗi:** `ERR_SYSDESIGN_NODE_REACTIVITY_GAP`
 *   **Nguyên nhân gốc:** Engine lưu trữ raw object references qua `registerNode()`. Khi engine gọi `targetServer.requestCount++` hoặc `requestCount--`, nó mutate object gốc trực tiếp — Vue 3 Proxy chỉ phát hiện thay đổi khi setter được gọi qua Proxy, không phải qua raw object.
 *   **Cách khắc phục:** Thêm hàm `syncNodes()` sử dụng `triggerRef(nodes)` từ Vue 3 để ép Vue re-render khi node data thay đổi. Gọi `syncNodes()` song song với `syncPackets()` tại tất cả các điểm mutation: `injectHttpRequest()`, `injectTrafficBurst()`, và `tickEngine()`. File sửa: `useSystemDesignStore.ts`.
+
+### 🚀 Mục 139: Phase 3 — Full-Stack Integration (System Design Frontend ↔ Backend API)
+*   **Mô tả:** Refactor `useSystemDesignStore.ts` để kết nối frontend với backend API thay vì dùng topology hardcode và simulation thuần client-side. Thêm chế độ VCR playback cho kịch bản backend.
+*   **Mã Mục:** `FEAT_SYSDESIGN_FULLSTACK_INTEGRATION`
+*   **Thay đổi:**
+    - Tạo `systemDesignApi.ts`: service layer gọi `GET /topology`, `GET /scenarios`, `POST /execute`
+    - Thêm `SystemDesignFrame` type map 1:1 với `SystemDesignFrameDto` (C#)
+    - `initializeDemoTopology()` → async, fetch topology từ `GET /api/v1/concepts/system-design/topology` với fallback hardcoded
+    - Thêm `loadScenario(scenarioId)` → `POST /execute` lấy mảng frames, áp dụng VCR playback
+    - Thêm VCR controls: `nextFrame()`, `prevFrame()`, `resetFrames()`, `toggleAutoplay()`, `setPlaybackSpeed()`
+    - `tickEngine()` bỏ qua engine ticks trong VCR mode — state driven hoàn toàn bởi frame data backend
+    - `SystemDesignWorkspace.vue`: thêm Scenario Picker, VCR Playback Panel, Explanation Banner
+    - Interactive sandbox mode vẫn hoạt động khi không ở VCR mode
+*   **Files sửa:** `useSystemDesignStore.ts`, `SystemDesignWorkspace.vue`, `system-design-viz.types.ts`, `systemDesignApi.ts` (mới), `useSystemDesignStore.spec.ts`
