@@ -372,8 +372,6 @@ export const useOOPVisualizerStore = defineStore('oopVisualizer', () => {
       callStack.value = ['Main()'];
       selectedMethodCall.value = null;
     } else if (step.actionName === 'INSTANTIATE') {
-      // Clean heap, then create object
-      heapObjects.value = [];
       const addr = instantiateNewObject(step.actionPayload.className);
       selectedObjectAddress.value = addr;
       callStack.value = ['Main()'];

@@ -22,7 +22,7 @@ const nodeMap = computed(() => {
 function startSimulationLoop(): void {
   lastTime = performance.now();
   const loop = (time: number) => {
-    const delta = time - lastTime;
+    const delta = (time - lastTime) / 1000;
     lastTime = time;
     store.tickEngine(delta);
     rafId = requestAnimationFrame(loop);

@@ -241,3 +241,15 @@ Tài liệu này tổng hợp các mã lỗi, kịch bản sự cố và cách t
     2. Loại bỏ hoàn toàn tab switcher và canvas vẽ mini trong `CustomInputPanel.vue` để chỉ giữ lại giao diện nạp văn bản `TextDataInput` tinh gọn ở cột bên phải.
     3. Xây dựng cơ chế đồng bộ hóa 2 chiều (Bidirectional Watchers) trong `CustomInputPanel.vue` giữa chuỗi adjacency list (`graphInputText`) và Pinia store `usePlaygroundStore` (quản lý tọa độ đỉnh và liên kết lò xo vật lý), giúp việc vẽ trên canvas trái lập tức cập nhật văn bản ở cột phải và ngược lại.
     4. Gỡ bỏ Sandbox độc lập khỏi sidebar trong [appTabs.ts](file:///c:/Users/maiti/OneDrive/Desktop/LearningEnglishApp/VisualizationDSA/frontend/src/appTabs.ts) và [routes.ts](file:///c:/Users/maiti/OneDrive/Desktop/LearningEnglishApp/VisualizationDSA/frontend/src/router/routes.ts) để hợp nhất hoàn toàn vào trang Graph.
+
+### 🚨 Lỗi 132: Gói Tin Mạng Lướt Qua Màn Hình Trong 2 Frame (~32ms) — System Design Viz (BUG-SD-4)
+*   **Mô tả:** Trong `SystemDesignWorkspace.vue`, vòng lặp mô phỏng rAF tính `delta = time - lastTime` trả về giá trị tính bằng mili-giây (~16ms/frame). Giá trị này được truyền thẳng vào `store.tickEngine(delta)` rồi nhân với `PACKET_SPEED = 0.05`, khiến `progress += 16 * 0.05 = 0.8` mỗi frame. Kết quả: gói tin đạt `progress >= 1.0` sau chỉ 2 frame (~32ms), di chuyển quá nhanh để mắt người quan sát kịp nhìn thấy.
+*   **Mã Lỗi:** `ERR_SYSDESIGN_DELTA_UNIT_MISMATCH`
+*   **Nguyên nhân gốc:** `performance.now()` trả về mili-giây nhưng công thức `p.progress += deltaTime * PACKET_SPEED` giả định `deltaTime` tính bằng giây.
+*   **Cách khắc phục:** Chuẩn hóa `deltaTime` sang giây bằng cách chia cho 1000 trước khi truyền vào engine: `const delta = (time - lastTime) / 1000;`. File sửa: `SystemDesignWorkspace.vue` dòng 25.
+
+### 🚨 Lỗi 133: Bước INSTANTIATE Trong Kịch Bản OOP Xóa Sạch Heap Mỗi Lần Tạo Đối Tượng (BUG-OOP-3)
+*   **Mô tả:** Trong `useOOPVisualizerStore.ts`, handler cho `step.actionName === 'INSTANTIATE'` chứa lệnh `heapObjects.value = []` xóa toàn bộ Heap trước khi tạo đối tượng mới. Điều này khiến mọi kịch bản đa đối tượng bị hỏng — khi bước INSTANTIATE thứ hai được thực thi, đối tượng đầu tiên bị xóa mất.
+*   **Mã Lỗi:** `ERR_OOP_INSTANTIATE_HEAP_WIPE`
+*   **Nguyên nhân gốc:** Logic scenario step handler gộp chung việc reset heap vào mỗi bước INSTANTIATE thay vì chỉ thực hiện ở bước RESET/CLONE_MEMBERS.
+*   **Cách khắc phục:** Xóa dòng `heapObjects.value = [];` khỏi nhánh `INSTANTIATE`, chỉ giữ lại việc tạo đối tượng mới qua `instantiateNewObject()`. Heap chỉ được xóa ở các bước RESET và CLONE_MEMBERS. File sửa: `useOOPVisualizerStore.ts` dòng 374.
