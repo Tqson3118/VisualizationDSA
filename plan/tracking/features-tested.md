@@ -2049,3 +2049,9 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 1784 | **API** | GET quiz/analytics | Quiz stats: total, attempts, pass rate | 🟢PASSED |
 | 1785 | **DB** | AddUserRole Migration | Role column (varchar 20, default Student) added to Users table | 🟢PASSED |
 | 1786 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
+| 1787 | **Docker** | docker-compose.yml | 3 services: postgres:15 + .NET 9 backend + nginx:alpine frontend | 🟢PASSED |
+| 1788 | **Docker** | Backend Dockerfile | Multi-stage sdk:9.0 → aspnet:9.0 Release build | 🟢PASSED |
+| 1789 | **Docker** | Frontend Dockerfile | Multi-stage node:20 → nginx:alpine with VITE_API_BASE_URL | 🟢PASSED |
+| 1790 | **Docker** | nginx.conf | SPA routing + gzip + static caching | 🟢PASSED |
+| 1791 | **Docker** | DB health check | pg_isready with service_healthy condition | 🟢PASSED |
+| 1792 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
