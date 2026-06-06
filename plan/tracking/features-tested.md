@@ -2055,15 +2055,20 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 1790 | **Docker** | nginx.conf | SPA routing + gzip + static caching | 🟢PASSED |
 | 1791 | **Docker** | DB health check | pg_isready with service_healthy condition | 🟢PASSED |
 | 1792 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
-| 1793 | **i18n** | Sidebar tabs | 15 tabs translated to Vietnamese | 🟢PASSED |
-| 1794 | **i18n** | Route meta titles | 13 active route titles translated | 🟢PASSED |
-| 1795 | **i18n** | Landing Page | Feature cards + stats + CTA Vietnamese | 🟢PASSED |
-| 1796 | **i18n** | Dashboard quick links | 4 quick link labels Vietnamese | 🟢PASSED |
-| 1797 | **i18n** | Teacher Panel | Title + badge Vietnamese | 🟢PASSED |
-| 1798 | **i18n** | Graph View tabs | 2 tab names Vietnamese | 🟢PASSED |
-| 1799 | **Responsive** | Global breakpoints | 768px tablet + 480px phone styles | 🟢PASSED |
-| 1800 | **Responsive** | App shell | Header compact + sidebar mobile horizontal | 🟢PASSED |
-| 1801 | **Responsive** | Landing | Hero scaling + CTA stacking + grid 1-col | 🟢PASSED |
-| 1802 | **Responsive** | Dashboard | Grid 1-col + XP wheel + quicklinks grid | 🟢PASSED |
-| 1803 | **Responsive** | Teacher Panel | Analytics stack + form stack + options 1-col | 🟢PASSED |
-| 1804 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
+| 1793 | **WebGPU** | WebGpuPipeline.ts | probeWebGpu() + initCanvasContext() + createComputePipeline() | 🟢PASSED |
+| 1794 | **WebGPU** | WGSL Compute Shader | GRAPH_FORCE_COMPUTE_WGSL Coulomb repulsion kernel | 🟢PASSED |
+| 1795 | **WebGPU** | Dashboard Badge | Glowing "WebGPU Engine: READY" with gpuGlow animation | 🟢PASSED |
+| 1796 | **WebGPU** | @webgpu/types | TypeScript type definitions registered in tsconfig.app.json | 🟢PASSED |
+| 1797 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
+| 1798 | **i18n** | Sidebar tabs | 15 tabs translated to Vietnamese | 🟢PASSED |
+| 1799 | **i18n** | Route meta titles | 13 active route titles translated | 🟢PASSED |
+| 1800 | **i18n** | Landing Page | Feature cards + stats + CTA Vietnamese | 🟢PASSED |
+| 1801 | **i18n** | Dashboard quick links | 4 quick link labels Vietnamese | 🟢PASSED |
+| 1802 | **i18n** | Teacher Panel | Title + badge Vietnamese | 🟢PASSED |
+| 1803 | **i18n** | Graph View tabs | 2 tab names Vietnamese | 🟢PASSED |
+| 1804 | **Responsive** | Global breakpoints | 768px tablet + 480px phone styles | 🟢PASSED |
+| 1805 | **Responsive** | App shell | Header compact + sidebar mobile horizontal | 🟢PASSED |
+| 1806 | **Responsive** | Landing | Hero scaling + CTA stacking + grid 1-col | 🟢PASSED |
+| 1807 | **Responsive** | Dashboard | Grid 1-col + XP wheel + quicklinks grid | 🟢PASSED |
+| 1808 | **Responsive** | Teacher Panel | Analytics stack + form stack + options 1-col | 🟢PASSED |
+| 1809 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
