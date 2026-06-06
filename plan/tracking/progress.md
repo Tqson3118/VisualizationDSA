@@ -996,3 +996,36 @@ Tất cả các mục tiêu Sprint 5 đã đạt:
 | **Responsive: Dashboard** | Grid 1-col, XP wheel scaled, quicklinks 2-col grid on phone | ✅ CODE DONE | `DashboardView.vue` |
 | **Responsive: Teacher** | Analytics 2→1 col, form inline→stack, options grid 1-col | ✅ CODE DONE | `TeacherPanelView.vue` |
 | **Compilation** | dotnet build 0 errors + vue-tsc 0 errors | ✅ CODE DONE | Backend Build succeeded, Frontend vue-tsc clean |
+
+---
+
+## 30. Graph RAG Backend Layer (Trụ Cột 5 — Semantic Matrix Engineering)
+
+| Tính năng | Chi tiết | Trạng thái | Files liên quan |
+| :--- | :--- | :--- | :--- |
+| **SemanticConceptNode entity** | Domain entity — đỉnh đồ thị tri thức với Embedding (double precision[]), Importance, ConceptKey (unique), Category | ✅ CODE DONE | `backend/src/Domain/Entities/SemanticConceptNode.cs` |
+| **KnowledgeEdge entity** | Domain entity — cạnh có hướng với RelationType, Weight, FK Cascade/Restrict | ✅ CODE DONE | `backend/src/Domain/Entities/KnowledgeEdge.cs` |
+| **EF Core Fluent API** | DbSet + unique constraints, category index, embedding column type mapping | ✅ CODE DONE | `backend/src/Infrastructure/Data/ApplicationDbContext.cs` |
+| **EF Migration** | AddSemanticGraph — creates SemanticConceptNodes + KnowledgeEdges tables | ✅ CODE DONE | `backend/src/Infrastructure/Migrations/20260606094901_AddSemanticGraph.cs` |
+| **ISemanticGraphService + DTOs** | Application service interface + SemanticGraphDto, SemanticNodeDto, SemanticEdgeDto, SemanticGraphStatsDto | ✅ CODE DONE | `backend/src/Application/Services/ISemanticGraphService.cs` |
+| **SemanticGraphService** | Infrastructure implementation — AsNoTracking, induced subgraph, graph density | ✅ CODE DONE | `backend/src/Infrastructure/Services/SemanticGraphService.cs` |
+| **ConceptsController** | GET /api/v1/concepts/analytics/semantic-graph?category= | ✅ CODE DONE | `backend/src/WebApi/Controllers/ConceptsController.cs` |
+| **DI Registration** | AddScoped<ISemanticGraphService, SemanticGraphService> | ✅ CODE DONE | `backend/src/WebApi/Program.cs` |
+| **Compilation** | dotnet build 0 errors | ✅ CODE DONE | Backend Build succeeded |
+
+---
+
+## 31. Event Sourcing Ledger (Trụ Cột 6 — Immutable Audit Stream)
+
+| Tính năng | Chi tiết | Trạng thái | Files liên quan |
+| :--- | :--- | :--- | :--- |
+| **SystemAuditEventStream entity** | Domain entity — append-only time-series frame với EventType, UserId, CorrelationId, Payload (JSONB), Sequence (monotonic) | ✅ CODE DONE | `backend/src/Domain/Entities/SystemAuditEventStream.cs` |
+| **IAuditEventService** | Application service interface + AuditEventInput DTO | ✅ CODE DONE | `backend/src/Application/Services/IAuditEventService.cs` |
+| **AuditEventService** | Infrastructure append-only writer | ✅ CODE DONE | `backend/src/Infrastructure/Services/AuditEventService.cs` |
+| **ImmutableAuditInterceptor** | EF Core SaveChanges interceptor — chặn UPDATE/DELETE trên SystemAuditEventStream | ✅ CODE DONE | `backend/src/Infrastructure/Interceptors/ImmutableAuditInterceptor.cs` |
+| **AuditEventActionFilter** | Global IAsyncActionFilter — reactive append audit frame after every action | ✅ CODE DONE | `backend/src/WebApi/Filters/AuditEventActionFilter.cs` |
+| **EF Migration** | AddSystemAuditEventStream — creates table with time-series indexes | ✅ CODE DONE | `backend/src/Infrastructure/Migrations/20260606100145_AddSystemAuditEventStream.cs` |
+| **DI + Interceptor wiring** | AddScoped<IAuditEventService>, AddInterceptors(ImmutableAuditInterceptor) + global filter | ✅ CODE DONE | `backend/src/WebApi/Program.cs` |
+| **TEAM_TEST_GUIDE.md** | Hướng dẫn kiểm thử 6 trụ cột kỹ thuật bằng tiếng Việt | ✅ CODE DONE | `TEAM_TEST_GUIDE.md` |
+| **walkthrough.md** | Cập nhật index 6 trụ cột kỹ thuật | ✅ CODE DONE | `walkthrough.md` |
+| **Compilation** | dotnet build 0 errors + vue-tsc 0 errors | ✅ CODE DONE | Full workspace clean |
