@@ -64,19 +64,19 @@
         <div class="quicklinks">
           <router-link to="/sorting" class="quicklink">
             <span class="quicklink__icon">📊</span>
-            <span>Sorting</span>
+            <span>Sắp xếp</span>
           </router-link>
           <router-link to="/quiz" class="quicklink">
             <span class="quicklink__icon">📝</span>
-            <span>Quiz</span>
+            <span>Trắc nghiệm</span>
           </router-link>
           <router-link to="/gamification" class="quicklink">
             <span class="quicklink__icon">🏆</span>
-            <span>Leaderboard</span>
+            <span>Bảng xếp hạng</span>
           </router-link>
           <router-link v-if="authStore.isTeacher" to="/teacher" class="quicklink quicklink--teacher">
             <span class="quicklink__icon">🎓</span>
-            <span>Teacher Panel</span>
+            <span>Quản lý Giảng viên</span>
           </router-link>
         </div>
       </div>
@@ -319,5 +319,18 @@ const topBadges = computed<BadgeDisplay[]>(() => {
 
 .quicklink__icon {
   font-size: 1.1rem;
+}
+
+/* ── Responsive ─────────────────────── */
+@media (max-width: 768px) {
+  .dashboard { padding: 1rem; }
+  .dashboard__grid { gap: 1rem; grid-template-columns: 1fr; }
+  .dash-card { padding: 1rem; }
+  .xp-wheel { width: 110px; height: 110px; }
+}
+
+@media (max-width: 480px) {
+  .greeting__title { font-size: 1.3rem; }
+  .quicklinks { display: grid; grid-template-columns: 1fr 1fr; }
 }
 </style>

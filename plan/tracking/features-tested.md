@@ -2049,3 +2049,15 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 1784 | **API** | GET quiz/analytics | Quiz stats: total, attempts, pass rate | 🟢PASSED |
 | 1785 | **DB** | AddUserRole Migration | Role column (varchar 20, default Student) added to Users table | 🟢PASSED |
 | 1786 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
+| 1787 | **i18n** | Sidebar tabs | 15 tabs translated to Vietnamese | 🟢PASSED |
+| 1788 | **i18n** | Route meta titles | 13 active route titles translated | 🟢PASSED |
+| 1789 | **i18n** | Landing Page | Feature cards + stats + CTA Vietnamese | 🟢PASSED |
+| 1790 | **i18n** | Dashboard quick links | 4 quick link labels Vietnamese | 🟢PASSED |
+| 1791 | **i18n** | Teacher Panel | Title + badge Vietnamese | 🟢PASSED |
+| 1792 | **i18n** | Graph View tabs | 2 tab names Vietnamese | 🟢PASSED |
+| 1793 | **Responsive** | Global breakpoints | 768px tablet + 480px phone styles | 🟢PASSED |
+| 1794 | **Responsive** | App shell | Header compact + sidebar mobile horizontal | 🟢PASSED |
+| 1795 | **Responsive** | Landing | Hero scaling + CTA stacking + grid 1-col | 🟢PASSED |
+| 1796 | **Responsive** | Dashboard | Grid 1-col + XP wheel + quicklinks grid | 🟢PASSED |
+| 1797 | **Responsive** | Teacher Panel | Analytics stack + form stack + options 1-col | 🟢PASSED |
+| 1798 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
