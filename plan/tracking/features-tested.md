@@ -2049,3 +2049,9 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 1784 | **API** | GET quiz/analytics | Quiz stats: total, attempts, pass rate | 🟢PASSED |
 | 1785 | **DB** | AddUserRole Migration | Role column (varchar 20, default Student) added to Users table | 🟢PASSED |
 | 1786 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
+| 1787 | **DB** | Auth Login → DB sync | Login response overrides Role/IsPremium/TotalXP from PostgreSQL | 🟢PASSED |
+| 1788 | **DB** | Quiz manage → DB | POST /quiz/manage persists Quiz + QuizQuestions to PostgreSQL | 🟢PASSED |
+| 1789 | **DB** | Payment verify → DB | POST /payment/verify persists isPremium=true in Users table | 🟢PASSED |
+| 1790 | **DB** | Payment webhook → DB | POST /simulate-webhook persists isPremium=true in Users table | 🟢PASSED |
+| 1791 | **Port** | SKILL.md port sweep | 18 references localhost:5050 → localhost:5055 | 🟢PASSED |
+| 1792 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
