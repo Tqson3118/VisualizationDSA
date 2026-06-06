@@ -2060,15 +2060,20 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 1795 | **WebGPU** | Dashboard Badge | Glowing "WebGPU Engine: READY" with gpuGlow animation | 🟢PASSED |
 | 1796 | **WebGPU** | @webgpu/types | TypeScript type definitions registered in tsconfig.app.json | 🟢PASSED |
 | 1797 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
-| 1798 | **i18n** | Sidebar tabs | 15 tabs translated to Vietnamese | 🟢PASSED |
-| 1799 | **i18n** | Route meta titles | 13 active route titles translated | 🟢PASSED |
-| 1800 | **i18n** | Landing Page | Feature cards + stats + CTA Vietnamese | 🟢PASSED |
-| 1801 | **i18n** | Dashboard quick links | 4 quick link labels Vietnamese | 🟢PASSED |
-| 1802 | **i18n** | Teacher Panel | Title + badge Vietnamese | 🟢PASSED |
-| 1803 | **i18n** | Graph View tabs | 2 tab names Vietnamese | 🟢PASSED |
-| 1804 | **Responsive** | Global breakpoints | 768px tablet + 480px phone styles | 🟢PASSED |
-| 1805 | **Responsive** | App shell | Header compact + sidebar mobile horizontal | 🟢PASSED |
-| 1806 | **Responsive** | Landing | Hero scaling + CTA stacking + grid 1-col | 🟢PASSED |
-| 1807 | **Responsive** | Dashboard | Grid 1-col + XP wheel + quicklinks grid | 🟢PASSED |
-| 1808 | **Responsive** | Teacher Panel | Analytics stack + form stack + options 1-col | 🟢PASSED |
-| 1809 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
+| 1798 | **WASM** | Vite WASM config | worker format 'es', assetsInclude '*.wasm', optimizeDeps exclude | 🟢PASSED |
+| 1799 | **WASM** | WasmComputeWorker | Web Worker init/compute/abort protocol + WASM instantiation | 🟢PASSED |
+| 1800 | **WASM** | Transferable bridge | createWasmBridge() zero-copy ArrayBuffer transfer API | 🟢PASSED |
+| 1801 | **WASM** | JS fallback compute | sort + graph-force algorithms with iteration guard | 🟢PASSED |
+| 1802 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
+| 1803 | **i18n** | Sidebar tabs | 15 tabs translated to Vietnamese | 🟢PASSED |
+| 1804 | **i18n** | Route meta titles | 13 active route titles translated | 🟢PASSED |
+| 1805 | **i18n** | Landing Page | Feature cards + stats + CTA Vietnamese | 🟢PASSED |
+| 1806 | **i18n** | Dashboard quick links | 4 quick link labels Vietnamese | 🟢PASSED |
+| 1807 | **i18n** | Teacher Panel | Title + badge Vietnamese | 🟢PASSED |
+| 1808 | **i18n** | Graph View tabs | 2 tab names Vietnamese | 🟢PASSED |
+| 1809 | **Responsive** | Global breakpoints | 768px tablet + 480px phone styles | 🟢PASSED |
+| 1810 | **Responsive** | App shell | Header compact + sidebar mobile horizontal | 🟢PASSED |
+| 1811 | **Responsive** | Landing | Hero scaling + CTA stacking + grid 1-col | 🟢PASSED |
+| 1812 | **Responsive** | Dashboard | Grid 1-col + XP wheel + quicklinks grid | 🟢PASSED |
+| 1813 | **Responsive** | Teacher Panel | Analytics stack + form stack + options 1-col | 🟢PASSED |
+| 1814 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
