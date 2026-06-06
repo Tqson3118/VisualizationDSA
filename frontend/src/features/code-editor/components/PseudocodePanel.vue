@@ -37,6 +37,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useVcrStore } from "../../vcr-player/store/useVcrStore";
+import { isPlaybackFrame } from "../../../core/CompilerStepExecutor";
 import { highlightSyntax } from "../helpers/highlightHelper";
 import { usePseudocodeScroller } from "../composables/usePseudocodeScroller";
 import VariablesHud from "./VariablesHud.vue";
@@ -47,10 +48,11 @@ const { viewport, lineRefs } = usePseudocodeScroller();
 const codeLines = computed(() => vcrStore.code.split("\n"));
 
 const activeLoopVars = computed(() => {
-  if (!vcrStore.currentFrame) return [];
-  const vars = vcrStore.currentFrame.canvasStateSnapshot.loopVariables;
+  const frame = vcrStore.currentFrame;
+  if (!isPlaybackFrame(frame)) return [];
+  const vars = frame.canvasStateSnapshot.loopVariables;
   if (!vars) return [];
-  return Object.entries(vars) as [string, any][];
+  return Object.entries(vars) as [string, number][];
 });
 
 const isLineActive = (lineNum: number) => {

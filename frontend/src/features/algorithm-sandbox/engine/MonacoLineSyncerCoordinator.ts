@@ -44,7 +44,7 @@ export class MonacoLineSyncerCoordinator {
 
     // 2. Setup Active Line Highlighting (Forward Sync)
     this.stopWatch = watch(
-      () => this.vcrStore.currentLineNumber,
+      () => this.vcrStore!.currentLineNumber,
       (newLineNum) => {
         this.syncLineToEditor(newLineNum);
       },

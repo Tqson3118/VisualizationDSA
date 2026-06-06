@@ -366,3 +366,14 @@ Tài liệu này tổng hợp các mã lỗi, kịch bản sự cố và cách t
     - `useDIContainerStore.ts`: New Pinia store with VCR integration
 *   **Build:** `dotnet build` 0 errors, `vue-tsc --noEmit` 0 errors
 *   **Files:** 16 new/modified files across backend/src/ and frontend/src/features/
+
+### 145. Production Build — vue-tsc -b Strict Type Errors (Preexisting)
+*   **ID:** FIX-FE-BUILD-TSC
+*   **Mô tả:** `npm run build` (`vue-tsc -b && vite build`) thất bại với 9 lỗi TypeScript. Nguyên nhân gốc: `tsconfig.json` dùng `files: []` + project references, nên `vue-tsc --noEmit` (không có `-b`) kiểm tra 0 file → luôn báo "0 errors" sai lệch. Chỉ `vue-tsc -b` (chế độ build theo references) mới thực sự type-check toàn bộ `src/`.
+*   **Các lỗi đã sửa:**
+    - `canvasStateSnapshot` không tồn tại trên `VcrBaseFrame` (buffer `playbackFrames` chứa cả `PlaybackFrame` lẫn `SortFrame`). Thêm type guard `isPlaybackFrame()` trong `CompilerStepExecutor.ts`, dùng để narrow an toàn tại `useAlgorithmCanvasController.ts`, `PseudocodePanel.vue`, `PseudocodeViewer.vue`.
+    - `MonacoLineSyncerCoordinator.ts`: `this.vcrStore` possibly null trong closure watch → dùng `this.vcrStore!` (đã guard trong constructor/setup).
+    - `WasmComputeWorker.ts`: `inputData.buffer.slice()` trả `ArrayBuffer | SharedArrayBuffer` không gán được vào `payload: ArrayBuffer` → ép kiểu `as ArrayBuffer`.
+    - `DashboardView.vue`: callback `.map((b: Record<string, unknown>))` rộng hơn `unknown` của phần tử badge → đổi sang nhận `badge` rồi ép `as Record<string, unknown>` trong thân hàm (loại bỏ luôn 1 chỗ `any`).
+*   **Kết quả:** `vue-tsc -b` 0 errors, `vite build` thành công (dist sinh ra), 1528/1528 frontend tests vẫn pass, `dotnet build` 0 errors, 8/8 backend tests pass.
+*   **Files:** `frontend/src/core/CompilerStepExecutor.ts`, `frontend/src/features/algorithm-sandbox/composables/useAlgorithmCanvasController.ts`, `frontend/src/features/algorithm-sandbox/engine/MonacoLineSyncerCoordinator.ts`, `frontend/src/features/code-editor/components/PseudocodePanel.vue`, `frontend/src/features/code-editor/components/PseudocodeViewer.vue`, `frontend/src/features/code-to-visualization/engine/WasmComputeWorker.ts`, `frontend/src/views/DashboardView.vue`

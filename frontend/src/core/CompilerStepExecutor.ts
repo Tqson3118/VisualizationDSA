@@ -17,6 +17,11 @@ export interface StepToLineMapping {
   codeSnippet: string;
 }
 
+/** Narrows a heterogeneous VCR frame to a compiler PlaybackFrame (carries canvasStateSnapshot). */
+export function isPlaybackFrame(frame: unknown): frame is PlaybackFrame {
+  return typeof frame === 'object' && frame !== null && 'canvasStateSnapshot' in frame;
+}
+
 export class CompilerStepExecutor {
   /**
    * Biên dịch mã nguồn giải thuật sinh Playback Frames.

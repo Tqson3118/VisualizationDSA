@@ -1,6 +1,7 @@
 import { computed, onMounted, onBeforeUnmount, watch, type Ref } from 'vue';
 import { useVcrStore } from '../../vcr-player/store/useVcrStore';
 import { CoreAnimationEngine } from '../../../core/CoreAnimationEngine';
+import { isPlaybackFrame } from '../../../core/CompilerStepExecutor';
 import { useCamera } from './useCamera';
 import { useMousePan } from './useMousePan';
 import { useCanvasResize } from './useCanvasResize';
@@ -49,8 +50,9 @@ export function useAlgorithmCanvasController(
 
     items.value.forEach((item, idx) => renderArrayBar(ctx, item, idx, maxVal, SLOT_WIDTH, SLOT_HEIGHT));
 
-    if (vcrStore.currentFrame?.canvasStateSnapshot.loopVariables) {
-      renderLoopPointers(ctx, vcrStore.currentFrame.canvasStateSnapshot.loopVariables, items.value, SLOT_WIDTH);
+    const frame = vcrStore.currentFrame;
+    if (isPlaybackFrame(frame) && frame.canvasStateSnapshot.loopVariables) {
+      renderLoopPointers(ctx, frame.canvasStateSnapshot.loopVariables, items.value, SLOT_WIDTH);
     }
     ctx.restore();
   };
@@ -61,7 +63,7 @@ export function useAlgorithmCanvasController(
   }, { deep: true });
 
   watch(() => vcrStore.currentFrame, (newFrame) => {
-    if (newFrame) {
+    if (isPlaybackFrame(newFrame)) {
       matchNewArrayToItems(newFrame.canvasStateSnapshot.array);
       updateItemStatuses(newFrame);
     }

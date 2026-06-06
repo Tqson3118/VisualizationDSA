@@ -137,11 +137,14 @@ interface BadgeDisplay {
 
 const topBadges = computed<BadgeDisplay[]>(() => {
   const badges = authStore.currentUser?.badges ?? [];
-  return badges.slice(0, 3).map((b: Record<string, unknown>) => ({
-    id: String(b.id ?? ''),
-    name: String(b.name ?? ''),
-    icon: String(b.icon ?? '🏅'),
-  }));
+  return badges.slice(0, 3).map((badge) => {
+    const b = badge as Record<string, unknown>;
+    return {
+      id: String(b.id ?? ''),
+      name: String(b.name ?? ''),
+      icon: String(b.icon ?? '🏅'),
+    };
+  });
 });
 
 // ── WebGPU probe ─────────────────────────

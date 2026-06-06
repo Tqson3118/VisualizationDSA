@@ -297,7 +297,7 @@ export function createWasmBridge(): WasmBridge {
       const buffer = inputData.buffer.slice(
         inputData.byteOffset,
         inputData.byteOffset + inputData.byteLength,
-      );
+      ) as ArrayBuffer;
       const result = await sendRequest(
         { type: 'compute', taskId, payload: buffer, config },
         [buffer],
