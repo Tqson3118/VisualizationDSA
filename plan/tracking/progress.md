@@ -1011,6 +1011,7 @@ Tất cả các mục tiêu Sprint 5 đã đạt:
 | **SemanticGraphService** | Infrastructure implementation — AsNoTracking, induced subgraph, graph density | ✅ CODE DONE | `backend/src/Infrastructure/Services/SemanticGraphService.cs` |
 | **ConceptsController** | GET /api/v1/concepts/analytics/semantic-graph?category= | ✅ CODE DONE | `backend/src/WebApi/Controllers/ConceptsController.cs` |
 | **DI Registration** | AddScoped<ISemanticGraphService, SemanticGraphService> | ✅ CODE DONE | `backend/src/WebApi/Program.cs` |
+| **Unit tests** | 5 tests (InMemory): all/order/degree/induced-filter/empty | ✅ CODE DONE | `backend/tests/VisualizationDSA.UnitTests/Services/SemanticGraphServiceTests.cs` |
 | **Compilation** | dotnet build 0 errors | ✅ CODE DONE | Backend Build succeeded |
 
 ---
@@ -1028,4 +1029,5 @@ Tất cả các mục tiêu Sprint 5 đã đạt:
 | **DI + Interceptor wiring** | AddScoped<IAuditEventService>, AddInterceptors(ImmutableAuditInterceptor) + global filter | ✅ CODE DONE | `backend/src/WebApi/Program.cs` |
 | **TEAM_TEST_GUIDE.md** | Hướng dẫn kiểm thử 6 trụ cột kỹ thuật bằng tiếng Việt | ✅ CODE DONE | `TEAM_TEST_GUIDE.md` |
 | **walkthrough.md** | Cập nhật index 6 trụ cột kỹ thuật | ✅ CODE DONE | `walkthrough.md` |
-| **Compilation** | dotnet build 0 errors + vue-tsc 0 errors | ✅ CODE DONE | Full workspace clean |
+| **Unit tests** | 6 tests (InMemory): append/default-payload/monotonic/block-update/block-delete/allow-append | ✅ CODE DONE | `backend/tests/VisualizationDSA.UnitTests/Services/AuditEventLedgerTests.cs` |
+| **Compilation** | dotnet build 0 errors + vue-tsc -b 0 errors; backend 19/19 tests + frontend 1528 tests PASS | ✅ CODE DONE | Full workspace clean |

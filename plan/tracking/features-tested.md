@@ -2090,3 +2090,15 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 1825 | **Responsive** | Dashboard | Grid 1-col + XP wheel + quicklinks grid | 🟢PASSED |
 | 1826 | **Responsive** | Teacher Panel | Analytics stack + form stack + options 1-col | 🟢PASSED |
 | 1827 | **Compilation** | dotnet build + vue-tsc | Backend 0 errors, Frontend 0 errors | 🟢PASSED |
+| 1828 | **Graph RAG** | SemanticGraphService all nodes/edges/stats | Trả về 3 nodes, 2 edges, density 0.3333, categoryCount 3 | 🟢 PASSED |
+| 1829 | **Graph RAG** | Order by importance desc | Nodes sắp xếp giảm dần theo Importance | 🟢 PASSED |
+| 1830 | **Graph RAG** | Degree computation | Degree = incoming + outgoing edges đúng cho từng node | 🟢 PASSED |
+| 1831 | **Graph RAG** | Induced subgraph filter | category=OOP → 1 node, 0 cross-category edges | 🟢 PASSED |
+| 1832 | **Graph RAG** | Empty graph | 0 nodes/edges, density 0 | 🟢 PASSED |
+| 1833 | **Event Sourcing** | AppendAsync persist frame | Frame ghi đúng EventType/Method/Status/Payload, Sequence>0, OccurredAt UTC | 🟢 PASSED |
+| 1834 | **Event Sourcing** | Default empty payload | Payload null → "{}" | 🟢 PASSED |
+| 1835 | **Event Sourcing** | Monotonic sequence | 3 frames có Sequence tăng dần | 🟢 PASSED |
+| 1836 | **Event Sourcing** | Immutable interceptor blocks UPDATE | SaveChanges ném InvalidOperationException khi Modified | 🟢 PASSED |
+| 1837 | **Event Sourcing** | Immutable interceptor blocks DELETE | SaveChanges ném InvalidOperationException khi Deleted | 🟢 PASSED |
+| 1838 | **Event Sourcing** | Immutable interceptor allows APPEND | Append (Added) không bị chặn | 🟢 PASSED |
+| 1839 | **Compilation** | dotnet test full suite | Backend 19/19 tests PASS | 🟢 PASSED |

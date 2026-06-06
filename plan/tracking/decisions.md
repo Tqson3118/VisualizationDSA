@@ -926,3 +926,37 @@ Các ADR sau đây được ghi trong tài liệu đặc tả nhưng **chưa có
 - (+) Doi theme chi can thay gia tri bien trong 	heme.css, khong can cham component
 - (+) Semantic vis colors (cyan/green/red/yellow) van giu nguyen ngu nghia hoc thuat
 - (-) Cac component canvas (.ts renderer files) van dung hardcode de giu semantic accuracy
+
+---
+### ADR-40 | 2026-06-06 | Graph RAG read-path: induced subgraph + AsNoTracking projection
+
+**Context:** Endpoint `GET /api/v1/concepts/analytics/semantic-graph` cần trả về đồ thị tri thức (nodes + edges + stats) hiệu năng cao, hỗ trợ lọc theo category mà không tạo cạnh "treo" (dangling edge) trỏ tới node đã bị lọc bỏ.
+
+**Decision:**
+- `SemanticGraphService` truy vấn trực tiếp `ApplicationDbContext` với `AsNoTracking()` + projection sang DTO (không trả entity) để tối ưu read-path.
+- Khi có filter `category`, chỉ giữ các cạnh nằm **trọn** trong tập node đã lọc (induced subgraph): `nodeIds.Contains(Source) && nodeIds.Contains(Target)`.
+- `Degree` tính từ `OutgoingEdges.Count + IncomingEdges.Count`; `GraphDensity` = E / (V·(V−1)) cho đồ thị có hướng, trả 0 khi V ≤ 1.
+- `Embedding` ánh xạ sang `double precision[]` của PostgreSQL qua Fluent API.
+
+**Consequences:**
+- (+) Lọc category không bao giờ sinh cạnh treo; client luôn nhận đồ thị nhất quán.
+- (+) Read-path nhẹ (no-tracking, projection) — phù hợp truy vấn analytics đọc nhiều.
+- (−) `double precision[]` đặc thù PostgreSQL; provider khác cần mapping thay thế.
+- **Tests:** 5 unit tests (InMemory) phủ all/order/degree/induced-filter/empty.
+
+---
+### ADR-41 | 2026-06-06 | Event Sourcing Ledger: append-only frames + interceptor + reactive action filter
+
+**Context:** Cần ghi lại tương tác thô của người dùng (VCR scrubbing, code syntax gaffe, quiz telemetry, API interaction) dưới dạng time-series bất biến để phục vụ phân tích/replay, không được phép sửa/xóa sau khi ghi.
+
+**Decision:**
+- Entity `SystemAuditEventStream` append-only: `Payload` JSONB, `Sequence` đơn điệu tăng (UTC ticks), `OccurredAt` timestamptz, kèm các index time-series (OccurredAt, Sequence, EventType, (UserId, OccurredAt)).
+- `AuditEventService.AppendAsync` chỉ Add + SaveChanges (không bao giờ Update/Delete).
+- `ImmutableAuditInterceptor` (SaveChanges interceptor) chặn mọi entry `SystemAuditEventStream` ở trạng thái `Modified`/`Deleted` → ném `InvalidOperationException` (bảo vệ tầng DB-write).
+- `AuditEventActionFilter` (global `IAsyncActionFilter`) append một frame **reactively sau** mỗi action; best-effort, không bao giờ làm fail request gốc.
+
+**Consequences:**
+- (+) Tính bất biến được bảo vệ hai tầng: interceptor (write) + filter chỉ-append (ghi).
+- (+) Audit không xâm lấn — tự động bắt mọi API action, lỗi audit không ảnh hưởng response.
+- (−) Mỗi action phát sinh thêm một INSERT; chấp nhận đánh đổi cho mục tiêu observability.
+- **Tests:** 6 unit tests (InMemory) phủ append/default-payload/monotonic-sequence/block-update/block-delete/allow-append.
