@@ -22,7 +22,7 @@ export interface DBReplicationEvent {
   from: string;
   to: string;
   delay: number; // ms
-  data: any;
+  data: Record<string, unknown> | null;
   timestamp: number;
 }
 

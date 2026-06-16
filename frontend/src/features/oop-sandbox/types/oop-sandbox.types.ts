@@ -5,7 +5,7 @@ export interface ClassMember {
   type: 'FIELD' | 'METHOD';
   accessModifier: AccessModifier;
   isOverridden?: boolean;
-  value?: any;
+  value?: unknown;
 }
 
 export interface ClassDefinition {
@@ -17,7 +17,7 @@ export interface ClassDefinition {
 export interface HeapObjectInstance {
   address: string; // Fake hex memory address
   className: string;
-  fieldsData: Map<string, any>;
+  fieldsData: Map<string, unknown>;
   vTable: Map<string, string>; // Method name -> class name
 }
 

@@ -37,7 +37,7 @@
         </span>
 
         <span>{{ item.value }}</span>
-        <span class="item-index">[{{ idx }}]</span>
+        <span v-if="n <= 12" class="item-index">[{{ idx }}]</span>
       </div>
     </transition-group>
 
@@ -466,11 +466,10 @@ function getItemClass(idx: number) {
   border-top: 1px solid var(--color-border-subtle);
   padding-top: 16px;
   margin-top: 8px;
-  flex-1: ;
+  flex: 1 1 0%;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
 }
 
 .sort-list-move {

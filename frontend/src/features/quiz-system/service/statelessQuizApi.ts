@@ -75,10 +75,14 @@ export const statelessQuizApi = {
   },
 
   /** Submit quiz answers and get graded result */
-  async submitAttempt(quizId: string, answers: number[]): Promise<StatelessAttemptResult> {
+  async submitAttempt(quizId: string, answers: number[], token?: string | null): Promise<StatelessAttemptResult> {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
     const res = await fetch(`${BASE_URL}/api/v1/concepts/quiz/submit`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ quizId, answers }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -1,6 +1,6 @@
 <template>
   <!-- Inline algorithm selector — no longer absolute positioned -->
-  <div class="algorithm-controls flex items-center gap-2 backdrop-blur py-1.5 px-2.5 rounded-xl shrink-0">
+  <div class="sorting-algo-controls algorithm-controls flex items-center gap-2 backdrop-blur py-1.5 px-2.5 rounded-xl shrink-0">
     <div class="flex gap-1 flex-wrap">
       <button
         v-for="algo in ALGORITHMS"

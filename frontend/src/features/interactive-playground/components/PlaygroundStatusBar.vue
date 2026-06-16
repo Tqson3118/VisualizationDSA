@@ -59,7 +59,7 @@ function onImportFile(e: Event) {
   padding: 8px 16px;
   background-color: color-mix(in srgb, var(--color-bg-secondary) 80%, transparent);
   backdrop-filter: blur(var(--glass-blur));
-  border-b: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .status-info {

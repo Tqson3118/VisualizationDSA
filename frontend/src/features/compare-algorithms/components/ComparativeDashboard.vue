@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-4 gap-3">
+  <div class="grid grid-cols-4 gap-3 comparative-dashboard">
     <CompareStatCard label="So sánh"
       :left-value="store.leftStats.comparisons" :right-value="store.rightStats.comparisons"
       show-bars :left-width="leftCompareBarWidth" :right-width="rightCompareBarWidth" />

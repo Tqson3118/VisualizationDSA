@@ -32,6 +32,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isPremium       = computed(() => currentUser.value?.isPremium ?? false);
   const userRole        = computed(() => currentUser.value?.role ?? 'Student');
   const isTeacher       = computed(() => userRole.value === 'Teacher');
+  const isAdmin         = computed(() => userRole.value === 'Admin');
 
   // ── Private helpers ────────────────────────────────────────────────────────
   function _scheduleRefresh(expiresInSeconds: number): void {
@@ -49,6 +50,12 @@ export const useAuthStore = defineStore('auth', () => {
 
   /** Khởi động store — tự động đăng nhập lại nếu còn refresh token */
   async function init(): Promise<void> {
+    const savedUserId = localStorage.getItem('vdsa_stateless_user_id');
+    if (savedUserId) {
+      await statelessInit();
+      await loadStatelessProfile();
+      return;
+    }
     const saved = getSavedRefreshToken();
     if (!saved) return;
     try { setSession(await authApi.refreshAccessToken(saved), accessToken, currentUser, _scheduleRefresh); }
@@ -78,6 +85,55 @@ export const useAuthStore = defineStore('auth', () => {
   /** Lấy access token hiện tại — gọi trước mỗi API call cần auth */
   function getAccessToken(): string | null { return accessToken.value; }
 
+  let refreshPromise: Promise<string | null> | null = null;
+
+  async function refreshAccessToken(): Promise<string | null> {
+    if (refreshPromise) {
+      return refreshPromise;
+    }
+
+    refreshPromise = (async () => {
+      const savedRefresh = getSavedRefreshToken();
+      const savedUserId = localStorage.getItem('vdsa_stateless_user_id');
+
+      if (!savedRefresh) {
+        throw new Error('No refresh token available');
+      }
+
+      try {
+        if (savedUserId || isStatelessMode.value) {
+          const userId = savedUserId || statelessUser.value?.id;
+          if (!userId) throw new Error('No user ID available for stateless refresh');
+          const response = await statelessAuthApi.refresh(savedRefresh, userId);
+          _applyStatelessAuth(response);
+          return response.accessToken;
+        } else {
+          const response = await authApi.refreshAccessToken(savedRefresh);
+          setSession(response, accessToken, currentUser, _scheduleRefresh);
+          return response.accessToken;
+        }
+      } catch (err) {
+        // Clear session if refresh failed
+        if (savedUserId || isStatelessMode.value) {
+          localStorage.removeItem('vdsa_refresh_token');
+          localStorage.removeItem('vdsa_access_expires');
+          localStorage.removeItem('vdsa_stateless_user_id');
+          accessToken.value = null;
+          currentUser.value = null;
+          statelessUser.value = null;
+          isStatelessMode.value = false;
+        } else {
+          clearSession(accessToken, currentUser, refreshTimer);
+        }
+        throw err;
+      } finally {
+        refreshPromise = null;
+      }
+    })();
+
+    return refreshPromise;
+  }
+
   // ── Stateless Backend Integration ──────────────────────────────
   const statelessUser = ref<StatelessUserDto | null>(null);
   const isStatelessMode = ref(false);
@@ -97,6 +153,9 @@ export const useAuthStore = defineStore('auth', () => {
       badges: response.user.badges,
       isPremium: response.user.isPremium,
       role: response.user.role,
+      nickname: response.user.nickname,
+      bio: response.user.bio,
+      university: response.user.university,
     };
     localStorage.setItem('vdsa_refresh_token', response.refreshToken);
     localStorage.setItem('vdsa_access_expires', String(Date.now() + response.expiresIn * 1000));
@@ -143,7 +202,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!savedRefresh || !savedUserId) return;
 
     try {
-      const response = await statelessAuthApi.refresh(savedRefresh);
+      const response = await statelessAuthApi.refresh(savedRefresh, savedUserId);
       _applyStatelessAuth(response);
     } catch {
       // Refresh failed — clear session
@@ -162,16 +221,113 @@ export const useAuthStore = defineStore('auth', () => {
         currentUser.value.totalXP = statelessUser.value.totalXP;
         currentUser.value.currentLevel = statelessUser.value.currentLevel;
         currentUser.value.streakDays = statelessUser.value.streakDays;
+        currentUser.value.nickname = statelessUser.value.nickname;
+        currentUser.value.bio = statelessUser.value.bio;
+        currentUser.value.university = statelessUser.value.university;
       }
     } catch { /* silent — profile load is optional */ }
   }
 
+  async function updateProfile(username: string, nickname?: string, bio?: string, university?: string): Promise<void> {
+    const userId = currentUser.value?.id;
+    if (!userId) return;
+    isLoading.value = true; authError.value = null;
+    try {
+      const updatedUser = await statelessAuthApi.updateProfile(userId, username, nickname, bio, university);
+      statelessUser.value = updatedUser;
+      if (currentUser.value) {
+        currentUser.value.username = updatedUser.username;
+        currentUser.value.nickname = updatedUser.nickname;
+        currentUser.value.bio = updatedUser.bio;
+        currentUser.value.university = updatedUser.university;
+      }
+    } catch (err: unknown) {
+      authError.value = err instanceof Error ? err.message : 'Cập nhật hồ sơ thất bại.';
+      throw err;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  const impersonateTrigger = ref(0);
+  const isImpersonating = computed(() => {
+    const _ = impersonateTrigger.value;
+    return localStorage.getItem('vdsa_admin_access_token') !== null;
+  });
+
+  async function startImpersonating(userId: string): Promise<void> {
+    const adminToken = accessToken.value;
+    if (!adminToken) throw new Error('Không có token Admin.');
+    isLoading.value = true; authError.value = null;
+    try {
+      const response = await statelessAuthApi.impersonateUser(userId, adminToken);
+      impersonate(response);
+    } catch (err) {
+      authError.value = err instanceof Error ? err.message : 'Đóng vai thất bại.';
+      throw err;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  function impersonate(response: StatelessAuthResponse): void {
+    // 1. Lưu lại session của Admin hiện tại
+    const currentAccessToken = accessToken.value;
+    const currentRefreshToken = localStorage.getItem('vdsa_refresh_token');
+    const currentUserId = localStorage.getItem('vdsa_stateless_user_id');
+    const currentUserData = JSON.stringify(currentUser.value);
+
+    if (currentAccessToken) localStorage.setItem('vdsa_admin_access_token', currentAccessToken);
+    if (currentRefreshToken) localStorage.setItem('vdsa_admin_refresh_token', currentRefreshToken);
+    if (currentUserId) localStorage.setItem('vdsa_admin_user_id', currentUserId);
+    if (currentUserData) localStorage.setItem('vdsa_admin_user_data', currentUserData);
+
+    // 2. Áp dụng session của user được đóng vai
+    _applyStatelessAuth(response);
+    impersonateTrigger.value++;
+  }
+
+  function stopImpersonating(): void {
+    const adminAccessToken = localStorage.getItem('vdsa_admin_access_token');
+    const adminRefreshToken = localStorage.getItem('vdsa_admin_refresh_token');
+    const adminUserId = localStorage.getItem('vdsa_admin_user_id');
+    const adminUserDataStr = localStorage.getItem('vdsa_admin_user_data');
+
+    if (!adminAccessToken || !adminRefreshToken || !adminUserId || !adminUserDataStr) {
+      return;
+    }
+
+    // Khôi phục session của Admin
+    accessToken.value = adminAccessToken;
+    localStorage.setItem('vdsa_refresh_token', adminRefreshToken);
+    localStorage.setItem('vdsa_stateless_user_id', adminUserId);
+    
+    try {
+      const adminUser = JSON.parse(adminUserDataStr);
+      currentUser.value = adminUser;
+      statelessUser.value = adminUser;
+    } catch {
+      // Fallback
+    }
+
+    // Xóa các key lưu trữ tạm thời
+    localStorage.removeItem('vdsa_admin_access_token');
+    localStorage.removeItem('vdsa_admin_refresh_token');
+    localStorage.removeItem('vdsa_admin_user_id');
+    localStorage.removeItem('vdsa_admin_user_data');
+
+    isStatelessMode.value = true;
+    impersonateTrigger.value++;
+  }
+
   return {
-    currentUser, isLoading, authError,
-    isAuthenticated, userName, userLevel, userXP, isPremium, userRole, isTeacher,
-    init, register, logIn, logOut, getAccessToken,
+    accessToken, currentUser, isLoading, authError,
+    isAuthenticated, userName, userLevel, userXP, isPremium, userRole, isTeacher, isAdmin,
+    init, register, logIn, logOut, getAccessToken, refreshAccessToken,
     // Stateless backend
     statelessUser, isStatelessMode,
-    statelessLogin, statelessRegister, statelessLogout, statelessInit, loadStatelessProfile,
+    statelessLogin, statelessRegister, statelessLogout, statelessInit, loadStatelessProfile, updateProfile,
+    // Impersonation
+    isImpersonating, impersonate, startImpersonating, stopImpersonating
   };
 });

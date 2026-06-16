@@ -26,10 +26,10 @@ export function useAnimationCanvas(
 
   function determineColor(index: number): string {
     const frame = store.currentFrame;
-    if (!frame) return COLOR_DEFAULT;
-    if (frame.highlights.sorted.includes(index))  return COLOR_SORTED;
-    if (frame.highlights.swap.includes(index))    return COLOR_SWAP;
-    if (frame.highlights.compare.includes(index)) return COLOR_COMPARE;
+    if (!frame || !frame.highlights) return COLOR_DEFAULT;
+    if (frame.highlights.sorted?.includes(index))  return COLOR_SORTED;
+    if (frame.highlights.swap?.includes(index))    return COLOR_SWAP;
+    if (frame.highlights.compare?.includes(index)) return COLOR_COMPARE;
     return COLOR_DEFAULT;
   }
 
@@ -38,7 +38,7 @@ export function useAnimationCanvas(
     if (!frame || !canvasRef.value) return;
     const dpr = window.devicePixelRatio || 1;
     const canvasW = canvasRef.value.width / dpr;
-    const n = frame.dataState.length;
+    const n = frame.dataState?.length ?? 0;
     const columnWidth = calculateColumnWidth(n, canvasW);
     const newPositions: BarPosition[] = [];
     for (let i = 0; i < n; i++) {
@@ -68,12 +68,12 @@ export function useAnimationCanvas(
     ctx.fillRect(0, 0, w, h);
     const frame = store.currentFrame;
     if (!frame) return;
-    const n = frame.dataState.length;
+    const n = frame.dataState?.length ?? 0;
     if (n === 0) return;
     const columnWidth = calculateColumnWidth(n, w);
-    const maxVal = Math.max(...frame.dataState, 1);
+    const maxVal = Math.max(...(frame.dataState ?? []), 1);
     for (let i = 0; i < n; i++) {
-      const colH = calculateColumnHeight(frame.dataState[i], maxVal, h);
+      const colH = calculateColumnHeight(frame.dataState?.[i] ?? 0, maxVal, h);
       const yPos = h - colH - MARGIN_BOTTOM;
       let xPos = calculateX(i, columnWidth);
       if (isTransitioning && barPositions[i]) {
@@ -97,14 +97,14 @@ export function useAnimationCanvas(
       ctx.fillStyle = COLOR_TEXT;
       ctx.font = `bold ${Math.min(12, columnWidth * 0.6)}px Inter, sans-serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-      ctx.fillText(frame.dataState[i].toString(), xPos + columnWidth / 2, yPos - 5);
+      ctx.fillText((frame.dataState?.[i] ?? 0).toString(), xPos + columnWidth / 2, yPos - 5);
       ctx.fillStyle = '#64748b';
       ctx.font = `${Math.min(10, columnWidth * 0.45)}px Inter, sans-serif`;
       ctx.textBaseline = 'top';
       ctx.fillText(i.toString(), xPos + columnWidth / 2, h - MARGIN_BOTTOM + 6);
     }
     if (!isTransitioning) {
-      barPositions = frame.dataState.map((_, i) => { const x = calculateX(i, columnWidth); return { x, targetX: x }; });
+      barPositions = (frame.dataState ?? []).map((_, i) => { const x = calculateX(i, columnWidth); return { x, targetX: x }; });
     }
   }
 

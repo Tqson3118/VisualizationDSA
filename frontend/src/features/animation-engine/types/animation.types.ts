@@ -13,10 +13,17 @@ export interface FrameDTO {
   stepId: number;
   activeLine: number;
   explanation: string;
-  dataState: number[];
-  highlights: HighlightIndices;
+  dataState?: number[];
+  highlights?: HighlightIndices;
   activeLogicalLineId?: string;
   variables?: Record<string, string | number>;
+
+  // Optional Graph Animation properties
+  visitedNodes?: string[];
+  activeNodes?: string[];
+  visitedEdges?: string[];
+  distances?: Record<string, number>;
+  queueStack?: string[];
 }
 
 export interface AlgorithmResult {

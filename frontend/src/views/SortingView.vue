@@ -1,7 +1,7 @@
 <template>
   <div class="sorting-view-root flex flex-col h-full w-full gap-4 p-4 max-w-[1600px] mx-auto overflow-hidden">
     <!-- Header Sub-Tabs Switcher (Glassmorphic) -->
-    <div class="tabs-header-bar flex items-center justify-between px-4 py-2 border rounded-xl"
+    <div class="tabs-header-bar flex items-center justify-between px-4 py-2 border rounded-xl" data-tour-id="algo-tab-switch"
       style="background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(12px); border-color: rgba(255, 255, 255, 0.05);"
     >
       <div class="flex gap-2">
@@ -21,26 +21,45 @@
       <div class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider text-text-muted select-none">
         <span class="w-1.5 h-1.5 rounded-full bg-accent-cyan animate-pulse"></span>
         <span>Sorting & Linear DSA</span>
+        <button
+          class="ml-1 w-6 h-6 flex items-center justify-center rounded-md text-text-muted hover:text-accent-cyan hover:bg-accent-cyan/10 transition-all duration-200 cursor-pointer border border-transparent hover:border-accent-cyan/30"
+          title="Xem lai huong dan"
+          @click="tourStore.startPageTour('/sorting', true)"
+        >&#10067;</button>
       </div>
     </div>
 
     <!-- Active Panel Area -->
     <div class="flex-1 min-h-0 relative">
       <KeepAlive>
-        <component :is="activeComponent" class="absolute inset-0 w-full h-full" v-bind="activeProps" />
+        <component 
+          :is="activeComponent" 
+          class="absolute inset-0 w-full h-full" 
+          v-bind="activeProps"
+          :data-tour-id="activeTab === 'dsa' ? 'algo-theory-pane' : undefined"
+        />
       </KeepAlive>
     </div>
+    <HelpButton />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineComponent, h } from 'vue';
+import { ref, computed, defineComponent, h, onMounted } from 'vue';
 import { ArrayBarVisualizer, SortingDetailPanel } from '../features/algorithm-sandbox';
 import { VcrControlPanel } from '../features/vcr-player';
 import { DSAPlayer } from '../features/dsa-modules';
 import BaseIcon from '../shared/components/BaseIcon.vue';
+import HelpButton from '../features/guided-tour/components/HelpButton.vue';
+import { useGuidedTourStore } from '../features/guided-tour/store/useGuidedTourStore';
 
 const activeTab = ref('sorting');
+const tourStore = useGuidedTourStore();
+
+onMounted(() => {
+  // Kích hoạt page tour cho /sorting (chỉ lần đầu; force=false)
+  tourStore.startPageTour('/sorting');
+});
 
 const tabs = [
   { id: 'sorting', name: 'Sorting Sandbox', icon: 'sorting' },

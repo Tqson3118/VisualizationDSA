@@ -21,11 +21,11 @@
             </span>
             <span class="r-dim">{{ suffixDigits(item.value) }}</span>
           </span>
-          <span class="r-idx">[{{ idx }}]</span>
+          <span v-if="n <= 12" class="r-idx">[{{ idx }}]</span>
         </template>
         <template v-else>
           <span class="r-cell-placeholder-dash"></span>
-          <span class="r-idx">[{{ idx }}]</span>
+          <span v-if="n <= 12" class="r-idx">[{{ idx }}]</span>
         </template>
       </div>
     </transition-group>

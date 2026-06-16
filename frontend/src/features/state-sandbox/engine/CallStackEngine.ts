@@ -3,7 +3,7 @@ import * as mutator from './StateMutator';
 import { getAllPointerPaths as getPaths } from './StatePositioner';
 
 export class CallStackEngine {
-  public static pushFrame(name: string, p = {}, l = {}): StackFrame3D {
+  public static pushFrame(name: string, p: Record<string, unknown> = {}, l: Record<string, unknown> = {}): StackFrame3D {
     return mutator.pushFrame(name, p, l);
   }
 
@@ -11,7 +11,7 @@ export class CallStackEngine {
     return mutator.popFrame();
   }
 
-  public static allocateHeapNode(type: string, size: number, data?: any): HeapNode3D {
+  public static allocateHeapNode(type: string, size: number, data?: unknown): HeapNode3D {
     return mutator.allocateHeapNode(type, size, data);
   }
 

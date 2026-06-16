@@ -108,7 +108,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Architecture Canvas -->
-    <div class="architecture-canvas">
+    <div class="architecture-canvas" data-tour-id="distributed-canvas">
       <!-- SVG Links Layer -->
       <svg class="links-layer" width="100%" height="100%">
         <NetworkLinkSVG
@@ -146,7 +146,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Scenario Picker -->
-    <div class="scenario-picker">
+    <div class="scenario-picker" data-tour-id="scenario-controls">
       <h4 class="control-title">Backend Scenarios</h4>
       <div class="btn-group">
         <button
@@ -272,8 +272,10 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 16px;
   padding: 20px;
-  min-height: 100%;
+  padding-bottom: 40px; /* Safe space under the bottom */
+  height: 100%;
   color: #e2e8f0;
+  overflow-y: auto; /* Allow scrolling within the workspace */
 }
 
 .workspace-header {

@@ -16,14 +16,14 @@
     <div class="flex flex-col gap-6 p-6 h-full justify-center">
       <div v-for="thread in threads" :key="thread.id" class="thread-rail-row relative">
         <!-- Thread label -->
-        <div class="absolute -left-0 top-1/2 -translate-y-1/2 flex items-center gap-2 z-10 pr-3">
+        <div class="absolute left-0 top-1/2 -translate-y-1/2 w-[160px] flex items-center gap-2 z-10">
           <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md whitespace-nowrap" :class="threadLabelClass(thread)">
             {{ thread.name }}
           </span>
         </div>
 
         <!-- Rail track -->
-        <div class="rail-track relative ml-[180px] h-12 rounded-lg flex items-center">
+        <div class="rail-track relative ml-[180px] mr-[110px] h-12 rounded-lg flex items-center">
           <!-- Critical Section Gate -->
           <div class="critical-section-gate">
             <div class="flex flex-col items-center gap-0.5">
@@ -55,8 +55,8 @@
         </div>
 
         <!-- State badge -->
-        <div class="absolute -right-0 top-1/2 -translate-y-1/2 pl-3 z-10">
-          <span class="text-[9px] font-bold uppercase px-2 py-0.5 rounded-md" :class="stateBadgeClass(thread)">{{ thread.state }}</span>
+        <div class="absolute right-0 top-1/2 -translate-y-1/2 w-[90px] flex justify-end z-10">
+          <span class="text-[9px] font-bold uppercase px-2.5 py-1 rounded-md" :class="stateBadgeClass(thread)">{{ thread.state }}</span>
         </div>
       </div>
     </div>

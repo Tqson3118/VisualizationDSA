@@ -15,9 +15,9 @@ describe('generateDummyBubbleSortResult', () => {
 
     expect(first.stepId).toBe(1);
     expect(first.dataState).toEqual([5, 3, 8]);
-    expect(first.highlights.compare).toEqual([]);
-    expect(first.highlights.swap).toEqual([]);
-    expect(first.highlights.sorted).toEqual([]);
+    expect(first.highlights!.compare).toEqual([]);
+    expect(first.highlights!.swap).toEqual([]);
+    expect(first.highlights!.sorted).toEqual([]);
   });
 
   it('last frame is sorted with all indices marked sorted', () => {
@@ -26,7 +26,7 @@ describe('generateDummyBubbleSortResult', () => {
     const last = result.frames[result.frames.length - 1];
 
     expect(last.dataState).toEqual([3, 5, 8]);
-    expect(last.highlights.sorted.length).toBe(input.length);
+    expect(last.highlights!.sorted.length).toBe(input.length);
   });
 
   it('generates frames with sequential stepIds', () => {
@@ -47,17 +47,17 @@ describe('generateDummyBubbleSortResult', () => {
     const result = generateDummyBubbleSortResult([1, 2, 3]);
     const last = result.frames[result.frames.length - 1];
     expect(last.dataState).toEqual([1, 2, 3]);
-    expect(last.highlights.sorted.length).toBe(3);
+    expect(last.highlights!.sorted.length).toBe(3);
   });
 
   it('compare frames have correct highlight indices', () => {
     const result = generateDummyBubbleSortResult([5, 3, 8]);
-    const compareFrames = result.frames.filter(f => f.highlights.compare.length > 0);
+    const compareFrames = result.frames.filter(f => f.highlights!.compare.length > 0);
     expect(compareFrames.length).toBeGreaterThan(0);
 
     for (const frame of compareFrames) {
-      expect(frame.highlights.compare).toHaveLength(2);
-      expect(frame.highlights.compare[1] - frame.highlights.compare[0]).toBe(1);
+      expect(frame.highlights!.compare).toHaveLength(2);
+      expect(frame.highlights!.compare[1] - frame.highlights!.compare[0]).toBe(1);
     }
   });
 });

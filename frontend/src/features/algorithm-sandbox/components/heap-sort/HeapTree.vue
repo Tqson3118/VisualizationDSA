@@ -69,7 +69,7 @@
     >
       <span>{{ item.value }}</span>
       <!-- Show index small on the node center bottom -->
-      <span class="node-idx-label text-[7.5px] font-normal -mt-0.5 select-none">[i={{ idx }}]</span>
+      <span v-if="(frame?.arrayStateWithIds?.length ?? 0) <= 12" class="node-idx-label text-[7.5px] font-normal -mt-0.5 select-none">[i={{ idx }}]</span>
 
       <!-- Hover Debug Tooltip -->
       <div

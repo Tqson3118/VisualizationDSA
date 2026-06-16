@@ -79,28 +79,38 @@ function renderCanvas(): void {
 
   const n = frame.dataState.length;
   const maxVal = Math.max(...frame.dataState, 1);
-  const colW = (w - GAP * (n - 1) - MARGIN * 2) / n;
+  
+  // Dynamic gap based on element count to optimize spacing
+  const gapVal = Math.max(2, Math.min(6, 120 / n));
+  const colW = (w - gapVal * (n - 1) - MARGIN * 2) / n;
   const drawableHeight = h - PADDING_TOP - MARGIN_BOTTOM;
 
   for (let i = 0; i < n; i++) {
     const val = frame.dataState[i];
     const barH = (val / maxVal) * drawableHeight;
-    const x = MARGIN + i * (colW + GAP);
+    const x = MARGIN + i * (colW + gapVal);
     const y = h - MARGIN_BOTTOM - barH;
 
     ctx.fillStyle = determineColor(i, frame, colors);
     ctx.beginPath();
-    ctx.roundRect(x, y, colW, barH, 3);
+    ctx.roundRect(x, y, colW, barH, 4); // Smoother round corners
     ctx.fill();
 
-    ctx.fillStyle = colorText;
-    ctx.font = `bold ${Math.min(12, colW * 0.5)}px monospace`;
-    ctx.textAlign = 'center';
-    ctx.fillText(String(val), x + colW / 2, h - MARGIN_BOTTOM + 14);
+    // Draw value label above the bar
+    if (colW >= 12) {
+      ctx.fillStyle = colorText;
+      ctx.font = `bold ${Math.min(12, Math.max(8, colW * 0.5))}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(String(val), x + colW / 2, Math.max(y - 6, PADDING_TOP - 4));
+    }
 
-    ctx.fillStyle = colorMuted;
-    ctx.font = `${Math.min(9, colW * 0.35)}px monospace`;
-    ctx.fillText(String(i), x + colW / 2, h - MARGIN_BOTTOM + 24);
+    // Auto-hide STT labels under columns if element count N > 12
+    if (n <= 12 && colW >= 14) {
+      ctx.fillStyle = colorMuted;
+      ctx.font = `${Math.min(10, Math.max(8, colW * 0.4))}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(`[${i}]`, x + colW / 2, h - MARGIN_BOTTOM + 16);
+    }
   }
 }
 

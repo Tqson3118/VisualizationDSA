@@ -6,8 +6,10 @@ export function extractStats(frames: FrameDTO[], currentIdx: number): CompareSta
   let comparisons = 0, swaps = 0;
   for (let i = 0; i <= currentIdx && i < frames.length; i++) {
     const h = frames[i].highlights;
-    if (h.compare?.length) comparisons++;
-    if (h.swap?.length) swaps++;
+    if (h) {
+      if (h.compare?.length) comparisons++;
+      if (h.swap?.length) swaps++;
+    }
   }
   return {
     comparisons, swaps,

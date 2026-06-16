@@ -4,7 +4,7 @@
     <CompareAlgorithmSelector />
 
     <!-- Middle: Split Screen Dual Canvas -->
-    <div class="flex-1 min-h-0 grid grid-cols-2 gap-4">
+    <div class="flex-1 min-h-0 grid grid-cols-2 gap-4" data-tour-id="compare-canvas-split">
       <!-- Left Canvas -->
       <CompareCanvasPanel
         :currentFrame="store.leftCurrentFrame"
@@ -33,7 +33,7 @@
     <!-- Bottom: Dashboard + Unified Controls -->
     <div class="flex-shrink-0 space-y-3">
       <!-- Comparative Stats Dashboard -->
-      <ComparativeDashboard />
+      <ComparativeDashboard data-tour-id="compare-metrics-board" />
 
       <!-- Unified VCR Controls -->
       <CompareVcrControls />
@@ -42,14 +42,20 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount } from 'vue';
+import { onBeforeUnmount, onMounted } from 'vue';
 import { useCompareAlgorithmsStore } from '../store/useCompareAlgorithmsStore';
+import { useGuidedTourStore } from '../../guided-tour/store/useGuidedTourStore';
 import CompareAlgorithmSelector from './CompareAlgorithmSelector.vue';
 import CompareCanvasPanel from './CompareCanvasPanel.vue';
 import ComparativeDashboard from './ComparativeDashboard.vue';
 import CompareVcrControls from './CompareVcrControls.vue';
 
 const store = useCompareAlgorithmsStore();
+const tourStore = useGuidedTourStore();
+
+onMounted(() => {
+  tourStore.startPageTour('/compare');
+});
 
 onBeforeUnmount(() => {
   store.cleanup();

@@ -87,11 +87,23 @@ export async function probeWebGpu(): Promise<WebGpuCapabilities> {
     }
 
     const device = await adapter.requestDevice();
+    
+    let adapterName = 'GPU';
     const info = adapter.info;
+    if (info) {
+      adapterName = info.device || info.vendor || 'GPU';
+    } else if (typeof (adapter as any).requestAdapterInfo === 'function') {
+      try {
+        const adapterInfo = await (adapter as any).requestAdapterInfo();
+        adapterName = adapterInfo.device || adapterInfo.vendor || 'GPU';
+      } catch {
+        // Fallback to default
+      }
+    }
 
     return {
       supported: true,
-      adapterName: info.device || info.vendor || 'GPU',
+      adapterName,
       device,
       adapter,
       error: null,

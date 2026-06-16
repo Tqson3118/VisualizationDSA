@@ -1,5 +1,5 @@
 <template>
-  <div class="sorting-detail-panel flex flex-col p-5 gap-4 font-sans">
+  <div class="sorting-detail-panel flex flex-col p-5 gap-4 font-sans" data-tour-id="trace-watcher-panel">
     <!-- Header -->
     <div class="flex flex-col gap-3 border-b" style="border-color:var(--vis-panel-border)">
       <div class="flex items-center gap-2">
@@ -11,6 +11,7 @@
       <div class="flex gap-2 w-full">
         <button 
           @click="activeTab = 'info'" 
+          data-tour-id="dsa-theory-tab"
           class="flex-1 py-1.5 text-xs font-bold rounded-lg border transition-all duration-250 cursor-pointer text-center"
           :class="activeTab === 'info' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/35 shadow-[0_0_10px_rgba(6,182,212,0.15)]' : 'vis-btn-ghost border border-white/5 hover:text-white'"
         >
@@ -18,6 +19,7 @@
         </button>
         <button 
           @click="activeTab = 'trace'" 
+          data-tour-id="dsa-properties-tab"
           class="flex-1 py-1.5 text-xs font-bold rounded-lg border transition-all duration-250 cursor-pointer text-center"
           :class="activeTab === 'trace' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/35 shadow-[0_0_10px_rgba(6,182,212,0.15)]' : 'vis-btn-ghost border border-white/5 hover:text-white'"
         >

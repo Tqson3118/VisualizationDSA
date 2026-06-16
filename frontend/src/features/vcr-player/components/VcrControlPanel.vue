@@ -24,13 +24,15 @@
     <div class="controls-row">
       <button @click="vcrStore.stepPrev"
         :disabled="vcrStore.totalFrames === 0 || vcrStore.isAtStart"
-        class="ctrl-btn">
+        class="ctrl-btn"
+        data-tour-id="vcr-step-debug">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" /></svg>
       </button>
 
       <button @click="vcrStore.togglePlay"
         :disabled="vcrStore.totalFrames === 0"
         class="ctrl-btn-play"
+        data-tour-id="vcr-play-btn"
         :class="vcrStore.isPlaying ? 'ctrl-btn-play--pause' : 'ctrl-btn-play--play'">
         <svg v-if="vcrStore.isPlaying" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
         <svg v-else class="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
@@ -38,7 +40,8 @@
 
       <button @click="vcrStore.stepNext"
         :disabled="vcrStore.totalFrames === 0 || (!vcrStore.isLooping && vcrStore.isAtEnd)"
-        class="ctrl-btn">
+        class="ctrl-btn"
+        data-tour-id="vcr-step-debug">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" /></svg>
       </button>
 
@@ -80,6 +83,16 @@ const handleScrub = (e: Event): void => {
 
 const compileInput = (): void => {
   compilationError.value = null;
+
+  // Kiểm tra số phần tử trước khi compile — giới hạn tối đa 15
+  const elements = vcrStore.rawInputArray
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s !== '' && !isNaN(Number(s)));
+  if (elements.length > 15) {
+    compilationError.value = `⚠️ Vượt quá giới hạn! Chỉ hiển thị 15 phần tử đầu tiên (bạn đã nhập ${elements.length}).`;
+  }
+
   const res = vcrStore.compileAndLoad();
   if (!res.success) compilationError.value = res.error || "Lỗi không xác định khi biên dịch";
 };

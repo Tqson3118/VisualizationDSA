@@ -1,5 +1,5 @@
 <template>
-  <div class="lsp-panel flex flex-col gap-4">
+  <div class="lsp-panel flex flex-col gap-4" data-tour-id="lsp-glass-sandbox">
     <!-- LSP Header -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
@@ -14,6 +14,12 @@
       >
         {{ phaseBadgeText }}
       </span>
+    </div>
+
+    <!-- LSP Explanation Panel -->
+    <div class="p-3.5 rounded-xl bg-bg-secondary/40 border border-white/5 backdrop-blur-md text-xs text-text-secondary leading-relaxed">
+      <span class="font-bold text-text-primary">💡 Nguyên lý Thay thế Liskov:</span> Nếu lớp con <span class="text-accent font-semibold">Ostrich (Đà điểu)</span> kế thừa lớp cha <span class="text-accent font-semibold">Bird (Chim)</span>, thì bất kỳ nơi nào dùng <span class="text-accent">Bird</span> đều phải thay thế được bằng <span class="text-accent">Ostrich</span> mà chương trình không bị lỗi.
+      <br><span class="mt-1 block text-[11px] text-text-disabled">👉 Hãy bấm nút <b>Thay thế Ostrich</b> để xem lỗi vi phạm (đà điểu kế thừa chim nhưng không thể bay), hoặc bấm <b>Thay thế Eagle</b> để xem hành vi hợp lệ!</span>
     </div>
 
     <!-- Laser Fracture Overlay -->

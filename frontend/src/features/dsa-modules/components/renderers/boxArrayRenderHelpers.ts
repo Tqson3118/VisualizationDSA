@@ -39,12 +39,27 @@ export function drawBoxArray(
 ): void {
   const n = frame.dataState.length;
   
+  // Dynamic boxSize & gap calculation to fit canvas width w
+  const maxTotalW = w - MARGIN * 2;
+  const defaultBoxSize = 50;
+  const defaultGap = 12;
+  
+  let boxSize = defaultBoxSize;
+  let gap = defaultGap;
+  
+  const totalNeededWithDefault = n * boxSize + (n - 1) * gap;
+  if (totalNeededWithDefault > maxTotalW) {
+    boxSize = maxTotalW / (n + 0.24 * (n - 1));
+    boxSize = Math.max(16, Math.min(50, boxSize));
+    gap = Math.max(2, boxSize * 0.24);
+  }
+
   // Custom spacing & centering
-  const totalW = n * BOX_SIZE + (n - 1) * GAP;
+  const totalW = n * boxSize + (n - 1) * gap;
   const startX = Math.max(MARGIN, (w - totalW) / 2);
   
   // Baseline Y center (pushed down slightly to give top clearance)
-  const y = (h - BOX_SIZE) / 2 + 15;
+  const y = (h - boxSize) / 2 + 15;
 
   // Extract variables (animated or fallback to static)
   const low = anim ? anim.low : frame.highlights.low;
@@ -66,9 +81,9 @@ export function drawBoxArray(
     ctx.font = 'bold 13px sans-serif';
     const textWidth = ctx.measureText(labelText).width;
     const iconW = 12;
-    const gap = 8;
+    const gapSize = 8;
     const paddingX = 14;
-    const capW = paddingX * 2 + iconW + gap + textWidth;
+    const capW = paddingX * 2 + iconW + gapSize + textWidth;
     const capH = 28;
     const capX = (w - capW) / 2;
     const capY = 16;
@@ -121,7 +136,7 @@ export function drawBoxArray(
     ctx.fillStyle = '#38bdf8';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText(labelText, cx + iconW / 2 + gap, cy);
+    ctx.fillText(labelText, cx + iconW / 2 + gapSize, cy);
     ctx.restore();
   }
 
@@ -130,8 +145,8 @@ export function drawBoxArray(
   const isSearchFinished = foundIdx !== null || frame.explanation.includes('Không tìm thấy');
   if (!isSearchFinished && low !== null && low !== undefined && high !== null && high !== undefined && low <= high) {
     ctx.save();
-    const xLow = startX + low * (BOX_SIZE + GAP);
-    const xHigh = startX + high * (BOX_SIZE + GAP) + BOX_SIZE;
+    const xLow = startX + low * (boxSize + gap);
+    const xHigh = startX + high * (boxSize + gap) + boxSize;
     
     // Draw horizontal bracket above the boxes
     const bracketY = y - 58;
@@ -166,20 +181,20 @@ export function drawBoxArray(
     const isFound = foundIdx === i;
     const isMid = mid !== null && mid !== undefined && Math.round(mid) === i;
 
-    const x = startX + i * (BOX_SIZE + GAP);
+    const x = startX + i * (boxSize + gap);
     const elemOpacity = anim ? anim.opacities[i] : (isDimmed ? 0.25 : 1.0);
     const crossVal = anim ? anim.crosses[i] : (isDimmed ? 1.0 : 0.0);
 
     // Scale properties
-    let curBoxSize = BOX_SIZE;
+    let curBoxSize = boxSize;
     let boxX = x;
     let boxY = y;
     
     if (isMid && midOpacity > 0.01) {
       const scaleFactor = 1.0 + 0.15 * midOpacity;
-      curBoxSize = BOX_SIZE * scaleFactor;
-      boxX = x - (curBoxSize - BOX_SIZE) / 2;
-      boxY = y - (curBoxSize - BOX_SIZE) / 2;
+      curBoxSize = boxSize * scaleFactor;
+      boxX = x - (curBoxSize - boxSize) / 2;
+      boxY = y - (curBoxSize - boxSize) / 2;
     }
 
     ctx.globalAlpha = elemOpacity;
@@ -191,29 +206,34 @@ export function drawBoxArray(
 
     // Draw Box
     ctx.beginPath();
-    ctx.roundRect(boxX, boxY, curBoxSize, curBoxSize, 8);
+    ctx.roundRect(boxX, boxY, curBoxSize, curBoxSize, Math.max(3, boxSize * 0.15));
     ctx.fill();
     ctx.stroke();
 
-    // Draw Text Value
-    ctx.fillStyle = isFound ? '#10b981' : isMid ? '#eab308' : isDimmed ? '#64748b' : '#38bdf8';
-    ctx.font = 'bold 15px monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(String(frame.dataState[i]), boxX + curBoxSize / 2, boxY + curBoxSize / 2);
+    // Draw Text Value (Auto-hide if too narrow)
+    if (boxSize >= 15) {
+      ctx.fillStyle = isFound ? '#10b981' : isMid ? '#eab308' : isDimmed ? '#64748b' : '#38bdf8';
+      ctx.font = `bold ${Math.min(15, curBoxSize * 0.45)}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(frame.dataState[i]), boxX + curBoxSize / 2, boxY + curBoxSize / 2);
+    }
 
-    // Draw Index Label underneath
-    ctx.fillStyle = isDimmed ? 'rgba(100, 116, 139, 0.3)' : '#64748b';
-    ctx.font = '10px monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillText(`A[${i}]`, boxX + curBoxSize / 2, boxY + curBoxSize + 6);
+    // Draw Index Label underneath (Auto-hide or format dynamically based on boxSize)
+    if (boxSize >= 20) {
+      ctx.fillStyle = isDimmed ? 'rgba(100, 116, 139, 0.3)' : '#64748b';
+      ctx.font = `${Math.min(10, boxSize * 0.35)}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      const indexLabel = boxSize >= 36 ? `A[${i}]` : `${i}`;
+      ctx.fillText(indexLabel, boxX + curBoxSize / 2, boxY + curBoxSize + 6);
+    }
 
     // Draw Cross mark over Dimmed / Eliminated elements (with anim support)
     if (crossVal > 0.01) {
       ctx.strokeStyle = 'rgba(239, 68, 68, 0.35)';
       ctx.lineWidth = 1.2;
-      const pad = 6;
+      const pad = Math.max(2, boxSize * 0.12);
       
       // Line 1
       ctx.beginPath();
@@ -235,8 +255,8 @@ export function drawBoxArray(
   if (low !== null && low !== undefined && lowOpacity > 0.01) {
     ctx.save();
     ctx.globalAlpha = lowOpacity;
-    const px = startX + low * (BOX_SIZE + GAP) + BOX_SIZE / 2;
-    const ptrY = y + BOX_SIZE + 20;
+    const px = startX + low * (boxSize + gap) + boxSize / 2;
+    const ptrY = y + boxSize + 20;
 
     ctx.fillStyle = '#3b82f6';
     // Arrow pointing up ▲
@@ -246,10 +266,10 @@ export function drawBoxArray(
     ctx.lineTo(px + 5, ptrY + 6);
     ctx.fill();
     
-    ctx.font = 'bold 9.5px sans-serif';
+    ctx.font = `bold ${Math.min(9.5, boxSize * 0.35)}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    ctx.fillText('Low', px, ptrY + 8);
+    ctx.fillText(boxSize >= 30 ? 'Low' : 'L', px, ptrY + 8);
     ctx.restore();
   }
 
@@ -266,7 +286,7 @@ export function drawBoxArray(
 
     if (isSameIndex) {
       // Draw consolidated pointer at the top
-      const px = startX + mid * (BOX_SIZE + GAP) + BOX_SIZE / 2;
+      const px = startX + mid * (boxSize + gap) + boxSize / 2;
       const ptrY = y - 6;
       ctx.globalAlpha = Math.max(midOpacity, highOpacity);
 
@@ -279,16 +299,16 @@ export function drawBoxArray(
       ctx.fill();
 
       // Combined label
-      ctx.font = 'bold 9.5px sans-serif';
+      ctx.font = `bold ${Math.min(9.5, boxSize * 0.35)}px sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
-      ctx.fillText('MID & High', px, ptrY - 8);
+      ctx.fillText(boxSize >= 30 ? 'MID & High' : 'M&H', px, ptrY - 8);
     } else {
       // Draw High pointer (top, pointing down ▼)
       if (hasHigh) {
         ctx.save();
         ctx.globalAlpha = highOpacity;
-        const px = startX + high * (BOX_SIZE + GAP) + BOX_SIZE / 2;
+        const px = startX + high * (boxSize + gap) + boxSize / 2;
         const ptrY = y - 6;
 
         ctx.fillStyle = '#ef4444';
@@ -298,10 +318,10 @@ export function drawBoxArray(
         ctx.lineTo(px + 5, ptrY - 6);
         ctx.fill();
 
-        ctx.font = 'bold 9.5px sans-serif';
+        ctx.font = `bold ${Math.min(9.5, boxSize * 0.35)}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
-        ctx.fillText('High', px, ptrY - 8);
+        ctx.fillText(boxSize >= 30 ? 'High' : 'H', px, ptrY - 8);
         ctx.restore();
       }
 
@@ -309,7 +329,7 @@ export function drawBoxArray(
       if (hasMid) {
         ctx.save();
         ctx.globalAlpha = midOpacity;
-        const px = startX + mid * (BOX_SIZE + GAP) + BOX_SIZE / 2;
+        const px = startX + mid * (boxSize + gap) + boxSize / 2;
         const ptrY = y - 6;
 
         ctx.fillStyle = '#eab308';
@@ -319,10 +339,10 @@ export function drawBoxArray(
         ctx.lineTo(px + 5, ptrY - 6);
         ctx.fill();
 
-        ctx.font = 'bold 9.5px sans-serif';
+        ctx.font = `bold ${Math.min(9.5, boxSize * 0.35)}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
-        ctx.fillText('MID', px, ptrY - 8);
+        ctx.fillText(boxSize >= 30 ? 'MID' : 'M', px, ptrY - 8);
         ctx.restore();
       }
     }
@@ -333,7 +353,7 @@ export function drawBoxArray(
   if (hasMid && foundIdx !== Math.round(mid)) {
     ctx.save();
     ctx.globalAlpha = midOpacity;
-    const px = startX + mid * (BOX_SIZE + GAP) + BOX_SIZE / 2;
+    const px = startX + mid * (boxSize + gap) + boxSize / 2;
     const midTopY = y - 4;
     const targetVal = target;
     const midVal = frame.dataState[Math.round(mid)];
@@ -346,7 +366,7 @@ export function drawBoxArray(
         decisionText = `${midVal} > ${targetVal}`;
       }
 
-      if (decisionText) {
+      if (decisionText && boxSize >= 28) {
         ctx.font = 'bold 9.5px sans-serif';
         const bubbleW = ctx.measureText(decisionText).width + 12;
         const bubbleH = 18;
@@ -374,16 +394,16 @@ export function drawBoxArray(
   // 7. Draw FOUND / NOT FOUND massive feedback capsules
   if (foundIdx !== null && foundIdx !== undefined) {
     ctx.save();
-    const fx = startX + foundIdx * (BOX_SIZE + GAP) + BOX_SIZE / 2;
+    const fx = startX + foundIdx * (boxSize + gap) + boxSize / 2;
     const fy = y - 42; // Positioned directly above the found element for tight visual layout
 
     ctx.font = 'bold 11px sans-serif';
-    const bText = 'FOUND';
+    const bText = boxSize >= 30 ? 'FOUND' : 'OK';
     const textWidth = ctx.measureText(bText).width;
     const iconW = 12;
-    const gap = 6;
+    const gapSize = 6;
     const paddingX = 8;
-    const bW = paddingX * 2 + textWidth + gap + iconW;
+    const bW = paddingX * 2 + textWidth + gapSize + iconW;
     const bH = 20;
     const bx = fx - bW / 2;
 
@@ -402,7 +422,7 @@ export function drawBoxArray(
     ctx.fillText(bText, bx + paddingX, fy + bH / 2);
 
     // Draw solid green circle with white checkmark
-    const cx = bx + paddingX + textWidth + gap + iconW / 2;
+    const cx = bx + paddingX + textWidth + gapSize + iconW / 2;
     const cy = fy + bH / 2;
     
     // Solid green circle (#10b981)
@@ -427,12 +447,12 @@ export function drawBoxArray(
     // NOT FOUND banner in the center
     ctx.save();
     ctx.font = 'bold 12px sans-serif';
-    const nfText = 'NOT FOUND';
+    const nfText = boxSize >= 30 ? 'NOT FOUND' : 'FAIL';
     const textWidth = ctx.measureText(nfText).width;
     const iconW = 12;
-    const gap = 6;
+    const gapSize = 6;
     const paddingX = 10;
-    const nfW = paddingX * 2 + textWidth + gap + iconW;
+    const nfW = paddingX * 2 + textWidth + gapSize + iconW;
     const nfH = 24;
     const nfX = (w - nfW) / 2;
     const nfY = y - 42; // Positioned dynamically in center
@@ -452,7 +472,7 @@ export function drawBoxArray(
     ctx.fillText(nfText, nfX + paddingX, nfY + nfH / 2);
 
     // Draw solid red circle with white cross
-    const cx = nfX + paddingX + textWidth + gap + iconW / 2;
+    const cx = nfX + paddingX + textWidth + gapSize + iconW / 2;
     const cy = nfY + nfH / 2;
 
     // Solid red circle (#ef4444)

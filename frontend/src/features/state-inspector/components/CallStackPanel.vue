@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <div class="flex flex-col-reverse gap-2 p-3 overflow-y-auto max-h-[400px]">
+    <div class="flex flex-col-reverse gap-2 p-3 overflow-y-auto flex-1 min-h-0">
       <div
         v-for="(frame, index) in stackFrames"
         :key="frame.frameId"
@@ -89,6 +89,9 @@ defineEmits<{
   border-radius: 16px;
   backdrop-filter: blur(12px);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .stack-frame-card {

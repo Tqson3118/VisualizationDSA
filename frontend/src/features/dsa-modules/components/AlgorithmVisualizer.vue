@@ -6,15 +6,16 @@
       v-bind="rendererProps"
     />
 
-    <!-- HUD Step Description -->
+    <!-- HUD Step Description (Glassmorphic HUD Card) -->
     <div
       v-if="currentFrame"
-      class="absolute top-3 left-4 max-w-[420px] pointer-events-none"
+      class="absolute top-3 left-4 max-w-[360px] pointer-events-auto hover:opacity-10 transition-opacity duration-200 rounded-xl p-3 border border-white/5 shadow-2xl select-none"
+      style="background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px);"
     >
       <span class="text-[10px] font-bold uppercase tracking-[0.08em] text-accent">
-        Step {{ currentFrame.stepId }} / {{ totalSteps }}
+        Bước {{ currentFrame.stepId }} / {{ totalSteps }}
       </span>
-      <p class="text-[13px] font-semibold text-text-primary leading-[1.4] mt-1 drop-shadow-[0_1px_8px_rgba(0,0,0,0.7)]">
+      <p class="text-xs font-semibold text-text-primary leading-relaxed mt-1">
         {{ currentFrame.explanation }}
       </p>
     </div>

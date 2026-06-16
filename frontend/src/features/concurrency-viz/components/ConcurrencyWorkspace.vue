@@ -11,7 +11,7 @@
 
     <!-- Main Content: Canvas + Pseudocode -->
     <div class="flex-1 min-h-0 grid grid-cols-3 gap-3">
-      <div class="col-span-2 min-h-0">
+      <div class="col-span-2 min-h-0" data-tour-id="thread-rails-canvas">
         <ThreadRailsCanvas
           :threads="store.threads"
           :locks="store.locks"
@@ -20,7 +20,7 @@
           :deadlocked-thread-ids="store.deadlockedThreadIds"
         />
       </div>
-      <div class="col-span-1 min-h-0 bg-bg-secondary rounded-xl border border-border-subtle overflow-hidden flex flex-col">
+      <div class="col-span-1 min-h-0 bg-bg-secondary rounded-xl border border-border-subtle overflow-hidden flex flex-col" data-tour-id="concurrency-pseudocode">
         <div class="px-3 py-2 border-b border-border-subtle bg-bg-surface/50">
           <span class="text-[10px] text-text-secondary uppercase tracking-wider">Mã giả đa luồng</span>
         </div>
@@ -31,6 +31,7 @@
     </div>
 
     <ConcurrencyPlaybackBar
+      data-tour-id="concurrency-playback-bar"
       :step-index="store.currentStepIndex"
       :total-steps="store.totalSteps"
       :progress-percent="store.progressPercent"

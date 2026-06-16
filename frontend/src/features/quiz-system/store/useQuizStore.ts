@@ -14,6 +14,7 @@ import type { StatelessQuizSummary, StatelessQuizDetail, StatelessAttemptResult 
 export const useQuizStore = defineStore('quizSystem', () => {
   const lectureStore = useLectureStore();
   const animStore = useAnimationStore();
+  const authStore = useAuthStore();
 
   const activeQuestion = ref<QuizQuestion | null>(null);
   const selectedAnswerIndex = ref<number | null>(null);
@@ -136,7 +137,7 @@ export const useQuizStore = defineStore('quizSystem', () => {
   }
 
   function selectBackendAnswer(index: number): void {
-    backendAnswers.value[backendQuizIndex.value] = index;
+    backendAnswers.value.splice(backendQuizIndex.value, 1, index);
   }
 
   function nextBackendQuestion(): void {
@@ -155,7 +156,8 @@ export const useQuizStore = defineStore('quizSystem', () => {
       isBackendQuizLoading.value = true;
       backendResult.value = await statelessQuizApi.submitAttempt(
         activeBackendQuiz.value.id,
-        answers
+        answers,
+        authStore.getAccessToken()
       );
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Không thể gửi bài';

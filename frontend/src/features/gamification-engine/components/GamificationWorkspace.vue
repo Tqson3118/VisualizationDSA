@@ -84,7 +84,7 @@
           <div class="space-y-1">
             <div v-for="entry in store.backendLeaderboard" :key="entry.rank"
               class="flex items-center gap-2 px-2 py-1.5 rounded-lg"
-              :class="entry.username === 'AlgoLens Student' ? 'bg-accent/10 border border-accent/20' : 'bg-bg-surface/30'">
+              :class="entry.username === 'VisualizationDSA Student' ? 'bg-accent/10 border border-accent/20' : 'bg-bg-surface/30'">
               <span class="text-sm font-bold text-text-secondary w-5 text-center">{{ entry.rank }}</span>
               <div class="flex-1 min-w-0">
                 <div class="text-[11px] font-medium text-text-primary truncate">{{ entry.username }}</div>

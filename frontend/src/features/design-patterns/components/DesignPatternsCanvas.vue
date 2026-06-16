@@ -1,5 +1,5 @@
 <template>
-  <div ref="canvasContainer" class="design-patterns-canvas">
+  <div ref="canvasContainer" class="design-patterns-canvas" data-tour-id="observer-graph">
     <DesignPatternsConnectionsLayer
       :links="store.links"
       :path-cache="store.pathCache"

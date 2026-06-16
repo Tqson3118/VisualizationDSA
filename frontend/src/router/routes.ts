@@ -15,8 +15,8 @@ export const routes: RouteRecordRaw[] = [
   // { path: '/animation',     name: 'animation',     component: () => import('../views/AnimationView.vue'),        meta: { title: 'Animation',       icon: 'animation' } },
   // { path: '/dsa',           name: 'dsa',           component: () => import('../views/DSAModulesView.vue'),       meta: { title: 'DSA Modules',     icon: 'dsa' } },
   { path: '/code-ide',      name: 'code-ide',      component: () => import('../views/CodeIDEView.vue'),          meta: { title: 'Gỡ lỗi Code',     icon: 'code-ide' } },
-  // { path: '/compare',       name: 'compare',       component: () => import('../views/CompareView.vue'),          meta: { title: 'So sánh',         icon: 'compare' } },
-  // { path: '/concurrency',   name: 'concurrency',   component: () => import('../views/ConcurrencyView.vue'),      meta: { title: 'Đa luồng',        icon: 'concurrency' } },
+  { path: '/compare',       name: 'compare',       component: () => import('../views/CompareView.vue'),          meta: { title: 'So sánh thuật toán', icon: 'compare' } },
+  { path: '/concurrency',   name: 'concurrency',   component: () => import('../views/ConcurrencyView.vue'),      meta: { title: 'Đa luồng',        icon: 'concurrency' } },
   // { path: '/debug',         name: 'debug',         component: () => import('../views/DebugView.vue'),            meta: { title: 'Debug',           icon: 'debug' } },
   { path: '/graph',         name: 'graph',         component: () => import('../views/GraphView.vue'),            meta: { title: 'Đồ thị',          icon: 'graph' } },
   // { path: '/playground',    name: 'playground',    component: () => import('../views/PlaygroundView.vue'),       meta: { title: 'Sandbox',         icon: 'playground' } },
@@ -38,7 +38,13 @@ export const routes: RouteRecordRaw[] = [
   { path: '/export-share',  name: 'export-share',  component: () => import('../views/ExportShareView.vue'),      meta: { title: 'Export/Share',    icon: 'export-share' } },
   // { path: '/learning-path', name: 'learning-path', component: () => import('../views/LearningPathView.vue'),     meta: { title: 'Learning Path',   icon: 'learning-path' } },
   // { path: '/multi-view',    name: 'multi-view',    component: () => import('../views/MultiViewView.vue'),        meta: { title: 'Multi-View',      icon: 'multi-view' } },
+  { path: '/state',         name: 'state',         component: () => import('../views/StateInspectorView.vue'),   meta: { title: 'State Inspector', icon: 'state' } },
   // { path: '/timeline',      name: 'timeline',      component: () => import('../views/TimelinePlaybackView.vue'), meta: { title: 'Timeline',        icon: 'timeline' } },
+  { path: '/profile',       name: 'profile',       component: () => import('../views/ProfileView.vue'),          meta: { title: 'Hồ sơ cá nhân',   requiresAuth: true } },
 
-  { path: '/:pathMatch(.*)*', redirect: '/' },
+  // ── Admin Panel ───────────────────────────────────────────────────────
+  { path: '/admin',         name: 'admin',         component: () => import('../views/AdminPanelView.vue'),       meta: { title: 'Quản trị Admin',  requiresAuth: true, requiresRole: 'Admin' } },
+
+  // ── 404 Not Found ──────────────────────────────────────────────────────────
+  { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFoundView.vue'), meta: { title: 'Trang không tồn tại', public: true } },
 ];

@@ -10,7 +10,7 @@ export const pointers = new Map<string, PointerArrow>();
 export const snapshots: MemorySnapshot[] = [];
 export let frameCounter = 0;
 
-export function pushFrame(functionName: string, params: Record<string, any> = {}, localVars: Record<string, any> = {}): StackFrame3D {
+export function pushFrame(functionName: string, params: Record<string, unknown> = {}, localVars: Record<string, unknown> = {}): StackFrame3D {
   frameCounter++;
   const id = `frame-${frameCounter}`, depth = stackFrames.size + 1;
   const paramArray = Object.entries(params).map(([name, value]) => ({ name, value }));
@@ -38,7 +38,7 @@ export function popFrame(): StackFrame3D | null {
   createSnapshot();
   return lastFrame;
 }
-export function allocateHeapNode(type: string, size: number, data?: any): HeapNode3D {
+export function allocateHeapNode(type: string, size: number, data?: unknown): HeapNode3D {
   const id = `heap-${Date.now()}-${Math.floor(Math.random() * 1000)}`, index = heapNodes.size;
   const node: HeapNode3D = {
     id, type, size, data: data || null,

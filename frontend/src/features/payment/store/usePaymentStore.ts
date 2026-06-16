@@ -49,12 +49,24 @@ export const usePaymentStore = defineStore('payment', () => {
   }
 
   async function startCheckout(paymentMethod = 'vietqr'): Promise<void> {
+    if (!authStore.isAuthenticated) {
+      paymentError.value = 'Bạn cần đăng nhập để thực hiện thanh toán.';
+      checkoutState.value = 'error';
+      return;
+    }
     isLoading.value = true;
     paymentError.value = null;
 
-    const userId = authStore.statelessUser?.id ?? String(authStore.currentUser?.id ?? 'demo-user-001');
+    const userId = authStore.statelessUser?.id ?? authStore.currentUser?.id;
+    if (!userId) {
+      paymentError.value = 'Không tìm thấy thông tin người dùng.';
+      checkoutState.value = 'error';
+      isLoading.value = false;
+      return;
+    }
+
     try {
-      const order = await statelessPaymentApi.checkout(userId, paymentMethod);
+      const order = await statelessPaymentApi.checkout(String(userId), paymentMethod);
       currentOrder.value = order;
       checkoutState.value = 'paying';
     } catch (err: unknown) {
@@ -67,12 +79,24 @@ export const usePaymentStore = defineStore('payment', () => {
 
   async function verifyPayment(): Promise<void> {
     if (!currentOrder.value) return;
+    if (!authStore.isAuthenticated) {
+      paymentError.value = 'Bạn cần đăng nhập để thực hiện thanh toán.';
+      checkoutState.value = 'error';
+      return;
+    }
     isLoading.value = true;
     checkoutState.value = 'verifying';
 
-    const userId = authStore.statelessUser?.id ?? String(authStore.currentUser?.id ?? 'demo-user-001');
+    const userId = authStore.statelessUser?.id ?? authStore.currentUser?.id;
+    if (!userId) {
+      paymentError.value = 'Không tìm thấy thông tin người dùng.';
+      checkoutState.value = 'error';
+      isLoading.value = false;
+      return;
+    }
+
     try {
-      const result = await statelessPaymentApi.verify(currentOrder.value.id, userId);
+      const result = await statelessPaymentApi.verify(currentOrder.value.id, String(userId));
       currentOrder.value = result;
 
       if (result.status === 'Completed') {
@@ -93,6 +117,10 @@ export const usePaymentStore = defineStore('payment', () => {
 
   async function simulatePaymentSuccess(): Promise<void> {
     if (!currentOrder.value) return;
+    if (!authStore.isAuthenticated) {
+      paymentError.value = 'Bạn cần đăng nhập để thực hiện thanh toán.';
+      return;
+    }
     isLoading.value = true;
 
     try {
@@ -118,9 +146,10 @@ export const usePaymentStore = defineStore('payment', () => {
 
   async function checkFeatureAccess(featureId: string): Promise<boolean> {
     if (isPremium.value) return true;
-    const userId = authStore.statelessUser?.id ?? String(authStore.currentUser?.id ?? 'demo-user-001');
+    const userId = authStore.statelessUser?.id ?? authStore.currentUser?.id;
+    if (!userId) return false;
     try {
-      const result = await statelessPaymentApi.checkFeatureAccess(featureId, userId);
+      const result = await statelessPaymentApi.checkFeatureAccess(featureId, String(userId));
       return result.hasAccess;
     } catch {
       return false;

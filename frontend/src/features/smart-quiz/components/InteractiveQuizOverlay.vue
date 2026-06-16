@@ -158,11 +158,11 @@ function optionClass(optionId: string): string {
   const isSelected = store.selectedAnswers.includes(optionId);
   if (store.evaluationResult.hasSubmitted) {
     const isCorrect = store.activeQuiz?.correctAnswers.includes(optionId);
-    if (isCorrect) return 'border-accent-green/40 bg-accent-green/10 text-accent-green';
-    if (isSelected && !isCorrect) return 'border-accent-red/40 bg-accent-red/10 text-accent-red';
+    if (isCorrect) return 'correct-option text-accent-green';
+    if (isSelected && !isCorrect) return 'incorrect-option text-accent-red';
     return 'border-border-default bg-bg-surface/50 text-text-muted';
   }
-  if (isSelected) return 'border-accent-yellow/40 bg-accent-yellow/10 text-accent-yellow';
+  if (isSelected) return 'selected-option text-accent-yellow';
   return 'border-border-default bg-bg-surface/50 text-text-secondary hover:border-accent-cyan/30 hover:bg-accent-cyan/5';
 }
 
@@ -205,5 +205,18 @@ function handleSubmit(): void {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-6px); }
   75% { transform: translateX(6px); }
+}
+
+.correct-option {
+  border-color: color-mix(in srgb, var(--color-accent-green) 40%, transparent) !important;
+  background-color: color-mix(in srgb, var(--color-accent-green) 10%, transparent) !important;
+}
+.incorrect-option {
+  border-color: color-mix(in srgb, var(--color-accent-red) 40%, transparent) !important;
+  background-color: color-mix(in srgb, var(--color-accent-red) 10%, transparent) !important;
+}
+.selected-option {
+  border-color: color-mix(in srgb, var(--color-accent-yellow) 40%, transparent) !important;
+  background-color: color-mix(in srgb, var(--color-accent-yellow) 10%, transparent) !important;
 }
 </style>

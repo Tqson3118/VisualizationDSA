@@ -540,7 +540,7 @@ watch(() => store.isPlayingScenario, updateAllCoordinates);
 }
 
 .sandbox-header {
-  border-b: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .icon-accent {

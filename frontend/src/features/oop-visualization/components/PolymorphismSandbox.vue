@@ -1,5 +1,5 @@
 <template>
-  <div class="sandbox-panel">
+  <div class="sandbox-panel" data-tour-id="vtable-router">
     <!-- Header -->
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-2">

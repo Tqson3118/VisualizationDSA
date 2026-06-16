@@ -2,7 +2,7 @@
   <div class="teacher-panel">
     <h1 class="panel-title">
       🎓 Bảng điều khiển Giảng viên
-      <span class="panel-title__badge">Quản trị</span>
+      <span class="panel-title__badge">Giảng viên</span>
     </h1>
 
     <!-- Analytics Grid -->
@@ -18,15 +18,50 @@
 
     <!-- Quiz Management -->
     <section class="quiz-manage-section">
-      <h2 class="section-heading">Thêm câu hỏi Quiz mới</h2>
-      <form class="quiz-form" @submit.prevent="submitQuiz">
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
+        <h2 class="section-heading m-0">Quản lý ngân hàng câu hỏi trắc nghiệm</h2>
+        <div class="flex gap-2">
+          <button 
+            type="button" 
+            class="btn-toggle-form" 
+            :class="{ 'btn-toggle-form--active': activeFormType === 'manual' }"
+            @click="toggleForm('manual')"
+          >
+            {{ activeFormType === 'manual' ? '✕ Đóng Form' : '＋ Tạo trắc nghiệm thủ công' }}
+          </button>
+          <button 
+            type="button" 
+            class="btn-toggle-form btn-toggle-form--excel" 
+            :class="{ 'btn-toggle-form--active': activeFormType === 'excel' }"
+            @click="toggleForm('excel')"
+          >
+            {{ activeFormType === 'excel' ? '✕ Đóng Form' : '📥 Nhập từ Excel' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Thêm / Chỉnh sửa Quiz thủ công -->
+      <form v-if="activeFormType === 'manual'" class="quiz-form mb-8 animate-fade-in" @submit.prevent="submitQuiz">
+        <h3 class="form-title-context">
+          {{ isEditMode ? '✏️ Chỉnh sửa bài trắc nghiệm' : '＋ Thêm câu hỏi trắc nghiệm mới' }}
+        </h3>
         <div class="form-row">
-          <label class="form-label">Tiêu đề Quiz</label>
-          <input v-model="newQuiz.title" class="form-input" placeholder="VD: Cơ bản về Linked List" required />
+          <label class="form-label">Tiêu đề trắc nghiệm</label>
+          <input v-model="newQuiz.title" class="form-input" placeholder="VD: Cơ bản về danh sách liên kết" required />
         </div>
         <div class="form-row">
           <label class="form-label">Chủ đề</label>
-          <input v-model="newQuiz.topic" class="form-input" placeholder="VD: linked-list" required />
+          <select v-model="newQuiz.topic" class="form-select" required>
+            <option value="" disabled selected>Chọn chủ đề...</option>
+            <option value="sorting">Sắp xếp</option>
+            <option value="graph">Đồ thị</option>
+            <option value="oop">Hướng đối tượng</option>
+            <option value="solid">Nguyên lý SOLID</option>
+            <option value="di">DI/IoC (Dependency Injection)</option>
+            <option value="array">Mảng tĩnh & Mảng động</option>
+            <option value="linked-list">Danh sách liên kết</option>
+            <option value="design-patterns">Mẫu thiết kế</option>
+          </select>
         </div>
         <div class="form-row form-row--inline">
           <div>
@@ -38,7 +73,7 @@
             </select>
           </div>
           <div>
-            <label class="form-label">XP Reward</label>
+            <label class="form-label">XP thưởng</label>
             <input v-model.number="newQuiz.xpReward" type="number" class="form-input" min="10" max="500" />
           </div>
         </div>
@@ -65,23 +100,156 @@
           </div>
         </div>
 
-        <div class="form-actions">
+        <div class="form-actions flex justify-center gap-3">
           <button type="submit" class="btn-submit" :disabled="submitting">
-            {{ submitting ? 'Đang gửi...' : 'Gửi Quiz vào hệ thống' }}
+            {{ submitting ? 'Đang gửi...' : isEditMode ? 'Cập nhật bài trắc nghiệm' : 'Thêm bài trắc nghiệm vào hệ thống' }}
           </button>
+          <button type="button" class="btn-cancel" @click="cancelEdit">
+            {{ isEditMode ? 'Hủy' : 'Đóng' }}
+          </button>
+        </div>
+        <div class="text-center">
           <p v-if="submitMessage" class="submit-message" :class="{ 'submit-message--error': submitError }">
             {{ submitMessage }}
           </p>
         </div>
       </form>
+
+      <!-- Import Excel Component -->
+      <div v-if="activeFormType === 'excel'" class="mb-8 animate-fade-in">
+        <ExcelQuizImporter @import-success="onImportSuccess" />
+      </div>
+
+      <!-- Danh sách Quiz hiện có (CRUD Panel) -->
+      <div class="quizzes-list-container">
+        <h3 class="subsection-heading mb-4">Danh sách bài trắc nghiệm đang hoạt động</h3>
+        <div v-if="loadingQuizzes" class="loading-state">
+          <div class="spinner"></div>
+          <span>Đang tải danh sách bài trắc nghiệm...</span>
+        </div>
+        <div v-else-if="quizzesList.length === 0" class="empty-state">
+          Chưa có bài trắc nghiệm nào trong hệ thống. Hãy tạo mới!
+        </div>
+        <div v-else class="table-responsive">
+          <table class="quizzes-table">
+            <thead>
+              <tr>
+                <th>Tiêu đề</th>
+                <th>Chủ đề</th>
+                <th>Độ khó</th>
+                <th>XP Thưởng</th>
+                <th>Số câu hỏi</th>
+                <th class="text-center">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template v-for="q in quizzesList" :key="q.id">
+                <tr @click="toggleQuizAccordion(String(q.id))" class="cursor-pointer hover:bg-white/5 transition-colors">
+                  <td class="font-bold text-white">
+                    <span class="inline-block mr-1 transition-transform duration-200" :style="expandedQuizId === String(q.id) ? 'transform: rotate(90deg)' : ''">▶</span>
+                    {{ q.title }}
+                  </td>
+                  <td>
+                    <span class="topic-badge" :class="'topic-' + q.topic">
+                      {{ formatTopic(q.topic) }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="diff-badge" :class="'diff-' + q.difficulty">
+                      {{ formatDifficulty(q.difficulty) }}
+                    </span>
+                  </td>
+                  <td class="font-mono text-amber-400 font-bold">💎 +{{ q.xpReward }} XP</td>
+                  <td class="font-mono text-slate-300">{{ q.questionCount }} câu</td>
+                  <td>
+                    <div class="flex justify-center gap-2" @click.stop>
+                      <button type="button" class="btn-action btn-action--edit" @click="editQuiz(q.id)" title="Chỉnh sửa">
+                        ✏️ Sửa
+                      </button>
+                      <button type="button" class="btn-action btn-action--delete" @click="deleteQuiz(q.id)" title="Xóa">
+                        🗑️ Xóa
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Accordion Row -->
+                <tr v-if="expandedQuizId === String(q.id)" class="accordion-row">
+                  <td colspan="6" class="accordion-cell">
+                    <div v-if="loadingDetail[String(q.id)]" class="loading-detail py-4">
+                      <div class="spinner spinner--sm"></div>
+                      <span>Đang tải danh sách câu hỏi...</span>
+                    </div>
+                    <div v-else-if="quizDetails[String(q.id)]" class="quiz-detail-panel animate-fade-in">
+                      <div class="flex justify-between items-center mb-4">
+                        <h4 class="detail-title text-indigo-400 font-bold m-0">📝 Chỉnh sửa câu hỏi con</h4>
+                        <button type="button" class="btn-add-inline" @click="addInlineQuestion(String(q.id))">
+                          ＋ Thêm câu hỏi mới
+                        </button>
+                      </div>
+
+                      <div v-if="quizDetails[String(q.id)].questions.length === 0" class="empty-state py-4 text-center">
+                        Bài trắc nghiệm này chưa có câu hỏi nào. Hãy thêm câu hỏi mới!
+                      </div>
+                      
+                      <div v-for="(subQ, qi) in quizDetails[String(q.id)].questions" :key="qi" class="sub-question-card">
+                        <div class="flex justify-between items-center mb-3">
+                          <span class="sub-q-num text-amber-400 font-bold">Câu hỏi {{ Number(qi) + 1 }}</span>
+                          <button type="button" class="btn-remove-inline" @click="removeInlineQuestion(String(q.id), Number(qi))">
+                            ✕ Xóa câu này
+                          </button>
+                        </div>
+
+                        <!-- Nhập câu hỏi -->
+                        <div class="form-row">
+                          <label class="form-label">Nội dung câu hỏi</label>
+                          <input v-model="subQ.text" class="form-input" placeholder="Nhập nội dung câu hỏi..." />
+                        </div>
+
+                        <!-- Các đáp án -->
+                        <div class="options-grid">
+                          <div v-for="(_, oi) in subQ.options" :key="oi" class="option-row">
+                            <input type="radio" :name="'correct-inline-' + String(q.id) + '-' + qi" :value="oi" v-model="subQ.correctIndex" />
+                            <input v-model="subQ.options[oi]" class="form-input form-input--sm" :placeholder="'Đáp án ' + String.fromCharCode(65 + Number(oi))" />
+                          </div>
+                        </div>
+
+                        <!-- Giải thích -->
+                        <div class="form-row">
+                          <label class="form-label">Giải thích đáp án đúng</label>
+                          <input v-model="subQ.explanation" class="form-input form-input--sm" placeholder="Giải thích vì sao đáp án này đúng..." />
+                        </div>
+                      </div>
+
+                      <div class="flex justify-end gap-2 mt-4">
+                        <button type="button" class="btn-save-inline" @click="saveInlineQuiz(String(q.id))" :disabled="savingDetail[String(q.id)]">
+                          {{ savingDetail[String(q.id)] ? 'Đang lưu...' : '💾 Lưu tất cả thay đổi' }}
+                        </button>
+                        <button type="button" class="btn-close-inline" @click="expandedQuizId = null">
+                          Đóng
+                        </button>
+                      </div>
+                      <p v-if="inlineError[String(q.id)]" class="text-rose-400 text-sm mt-2 text-right">
+                        {{ inlineError[String(q.id)] }}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
+import { useAuthStore } from '../features/auth/store/useAuthStore';
+import ExcelQuizImporter from '../features/quiz/components/ExcelQuizImporter.vue';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5055';
+const authStore = useAuthStore();
 
 interface QuestionForm {
   text: string;
@@ -89,6 +257,16 @@ interface QuestionForm {
   correctIndex: number;
   explanation: string;
 }
+
+const activeFormType = ref<'none' | 'manual' | 'excel'>('none');
+const isEditMode = ref(false);
+const editingQuizId = ref<string | null>(null);
+
+const expandedQuizId = ref<string | null>(null);
+const loadingDetail = ref<Record<string, boolean>>({});
+const savingDetail = ref<Record<string, boolean>>({});
+const quizDetails = ref<Record<string, any>>({});
+const inlineError = ref<Record<string, string>>({});
 
 const newQuiz = reactive({
   title: '',
@@ -102,16 +280,19 @@ const submitting = ref(false);
 const submitMessage = ref('');
 const submitError = ref(false);
 
+const quizzesList = ref<any[]>([]);
+const loadingQuizzes = ref(false);
+
 interface AnalyticsMetric {
   label: string;
   value: string | number;
 }
 
 const analyticsCards = ref<AnalyticsMetric[]>([
-  { label: 'Tổng Quiz', value: '—' },
-  { label: 'Lượt làm bài', value: '—' },
-  { label: 'Tỷ lệ đạt', value: '—' },
-  { label: 'Câu hỏi đã trả lời', value: '—' },
+  { label: 'Tổng số bài trắc nghiệm', value: '—' },
+  { label: 'Tổng số câu hỏi', value: '—' },
+  { label: 'Tổng số người dùng', value: '—' },
+  { label: 'Thành viên Premium', value: '—' },
 ]);
 
 function createEmptyQuestion(): QuestionForm {
@@ -126,18 +307,123 @@ function removeQuestion(index: number): void {
   newQuiz.questions.splice(index, 1);
 }
 
+function toggleForm(type: 'manual' | 'excel'): void {
+  if (activeFormType.value === type) {
+    activeFormType.value = 'none';
+    if (isEditMode.value) cancelEdit();
+  } else {
+    activeFormType.value = type;
+    if (type !== 'manual' && isEditMode.value) cancelEdit();
+  }
+}
+
+function cancelEdit(): void {
+  isEditMode.value = false;
+  editingQuizId.value = null;
+  activeFormType.value = 'none';
+  // Reset form
+  newQuiz.title = '';
+  newQuiz.topic = '';
+  newQuiz.difficulty = 'medium';
+  newQuiz.xpReward = 50;
+  newQuiz.questions = [createEmptyQuestion()];
+  submitMessage.value = '';
+}
+
+function getAuthHeaders() {
+  const token = authStore.getAccessToken() || '';
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
+
 async function loadAnalytics(): Promise<void> {
   try {
-    const res = await fetch(`${BASE_URL}/api/v1/concepts/quiz/analytics`);
+    const res = await fetch(`${BASE_URL}/api/v1/concepts/quiz/analytics`, {
+      headers: getAuthHeaders()
+    });
     if (!res.ok) return;
     const data = await res.json();
     analyticsCards.value = [
-      { label: 'Tổng Quiz', value: data.totalQuizzes },
-      { label: 'Lượt làm bài', value: data.totalAttempts },
-      { label: 'Tỷ lệ đạt', value: data.averagePassRate + '%' },
-      { label: 'Câu hỏi đã trả lời', value: data.totalQuestionsAnswered },
+      { label: 'Tổng số bài trắc nghiệm', value: data.totalQuizzes },
+      { label: 'Tổng số câu hỏi', value: data.totalQuestionsInBank },
+      { label: 'Tổng số người dùng', value: data.totalUsers },
+      { label: 'Thành viên Premium', value: data.premiumUsers },
     ];
   } catch { /* analytics is optional */ }
+}
+
+async function loadQuizzes(): Promise<void> {
+  loadingQuizzes.value = true;
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/concepts/quiz/all`, {
+      headers: getAuthHeaders()
+    });
+    if (res.ok) {
+      quizzesList.value = await res.json();
+    }
+  } catch (err) {
+    console.error('Lỗi khi tải danh sách quiz:', err);
+  } finally {
+    loadingQuizzes.value = false;
+  }
+}
+
+async function editQuiz(quizId: string): Promise<void> {
+  submitMessage.value = '';
+  submitError.value = false;
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/concepts/quiz/${quizId}`, {
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) {
+      throw new Error('Không thể tải chi tiết bài trắc nghiệm');
+    }
+    const data = await res.json();
+    
+    // Đổ dữ liệu vào form
+    newQuiz.title = data.title;
+    newQuiz.topic = data.topic;
+    newQuiz.difficulty = data.difficulty;
+    newQuiz.xpReward = data.xpReward;
+    newQuiz.questions = data.questions.map((q: any) => ({
+      text: q.text,
+      options: [...q.options],
+      correctIndex: q.correctIndex,
+      explanation: q.explanation ?? ''
+    }));
+
+    isEditMode.value = true;
+    editingQuizId.value = quizId;
+    activeFormType.value = 'manual';
+
+    // Cuộn lên form sửa
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (err: any) {
+    alert(err.message || 'Lỗi khi tải thông tin bài trắc nghiệm');
+  }
+}
+
+async function deleteQuiz(quizId: string): Promise<void> {
+  if (!confirm('Bạn có chắc chắn muốn xóa bài trắc nghiệm này không? Hành động này sẽ xóa vĩnh viễn dữ liệu khỏi hệ thống.')) {
+    return;
+  }
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/concepts/quiz/manage/${quizId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message ?? 'Xóa bài trắc nghiệm thất bại');
+    }
+    alert('Đã xóa bài trắc nghiệm thành công!');
+    await loadQuizzes();
+    await loadAnalytics();
+  } catch (err: any) {
+    alert(err.message || 'Lỗi không xác định khi xóa');
+  }
 }
 
 async function submitQuiz(): Promise<void> {
@@ -146,13 +432,13 @@ async function submitQuiz(): Promise<void> {
   submitError.value = false;
 
   const payload = {
-    id: '',
+    id: isEditMode.value ? editingQuizId.value : '',
     title: newQuiz.title,
     topic: newQuiz.topic,
     difficulty: newQuiz.difficulty,
     xpReward: newQuiz.xpReward,
     questions: newQuiz.questions.map((q, i) => ({
-      id: `custom-q${i + 1}`,
+      id: isEditMode.value ? `q${i + 1}` : `custom-q${i + 1}`,
       text: q.text,
       options: q.options,
       correctIndex: q.correctIndex,
@@ -161,21 +447,27 @@ async function submitQuiz(): Promise<void> {
   };
 
   try {
-    const res = await fetch(`${BASE_URL}/api/v1/concepts/quiz/manage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const url = isEditMode.value 
+      ? `${BASE_URL}/api/v1/concepts/quiz/manage/${editingQuizId.value}`
+      : `${BASE_URL}/api/v1/concepts/quiz/manage`;
+      
+    const res = await fetch(url, {
+      method: isEditMode.value ? 'PUT' : 'POST',
+      headers: getAuthHeaders(),
       body: JSON.stringify(payload),
     });
+    
     if (!res.ok) {
       const err = await res.json();
-      throw new Error(err.message ?? 'Thêm quiz thất bại');
+      throw new Error(err.message ?? (isEditMode.value ? 'Cập nhật bài trắc nghiệm thất bại' : 'Thêm bài trắc nghiệm thất bại'));
     }
-    submitMessage.value = 'Quiz đã được thêm thành công!';
-    newQuiz.title = '';
-    newQuiz.topic = '';
-    newQuiz.difficulty = 'medium';
-    newQuiz.xpReward = 50;
-    newQuiz.questions = [createEmptyQuestion()];
+    
+    submitMessage.value = isEditMode.value 
+      ? 'Bài trắc nghiệm đã được cập nhật thành công!'
+      : 'Bài trắc nghiệm đã được thêm thành công!';
+      
+    cancelEdit();
+    await loadQuizzes();
     await loadAnalytics();
   } catch (err: unknown) {
     submitError.value = true;
@@ -185,8 +477,143 @@ async function submitQuiz(): Promise<void> {
   }
 }
 
+async function toggleQuizAccordion(quizId: string): Promise<void> {
+  if (expandedQuizId.value === quizId) {
+    expandedQuizId.value = null;
+    return;
+  }
+  expandedQuizId.value = quizId;
+  if (!quizDetails.value[quizId]) {
+    await fetchQuizDetail(quizId);
+  }
+}
+
+async function fetchQuizDetail(quizId: string): Promise<void> {
+  loadingDetail.value[quizId] = true;
+  inlineError.value[quizId] = '';
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/concepts/quiz/${quizId}`, {
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) {
+      throw new Error('Không thể tải chi tiết câu hỏi');
+    }
+    const data = await res.json();
+    quizDetails.value[quizId] = data;
+  } catch (err: any) {
+    inlineError.value[quizId] = err.message || 'Lỗi khi tải chi tiết';
+  } finally {
+    loadingDetail.value[quizId] = false;
+  }
+}
+
+function addInlineQuestion(quizId: string): void {
+  const detail = quizDetails.value[quizId];
+  if (!detail) return;
+  detail.questions.push({
+    id: `inline-q-${Date.now()}`,
+    text: '',
+    options: ['', '', '', ''],
+    correctIndex: 0,
+    explanation: ''
+  });
+}
+
+function removeInlineQuestion(quizId: string, index: number): void {
+  const detail = quizDetails.value[quizId];
+  if (!detail) return;
+  detail.questions.splice(index, 1);
+}
+
+async function saveInlineQuiz(quizId: string): Promise<void> {
+  const detail = quizDetails.value[quizId];
+  if (!detail) return;
+
+  savingDetail.value[quizId] = true;
+  inlineError.value[quizId] = '';
+
+  // Validate phía client trước khi gửi lên backend
+  for (let i = 0; i < detail.questions.length; i++) {
+    const q = detail.questions[i];
+    if (!q.text || !q.text.trim()) {
+      inlineError.value[quizId] = `Hàng ${i + 1}: Câu hỏi không được để trống.`;
+      savingDetail.value[quizId] = false;
+      return;
+    }
+    if (!q.options[0] || !q.options[0].trim() || !q.options[1] || !q.options[1].trim()) {
+      inlineError.value[quizId] = `Hàng ${i + 1}: Thiếu đáp án bắt buộc A hoặc B.`;
+      savingDetail.value[quizId] = false;
+      return;
+    }
+    const validOpts = q.options.filter((o: string) => o && o.trim() !== '');
+    if (validOpts.length < 2) {
+      inlineError.value[quizId] = `Hàng ${i + 1}: Phải có ít nhất 2 đáp án.`;
+      savingDetail.value[quizId] = false;
+      return;
+    }
+    if (q.correctIndex < 0 || q.correctIndex >= q.options.length || !q.options[q.correctIndex] || !q.options[q.correctIndex].trim()) {
+      inlineError.value[quizId] = `Hàng ${i + 1}: Đáp án đúng không hợp lệ hoặc trỏ vào ô rỗng.`;
+      savingDetail.value[quizId] = false;
+      return;
+    }
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/concepts/quiz/manage/${quizId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(detail),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || 'Cập nhật bài trắc nghiệm thất bại');
+    }
+
+    alert('Đã cập nhật các câu hỏi con thành công!');
+    expandedQuizId.value = null;
+    await loadQuizzes();
+    await loadAnalytics();
+  } catch (err: any) {
+    inlineError.value[quizId] = err.message || 'Lỗi khi lưu thay đổi';
+  } finally {
+    savingDetail.value[quizId] = false;
+  }
+}
+
+function onImportSuccess(): void {
+  alert('Nhập danh sách trắc nghiệm từ Excel thành công!');
+  activeFormType.value = 'none';
+  loadQuizzes();
+  loadAnalytics();
+}
+
+function formatTopic(topic: string): string {
+  const map: Record<string, string> = {
+    'sorting': 'Sắp xếp',
+    'graph': 'Đồ thị',
+    'oop': 'Hướng đối tượng',
+    'solid': 'Nguyên lý SOLID',
+    'di': 'DI/IoC',
+    'array': 'Mảng',
+    'linked-list': 'Danh sách liên kết',
+    'design-patterns': 'Mẫu thiết kế'
+  };
+  return map[topic] || topic;
+}
+
+function formatDifficulty(diff: string): string {
+  const map: Record<string, string> = {
+    'easy': 'Dễ',
+    'medium': 'Trung bình',
+    'hard': 'Khó'
+  };
+  return map[diff] || diff;
+}
+
 onMounted(() => {
   loadAnalytics();
+  loadQuizzes();
 });
 </script>
 
@@ -221,6 +648,12 @@ onMounted(() => {
   font-size: 1.1rem;
   color: var(--text-primary, #e2e8f0);
   margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.subsection-heading {
+  font-size: 1rem;
+  color: var(--text-secondary, #94a3b8);
   font-weight: 500;
 }
 
@@ -265,6 +698,16 @@ onMounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   padding: 1.5rem;
+}
+
+.form-title-context {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #818cf8;
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 0.5rem;
 }
 
 .form-row {
@@ -338,6 +781,7 @@ onMounted(() => {
   background: transparent;
   color: #818cf8;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .btn-add-q:hover {
@@ -393,7 +837,9 @@ onMounted(() => {
 /* ── Actions ───────────────────────────── */
 .form-actions {
   margin-top: 1.5rem;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
 }
 
 .btn-submit {
@@ -405,7 +851,7 @@ onMounted(() => {
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, box-shadow 0.15s;
 }
 
 .btn-submit:disabled {
@@ -417,6 +863,65 @@ onMounted(() => {
   box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
 }
 
+.btn-cancel {
+  padding: 0.7rem 2rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-toggle-form {
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-toggle-form:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.btn-toggle-form--active {
+  background: linear-gradient(135deg, #6366f1, #a855f7) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+
+.btn-toggle-form--excel {
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.25);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.btn-toggle-form--excel:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .submit-message {
   margin-top: 0.75rem;
   font-size: 0.85rem;
@@ -426,6 +931,139 @@ onMounted(() => {
 .submit-message--error {
   color: #f87171;
 }
+
+/* ── Quizzes List Table ────────────────── */
+.quizzes-list-container {
+  margin-top: 2rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.quizzes-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.quizzes-table th {
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary, #94a3b8);
+  font-weight: 600;
+}
+
+.quizzes-table td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-primary, #e2e8f0);
+}
+
+.quizzes-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+/* Badges */
+.topic-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+}
+.topic-sorting { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+.topic-graph { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+.topic-oop { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
+.topic-solid { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.topic-di { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+
+.diff-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.diff-easy { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.diff-medium { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.diff-hard { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+.btn-action {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+  background: transparent;
+}
+.btn-action--edit {
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+.btn-action--edit:hover {
+  background: rgba(245, 158, 11, 0.1);
+}
+.btn-action--delete {
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+.btn-action--delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Loading & Empty States */
+.loading-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.95rem;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.flex { display: flex; }
+.flex-wrap { flex-wrap: wrap; }
+.justify-between { justify-content: space-between; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+.m-0 { margin: 0; }
+.font-bold { font-weight: 700; }
+.text-white { color: #fff; }
+.text-center { text-align: center; }
+.font-mono { font-family: monospace; }
+.text-amber-400 { color: #fbbf24; }
+.text-slate-300 { color: #cbd5e1; }
 
 /* ── Responsive ─────────────────────── */
 @media (max-width: 768px) {
@@ -439,5 +1077,172 @@ onMounted(() => {
 @media (max-width: 480px) {
   .analytics-grid { grid-template-columns: 1fr; }
   .metric-card__value { font-size: 1.4rem; }
+}
+
+/* ── Accordion & Inline CRUD ────────── */
+.cursor-pointer {
+  cursor: pointer;
+}
+.inline-block {
+  display: inline-block;
+}
+.mr-1 {
+  margin-right: 0.25rem;
+}
+.transition-transform {
+  transition-property: transform;
+}
+.duration-200 {
+  transition-duration: 200ms;
+}
+
+.accordion-row {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.accordion-cell {
+  padding: 1.5rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.quiz-detail-panel {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.sub-question-card {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.sub-question-card:last-child {
+  margin-bottom: 0;
+}
+
+.btn-add-inline {
+  font-size: 0.8rem;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  background: transparent;
+  color: #34d399;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.btn-add-inline:hover {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: #10b981;
+}
+
+.btn-remove-inline {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: transparent;
+  color: #f87171;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.btn-remove-inline:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+}
+
+.btn-save-inline {
+  padding: 0.5rem 1.5rem;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+
+.btn-save-inline:hover {
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
+}
+
+.btn-save-inline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-close-inline {
+  padding: 0.5rem 1.5rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-close-inline:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.loading-detail {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.9rem;
+}
+
+.spinner--sm {
+  width: 16px !important;
+  height: 16px !important;
+  border-width: 2px !important;
+}
+
+.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.text-rose-400 {
+  color: #fb7185;
+}
+
+.text-indigo-400 {
+  color: #818cf8;
+}
+
+.text-amber-400 {
+  color: #fbbf24;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.mb-3 {
+  margin-bottom: 0.75rem;
 }
 </style>

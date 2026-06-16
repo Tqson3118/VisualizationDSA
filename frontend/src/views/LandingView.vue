@@ -6,7 +6,7 @@
       <div class="hero__content">
         <h1 class="hero__title">
           <span class="hero__prefix">~/</span>
-          <span class="hero__name">AlgoLens</span>
+          <span class="hero__name">VisualizationDSA</span>
         </h1>
         <p class="hero__tagline">
           Nền tảng trực quan hóa

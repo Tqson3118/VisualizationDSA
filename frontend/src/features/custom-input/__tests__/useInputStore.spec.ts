@@ -17,9 +17,9 @@ describe('useInputStore', () => {
       expect(store.rawText).toBe('');
     });
 
-    it('has default maxLimit of 50', () => {
+    it('has default maxLimit of 15', () => {
       const store = useInputStore();
-      expect(store.maxLimit).toBe(50);
+      expect(store.maxLimit).toBe(15);
     });
 
     it('starts not loading', () => {

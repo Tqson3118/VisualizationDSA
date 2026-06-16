@@ -2,9 +2,9 @@ import type { ThreadInstance } from '../types/concurrency.types';
 
 export function threadLabelClass(thread: ThreadInstance): string {
   switch (thread.state) {
-    case 'RUNNING':  return 'bg-accent-cyan/50 text-accent-cyan border border-accent-cyan/50';
-    case 'BLOCKED':  return 'bg-accent-yellow/50 text-accent-yellow border border-accent-yellow/50';
-    case 'FINISHED': return 'bg-accent-green/50 text-accent-green border border-accent-green/50';
+    case 'RUNNING':  return 'bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/30';
+    case 'BLOCKED':  return 'bg-accent-yellow/15 text-accent-yellow border border-accent-yellow/30';
+    case 'FINISHED': return 'bg-accent-green/15 text-accent-green border border-accent-green/30';
     default: return 'bg-bg-surface text-text-secondary border border-border-default';
   }
 }

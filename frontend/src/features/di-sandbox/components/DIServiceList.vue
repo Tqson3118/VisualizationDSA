@@ -1,5 +1,5 @@
 <template>
-  <div class="service-list-panel border border-border-subtle rounded-xl p-4">
+  <div class="service-list-panel border border-border-subtle rounded-xl p-4" data-tour-id="di-container-visualizer">
     <div class="flex items-center justify-between mb-4">
       <div class="text-[11px] font-bold uppercase tracking-wider text-text-secondary flex items-center gap-2">
         <svg class="w-4 h-4 text-accent-green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

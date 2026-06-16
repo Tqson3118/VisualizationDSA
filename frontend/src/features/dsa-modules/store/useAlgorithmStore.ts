@@ -13,6 +13,7 @@ export const useAlgorithmStore = defineStore('algorithm', () => {
   const isLoading = ref<boolean>(false);
   const error = ref<string>('');
   const searchQuery = ref<string>('');
+  const viewMode = ref<'simulation' | 'theory'>('simulation');
 
   const filteredAlgorithms = computed<Algorithm[]>(() => {
     if (!searchQuery.value.trim()) return algorithms.value;
@@ -57,24 +58,30 @@ export const useAlgorithmStore = defineStore('algorithm', () => {
     }
   }
 
-  function selectAlgorithm(algo: Algorithm): void {
+  function selectAlgorithm(algo: Algorithm, mode: 'simulation' | 'theory' = 'simulation'): void {
     currentAlgorithm.value = algo;
     metadata.value = LOCAL_METADATA[algo.id] ?? null;
+    viewMode.value = mode;
   }
 
   function clearActive(): void {
     currentAlgorithm.value = null;
     metadata.value = null;
     error.value = '';
+    viewMode.value = 'simulation';
   }
 
   function setSearchQuery(query: string): void {
     searchQuery.value = query;
   }
 
+  function setViewMode(mode: 'simulation' | 'theory'): void {
+    viewMode.value = mode;
+  }
+
   return {
-    algorithms, currentAlgorithm, metadata, isLoading, error, searchQuery,
+    algorithms, currentAlgorithm, metadata, isLoading, error, searchQuery, viewMode,
     filteredAlgorithms, categories,
-    fetchAlgorithms, loadAlgorithmDetails, selectAlgorithm, clearActive, setSearchQuery,
+    fetchAlgorithms, loadAlgorithmDetails, selectAlgorithm, clearActive, setSearchQuery, setViewMode,
   };
 });

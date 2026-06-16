@@ -17,6 +17,7 @@
           @click="store.setAlgorithmMode(true)"
           :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5', store.isAlgorithmMode ? 'bg-accent-cyan text-white shadow-[0_0_12px_rgba(6,182,212,0.3)]' : 'text-text-muted hover:text-text-primary']"
           :disabled="store.nodes.length === 0"
+          data-tour-id="graph-algo-trigger"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="5 3 19 12 5 21 5 3" />
@@ -32,6 +33,7 @@
             v-for="tool in tools"
             :key="tool.mode"
             @click="store.setMode(tool.mode)"
+            :data-tour-id="'graph-tool-' + tool.mode.toLowerCase().replace('_', '-')"
             :class="['px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1', store.mode === tool.mode ? 'bg-accent-emerald text-white shadow-[0_0_8px_rgba(16,185,129,0.35)]' : 'text-text-muted hover:text-text-primary']"
             :title="tool.title"
           >
@@ -44,13 +46,14 @@
         </div>
       </div>
 
-      <div v-else class="flex flex-wrap items-center justify-center gap-4">
+      <div v-else class="flex flex-wrap items-center justify-center gap-3">
         <!-- Algorithm dropdown -->
         <div class="flex items-center gap-2">
           <span class="text-xs text-text-secondary font-semibold">Giải thuật:</span>
           <select
             :value="store.selectedAlgorithm"
             @change="store.setSelectedAlgorithm(($event.target as HTMLSelectElement).value as any)"
+            data-tour-id="graph-algorithm-select"
             class="bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-text-primary font-bold outline-none cursor-pointer hover:border-white/20 transition-all"
           >
             <option value="BFS" class="bg-bg-secondary text-text-primary">BFS (Chiều rộng)</option>
@@ -65,6 +68,7 @@
           <select
             :value="store.sourceNodeId || ''"
             @change="store.setSourceNodeId(($event.target as HTMLSelectElement).value || null)"
+            data-tour-id="graph-source-node-select"
             class="bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-text-primary font-bold outline-none cursor-pointer hover:border-white/20 transition-all font-mono"
           >
             <option value="" disabled class="bg-bg-secondary text-text-muted">Chọn đỉnh...</option>
@@ -81,6 +85,7 @@
           @click="store.togglePhysics()"
           :class="['p-2 rounded-lg border cursor-pointer transition-all duration-200', store.isPhysicsEnabled ? 'bg-accent-emerald/15 border-accent-emerald/30 text-accent-emerald shadow-[0_0_8px_rgba(16,185,129,0.2)]' : 'bg-white/5 border-white/5 text-text-muted hover:text-text-primary hover:border-white/10']"
           title="Bật/tắt lực đẩy vật lý"
+          data-tour-id="physics-toggle"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
@@ -89,6 +94,7 @@
 
         <button
           @click="store.clearAll()"
+          data-tour-id="graph-clear-btn"
           class="p-2 rounded-lg bg-white/5 border border-white/5 text-accent-red hover:bg-accent-red/10 hover:border-accent-red/20 cursor-pointer transition-all duration-200"
           title="Xóa toàn bộ đồ thị"
         >
@@ -99,7 +105,10 @@
 
         <div class="w-px h-5 bg-white/10 mx-0.5"></div>
 
-        <label class="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/5 text-text-secondary hover:text-text-primary hover:bg-white/10 hover:border-white/10 text-xs font-semibold cursor-pointer transition-all flex items-center gap-1 select-none">
+        <label
+          data-tour-id="graph-import-label"
+          class="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/5 text-text-secondary hover:text-text-primary hover:bg-white/10 hover:border-white/10 text-xs font-semibold cursor-pointer transition-all flex items-center gap-1 select-none"
+        >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
           </svg>
@@ -109,6 +118,7 @@
 
         <button
           @click="exportGraph"
+          data-tour-id="graph-export-btn"
           class="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/5 text-text-secondary hover:text-text-primary hover:bg-white/10 hover:border-white/10 text-xs font-semibold cursor-pointer transition-all flex items-center gap-1"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -132,7 +142,7 @@
     </div>
 
     <!-- Center Canvas Area -->
-    <div class="relative flex-1 min-h-[200px] overflow-hidden" ref="canvasAreaRef">
+    <div class="relative flex-1 min-h-[200px] overflow-hidden" ref="canvasAreaRef" data-tour-id="graph-canvas">
       <!-- Onboarding guide overlay -->
       <div v-if="store.nodes.length === 0 && !store.isAlgorithmMode" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10 p-6 text-center">
         <div class="max-w-md bg-bg-secondary/75 backdrop-blur-lg border border-white/10 p-6 rounded-2xl shadow-2xl transition-all select-none">
@@ -256,7 +266,7 @@ const showToast = (message: string, type: 'info' | 'error' | 'success' = 'info')
   toastTimer = setTimeout(() => { toast.value.visible = false; }, 3000);
 };
 
-const onWeightInput = (payload: any) => {
+const onWeightInput = (payload: { edgeId: string; x: number; y: number; currentWeight: number }) => {
   const area = canvasAreaRef.value;
   if (!area) return;
   const rect = area.getBoundingClientRect();
@@ -324,7 +334,7 @@ const runSimulation = () => {
   animStore.loadResult({
     algorithmId: result.algorithmId,
     pseudoCode: result.pseudoCode,
-    frames: result.frames as any
+    frames: result.frames
   });
 };
 

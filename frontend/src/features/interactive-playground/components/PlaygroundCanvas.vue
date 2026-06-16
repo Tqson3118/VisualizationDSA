@@ -38,7 +38,7 @@ const physicsEngine = new ForceDirectedEngine();
 let animFrameId = 0;
 
 const dragState = ref({ nodeId: null as string | null, offsetX: 0, offsetY: 0, isDragging: false });
-const edgeDrawState = ref({ fromNodeId: null as string | null, mouseX: 0, mouseY: 0, snapTarget: null as any });
+const edgeDrawState = ref({ fromNodeId: null as string | null, mouseX: 0, mouseY: 0, snapTarget: null as import('../store/usePlaygroundStore').NodeDTO | null });
 
 const emit = defineEmits<{
   (e: 'weight-input', payload: { edgeId: string; x: number; y: number; currentWeight: number }): void;

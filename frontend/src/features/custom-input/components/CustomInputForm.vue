@@ -20,7 +20,7 @@
         <span :class="counterClasses">{{ inputStore.elementCount }} / {{ inputStore.maxLimit }} phần tử</span>
         <span v-if="statusText" :class="statusClasses">{{ statusText }}</span>
       </div>
-      <div v-if="errorText" class="text-[11px] font-mono text-accent-red">{{ errorText }}</div>
+      <div v-if="errorText" class="text-[11px] font-mono" :class="formState === 'limit-error' ? 'text-accent-yellow' : 'text-accent-red'">{{ errorText }}</div>
       <div v-if="inputStore.apiErrorMessage" class="text-[11px] font-mono text-accent-red">{{ inputStore.apiErrorMessage }}</div>
     </div>
 
@@ -66,7 +66,7 @@ import { useCustomInputForm } from '../composables/useCustomInputForm';
 
 const {
   inputStore, showDropdown, dropdownRef, generationOptions,
-  textareaClasses, counterClasses, statusText, statusClasses, errorText, executeButtonClasses,
+  formState, textareaClasses, counterClasses, statusText, statusClasses, errorText, executeButtonClasses,
   onGenerate, onExecute, onKeydown,
 } = useCustomInputForm();
 </script>

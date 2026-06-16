@@ -1,6 +1,15 @@
 import { GraphGeometryEngine } from '../engine/GraphGeometryEngine';
 import type { NodeDTO, EdgeDTO } from '../store/usePlaygroundStore';
 
+/** Subset of graph algorithm frame data used by the canvas renderer */
+interface GraphAnimationFrame {
+  visitedEdges?: string[];
+  activeNodes?: string[];
+  visitedNodes?: string[];
+  shortestDistances?: Record<string, number>;
+  distances?: Record<string, number>;
+}
+
 export function drawPlayground(
   ctx: CanvasRenderingContext2D,
   nodes: NodeDTO[],
@@ -8,7 +17,7 @@ export function drawPlayground(
   selectedNodeId: string | null,
   selectedEdgeId: string | null,
   edgeDrawState: { fromNodeId: string | null; mouseX: number; mouseY: number; snapTarget: NodeDTO | null },
-  activeFrame?: any,
+  activeFrame?: GraphAnimationFrame | null,
   selectedAlgorithm?: string,
   hoveredNodeId?: string | null,
   hoveredEdgeId?: string | null

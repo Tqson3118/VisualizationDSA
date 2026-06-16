@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-2">
+  <div class="space-y-2" data-tour-id="vcr-input-bar">
     <label class="text-[10px] uppercase tracking-wider text-text-muted font-medium">Input Array</label>
     <div class="flex gap-2">
       <div class="flex-1 relative">
@@ -8,7 +8,7 @@
           type="text"
           placeholder="45, 12, 85, 32, 9, 60"
           @input="$emit('update:rawInputArray', ($event.target as HTMLInputElement).value)"
-          class="w-full bg-bg-primary border border-border-default/50 rounded-lg px-3 py-2 text-sm font-mono text-text-secondary placeholder-slate-600 focus:border-accent-cyan/50 focus:outline-none transition-colors"
+          class="vcr-array-input w-full bg-bg-primary border border-border-default/50 rounded-lg px-3 py-2 text-sm font-mono text-text-secondary placeholder-slate-600 focus:border-accent-cyan/50 focus:outline-none transition-colors"
         />
       </div>
       <button @click="$emit('randomize')" class="px-3 py-2 bg-bg-surface hover:bg-bg-active text-text-secondary rounded-lg text-xs font-medium transition-colors">

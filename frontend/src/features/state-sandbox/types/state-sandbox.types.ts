@@ -1,8 +1,8 @@
 export interface StackFrame3D {
   id: string;
   functionName: string;
-  params: Array<{ name: string; value: any }>;
-  localVars: Array<{ name: string; value: any; isPointer: boolean }>;
+  params: Array<{ name: string; value: unknown }>;
+  localVars: Array<{ name: string; value: unknown; isPointer: boolean }>;
   depth: number;
   position: { x: number; y: number; z: number };
   size: { width: number; height: number };
@@ -12,7 +12,7 @@ export interface HeapNode3D {
   id: string;
   type: string;
   size: number;
-  data: any;
+  data: unknown;
   position: { x: number; y: number };
   references: number;
 }
@@ -56,8 +56,8 @@ export interface DSLCommand {
 export interface StackFrame {
   id: string;
   functionName: string;
-  parameters: Record<string, any>;
-  localVars: Record<string, any>;
+  parameters: Record<string, unknown>;
+  localVars: Record<string, unknown>;
   depth: number;
 }
 
@@ -65,7 +65,7 @@ export interface HeapObject {
   id: string;
   type: string;
   size: number;
-  data: any;
+  data: unknown;
   references: number;
 }
 

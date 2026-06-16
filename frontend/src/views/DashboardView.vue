@@ -14,6 +14,53 @@
 
     <!-- Dashboard Grid -->
     <div class="dashboard__grid">
+
+
+      <!-- ══════════════════════════════════════════
+           QUICK START GUIDE (new)
+      ══════════════════════════════════════════ -->
+      <div class="dash-card quickstart-card">
+        <h3 class="dash-card__title">🎯 Bắt Đầu Nhanh</h3>
+        <p class="quickstart-intro">Bạn mới đến? Hãy bắt đầu từ đây:</p>
+        <div class="quickstart-steps">
+          <router-link to="/sorting" class="quickstart-item">
+            <span class="quickstart-item__number">1</span>
+            <div class="quickstart-item__content">
+              <span class="quickstart-item__title">Xem mô phỏng Bubble Sort</span>
+              <span class="quickstart-item__desc">Hiểu cách sắp xếp nổi bọt hoạt động qua hoạt ảnh trực quan</span>
+            </div>
+            <span class="quickstart-item__arrow">→</span>
+          </router-link>
+          <router-link to="/quiz" class="quickstart-item">
+            <span class="quickstart-item__number">2</span>
+            <div class="quickstart-item__content">
+              <span class="quickstart-item__title">Thử quiz DSA cơ bản</span>
+              <span class="quickstart-item__desc">Kiểm tra kiến thức thuật toán qua trắc nghiệm tương tác</span>
+            </div>
+            <span class="quickstart-item__arrow">→</span>
+          </router-link>
+          <router-link to="/graph" class="quickstart-item">
+            <span class="quickstart-item__number">3</span>
+            <div class="quickstart-item__content">
+              <span class="quickstart-item__title">Khám phá cấu trúc Đồ thị</span>
+              <span class="quickstart-item__desc">Vẽ đồ thị, chạy BFS/DFS và Dijkstra trực tiếp trên canvas</span>
+            </div>
+            <span class="quickstart-item__arrow">→</span>
+          </router-link>
+          <router-link to="/oop" class="quickstart-item">
+            <span class="quickstart-item__number">4</span>
+            <div class="quickstart-item__content">
+              <span class="quickstart-item__title">Tìm hiểu OOP trực quan</span>
+              <span class="quickstart-item__desc">Xem VTable, Heap và tính kế thừa hoạt động bên trong</span>
+            </div>
+            <span class="quickstart-item__arrow">→</span>
+          </router-link>
+        </div>
+        <button class="quickstart-tour-btn" @click="startSortingTour">
+          📖 Xem hướng dẫn đầy đủ
+        </button>
+      </div>
+
       <!-- XP Progress Wheel -->
       <div class="dash-card xp-card">
         <h3 class="dash-card__title">Tiến trình XP</h3>
@@ -80,31 +127,19 @@
           </router-link>
         </div>
       </div>
-      <!-- WebGPU Engine Status -->
-      <div class="dash-card webgpu-card">
-        <h3 class="dash-card__title">Công nghệ đồ họa</h3>
-        <div class="webgpu-status">
-          <span :class="['webgpu-badge', webGpuReady ? 'webgpu-badge--ready' : 'webgpu-badge--unavailable']">
-            {{ webGpuReady ? '⚡ WebGPU Engine: READY' : '⚠ WebGPU: Không khả dụng' }}
-          </span>
-          <p class="webgpu-adapter" v-if="webGpuAdapterName">
-            GPU: {{ webGpuAdapterName }}
-          </p>
-          <p class="webgpu-hint">
-            {{ webGpuReady ? 'Sẵn sàng tăng tốc GPU cho trực quan hóa đồ thị' : webGpuError }}
-          </p>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../features/auth/store/useAuthStore';
-import { probeWebGpu } from '../core/WebGpuPipeline';
+import { useGuidedTourStore } from '../features/guided-tour/store/useGuidedTourStore';
 
 const authStore = useAuthStore();
+const tourStore = useGuidedTourStore();
+const router = useRouter();
 
 const levelThresholds = [0, 100, 300, 600, 1000, 1500, 2200, 3000];
 const circumference = 2 * Math.PI * 52;
@@ -147,17 +182,10 @@ const topBadges = computed<BadgeDisplay[]>(() => {
   });
 });
 
-// ── WebGPU probe ─────────────────────────
-const webGpuReady = ref(false);
-const webGpuAdapterName = ref('');
-const webGpuError = ref('');
-
-onMounted(async () => {
-  const result = await probeWebGpu();
-  webGpuReady.value = result.supported;
-  webGpuAdapterName.value = result.adapterName;
-  webGpuError.value = result.error ?? '';
-});
+async function startSortingTour() {
+  await router.push('/sorting');
+  tourStore.startPageTour('/sorting', true);
+}
 </script>
 
 <style scoped>
@@ -221,7 +249,7 @@ onMounted(async () => {
 /* ── Grid ───────────────────────────────── */
 .dashboard__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1.5rem;
 }
 
@@ -238,6 +266,104 @@ onMounted(async () => {
   color: var(--text-secondary, #94a3b8);
   margin-bottom: 1rem;
   font-weight: 500;
+}
+
+/* ══════════════════════════════════════════
+   QUICK START CARD (NEW)
+   ══════════════════════════════════════════ */
+.quickstart-card {
+  grid-column: 1 / -1;
+}
+
+.quickstart-intro {
+  font-size: 0.85rem;
+  color: var(--text-tertiary, #64748b);
+  margin-bottom: 1rem;
+}
+
+.quickstart-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.75rem;
+}
+
+.quickstart-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.quickstart-item:hover {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.2);
+  transform: translateY(-1px);
+}
+
+.quickstart-item__number {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.15));
+  color: #818cf8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quickstart-item__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.quickstart-item__title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.quickstart-item__desc {
+  font-size: 0.7rem;
+  color: var(--text-tertiary, #64748b);
+  line-height: 1.3;
+}
+
+.quickstart-item__arrow {
+  color: var(--text-disabled, #334155);
+  font-size: 0.9rem;
+  transition: color 0.15s ease;
+}
+
+.quickstart-item:hover .quickstart-item__arrow {
+  color: #818cf8;
+}
+
+.quickstart-tour-btn {
+  margin-top: 1rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #818cf8;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quickstart-tour-btn:hover {
+  background: rgba(99, 102, 241, 0.18);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.15);
 }
 
 /* ── XP Wheel ──────────────────────────── */
@@ -352,64 +478,13 @@ onMounted(async () => {
   font-size: 1.1rem;
 }
 
-/* ── WebGPU Badge ──────────────────── */
-.webgpu-card {
-  text-align: center;
-}
-
-.webgpu-status {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.webgpu-badge {
-  display: inline-block;
-  padding: 0.5rem 1.25rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  font-family: var(--font-mono, 'JetBrains Mono', monospace);
-  letter-spacing: 0.5px;
-}
-
-.webgpu-badge--ready {
-  background: rgba(52, 211, 153, 0.12);
-  color: #34d399;
-  border: 1px solid rgba(52, 211, 153, 0.3);
-  box-shadow: 0 0 12px rgba(52, 211, 153, 0.2), 0 0 24px rgba(52, 211, 153, 0.08);
-  animation: gpuGlow 2s ease-in-out infinite alternate;
-}
-
-.webgpu-badge--unavailable {
-  background: rgba(251, 191, 36, 0.1);
-  color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.2);
-}
-
-@keyframes gpuGlow {
-  from { box-shadow: 0 0 8px rgba(52, 211, 153, 0.15), 0 0 16px rgba(52, 211, 153, 0.05); }
-  to   { box-shadow: 0 0 16px rgba(52, 211, 153, 0.3), 0 0 32px rgba(52, 211, 153, 0.12); }
-}
-
-.webgpu-adapter {
-  font-size: 0.8rem;
-  font-family: var(--font-mono, 'JetBrains Mono', monospace);
-  color: var(--text-secondary, #94a3b8);
-}
-
-.webgpu-hint {
-  font-size: 0.8rem;
-  color: var(--text-tertiary, #64748b);
-}
-
 /* ── Responsive ─────────────────────── */
 @media (max-width: 768px) {
   .dashboard { padding: 1rem; }
   .dashboard__grid { gap: 1rem; grid-template-columns: 1fr; }
   .dash-card { padding: 1rem; }
   .xp-wheel { width: 110px; height: 110px; }
+  .quickstart-steps { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {

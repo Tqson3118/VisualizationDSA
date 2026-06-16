@@ -52,8 +52,14 @@ export class GraphParser {
     try {
       const parsed = JSON.parse(jsonStr);
       if (!Array.isArray(parsed.nodes) || !Array.isArray(parsed.edges)) return null;
-      const nodes: NodeDTO[] = parsed.nodes.map((n: any) => ({ id: String(n.id), label: String(n.label), x: Number(n.x), y: Number(n.y), radius: Number(n.radius) || 20 }));
-      const edges: EdgeDTO[] = parsed.edges.map((e: any) => ({ id: String(e.id), from: String(e.from), to: String(e.to), weight: Number(e.weight) || 1 }));
+      const nodes: NodeDTO[] = parsed.nodes.map((n: unknown) => {
+        const r = n as Record<string, unknown>;
+        return { id: String(r.id), label: String(r.label), x: Number(r.x), y: Number(r.y), radius: Number(r.radius) || 20 };
+      });
+      const edges: EdgeDTO[] = parsed.edges.map((e: unknown) => {
+        const r = e as Record<string, unknown>;
+        return { id: String(r.id), from: String(r.from), to: String(r.to), weight: Number(r.weight) || 1 };
+      });
       return { nodes, edges };
     } catch {
       return null;

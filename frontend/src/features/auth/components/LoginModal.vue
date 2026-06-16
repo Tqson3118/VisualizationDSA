@@ -19,7 +19,7 @@
             <div class="form-group">
               <label class="form-label" for="auth-email">Email</label>
               <input id="auth-email" v-model="email" type="email" required autocomplete="email"
-                class="form-input" placeholder="demo@algolens.dev" />
+                class="form-input" placeholder="demo@visualizationdsa.dev" />
             </div>
 
             <div v-if="isRegisterMode" class="form-group">
@@ -50,7 +50,7 @@
           <!-- Demo credentials -->
           <div class="demo-info">
             <span class="demo-label">Demo:</span>
-            <code class="demo-code">demo@algolens.dev</code> / <code class="demo-code">Demo@2024</code>
+            <code class="demo-code">demo@visualizationdsa.dev</code> / <code class="demo-code">Demo@2024</code>
           </div>
         </div>
       </div>

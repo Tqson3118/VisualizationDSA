@@ -6,6 +6,7 @@
   -->
   <div
     class="visualizer-canvas-container relative w-full h-full rounded-[18px] overflow-hidden flex flex-col"
+    data-tour-id="dsa-simulation-tab"
   >
     <!-- Background grid -->
     <div class="canvas-grid absolute inset-0 opacity-[0.18] pointer-events-none [mask-image:radial-gradient(ellipse_65%_55%_at_50%_50%,#000_60%,transparent_100%)]" />

@@ -14,8 +14,14 @@
           ? 'bg-accent-red/50 text-accent-red border border-accent-red/40'
           : 'bg-accent-green/50 text-accent-green border border-accent-green/40'"
       >
-        {{ isViolating ? 'DIRECT COUPLING' : 'INVERTED' }}
+        {{ isViolating ? 'DIRECT COUPLING (Ghép nối trực tiếp ❌)' : 'INVERTED (Đảo ngược ✅)' }}
       </span>
+    </div>
+
+    <!-- DIP Explanation Panel -->
+    <div class="p-3.5 rounded-xl bg-bg-secondary/40 border border-white/5 backdrop-blur-md text-xs text-text-secondary leading-relaxed">
+      <span class="font-bold text-text-primary">💡 Nguyên lý Đảo ngược Phụ thuộc (DIP):</span> Module cấp cao không nên phụ thuộc trực tiếp vào các module cấp thấp. Cả hai nên phụ thuộc vào sự trừu tượng (Interface).
+      <br><span class="mt-1 block text-[11px] text-text-disabled">👉 Bấm <b>Chèn Interface trừu tượng</b> để ngắt ghép nối trực tiếp giữa OrderService (Module cao) và MySQLDatabase (Module thấp) thông qua IDatabase Interface!</span>
     </div>
 
     <!-- Neon Flowing Path -->

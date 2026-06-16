@@ -35,6 +35,7 @@
         </div>
         <!-- Index label below bar -->
         <div
+          v-if="itemCount <= 12"
           class="mt-1 font-mono font-bold shrink-0"
           :style="{ fontSize: indexFontSize }"
           :class="getIndexClass(idx)"

@@ -1,39 +1,86 @@
 import type { FrameDTO } from '../../animation-engine/types/animation.types';
+import { CANVAS_COLORS, CANVAS_LAYOUT, hexToRgba } from '../../../core/renderers/canvasTheme';
 
 export interface BarPosition {
   x: number;
   targetX: number;
 }
 
-export const COLOR_DEFAULT = '#38BDF8';
-export const COLOR_COMPARE = '#FBBF24';
-export const COLOR_SWAP = '#EF4444';
-export const COLOR_SORTED = '#10B981';
-export const COLOR_TEXT = '#FFFFFF';
-
-export const GAP = 6;
-export const MARGIN = 30;
-export const MARGIN_BOTTOM = 30;
-export const PADDING_TOP = 50;
-
 export const easeOut = (t: number): number => 1 - (1 - t) ** 3;
 export const lerp = (start: number, end: number, t: number): number => start + (end - start) * t;
 
+export const getDynamicGap = (n: number): number => {
+  return Math.max(2, Math.min(6, 120 / n));
+};
+
 export const calculateColumnWidth = (n: number, canvasW: number): number => {
-  return n <= 0 ? 0 : (canvasW - GAP * (n - 1) - MARGIN * 2) / n;
+  if (n <= 0) return 0;
+  const gap = getDynamicGap(n);
+  return (canvasW - gap * (n - 1) - CANVAS_LAYOUT.margin * 2) / n;
 };
 
 export const calculateColumnHeight = (value: number, maxValue: number, canvasH: number): number => {
-  return maxValue <= 0 ? 0 : (value / maxValue) * (canvasH - PADDING_TOP - MARGIN_BOTTOM);
+  return maxValue <= 0 ? 0 : (value / maxValue) * (canvasH - CANVAS_LAYOUT.paddingTop - CANVAS_LAYOUT.marginBottom);
 };
 
-export const calculateX = (index: number, columnWidth: number): number => MARGIN + index * (columnWidth + GAP);
+export const calculateX = (index: number, columnWidth: number, n: number): number => {
+  const gap = getDynamicGap(n);
+  return CANVAS_LAYOUT.margin + index * (columnWidth + gap);
+};
 
 export const determineColor = (index: number, frame: FrameDTO | null): string => {
-  if (!frame) return COLOR_DEFAULT;
+  if (!frame || !frame.highlights) return CANVAS_COLORS.default;
   const h = frame.highlights;
-  return h.sorted.includes(index) ? COLOR_SORTED : h.swap.includes(index) ? COLOR_SWAP : h.compare.includes(index) ? COLOR_COMPARE : COLOR_DEFAULT;
+  return (h.sorted?.includes(index))  ? CANVAS_COLORS.sorted
+       : (h.swap?.includes(index))    ? CANVAS_COLORS.swap
+       : (h.compare?.includes(index)) ? CANVAS_COLORS.compare
+       : CANVAS_COLORS.default;
 };
+
+
+/**
+ * Vẽ một bar với gradient glassmorphic — đồng bộ phong cách với BubbleSortVisualizer.
+ * Fill: gradient từ màu đậm (top) → trong suốt (bottom)
+ * Stroke: viền sáng bán trong suốt
+ * Shadow: neon glow cho các bar đang active (compare/swap/sorted)
+ */
+function drawGlassmorphicBar(
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number,
+  w: number, h: number,
+  color: string,
+  isActive: boolean,
+  radius = 6
+): void {
+  ctx.save();
+
+  // Neon glow cho bar đang active
+  if (isActive) {
+    ctx.shadowColor   = color;
+    ctx.shadowBlur    = 16;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+  }
+
+  // Gradient fill glassmorphic
+  const gradient = ctx.createLinearGradient(x, y, x, y + h);
+  gradient.addColorStop(0,   hexToRgba(color, isActive ? 0.45 : 0.28));
+  gradient.addColorStop(0.5, hexToRgba(color, isActive ? 0.20 : 0.12));
+  gradient.addColorStop(1,   hexToRgba(color, 0.05));
+  ctx.fillStyle = gradient;
+
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, radius);
+  ctx.fill();
+
+  // Viền sáng stroke (tắt shadow trước để tránh double glow trên stroke)
+  ctx.shadowBlur  = 0;
+  ctx.strokeStyle = hexToRgba(color, isActive ? 0.85 : 0.45);
+  ctx.lineWidth   = isActive ? 1.5 : 1;
+  ctx.stroke();
+
+  ctx.restore();
+}
 
 export function drawCompareCanvas(
   ctx: CanvasRenderingContext2D,
@@ -46,7 +93,7 @@ export function drawCompareCanvas(
   barPositions: BarPosition[]
 ) {
   const rootStyle = typeof window !== 'undefined' ? window.getComputedStyle(document.documentElement) : null;
-  const colorBg = rootStyle?.getPropertyValue('--canvas-bg').trim() || '#080808';
+  const colorBg   = rootStyle?.getPropertyValue('--canvas-bg').trim() || CANVAS_COLORS.bgDark;
 
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, w, h);
@@ -54,48 +101,45 @@ export function drawCompareCanvas(
   ctx.fillRect(0, 0, w, h);
 
   if (!currentFrame) return;
-  const n = currentFrame.dataState.length;
+  const n = currentFrame.dataState?.length ?? 0;
   if (n === 0) return;
 
   const columnWidth = calculateColumnWidth(n, w);
-  const maxVal = Math.max(...currentFrame.dataState, 1);
+  const maxVal      = Math.max(...(currentFrame.dataState ?? []), 1);
 
   for (let i = 0; i < n; i++) {
-    const colH = calculateColumnHeight(currentFrame.dataState[i], maxVal, h);
-    const yPos = h - colH - MARGIN_BOTTOM;
-    let xPos = calculateX(i, columnWidth);
+    const colH = calculateColumnHeight(currentFrame.dataState?.[i] ?? 0, maxVal, h);
+    const yPos = h - colH - CANVAS_LAYOUT.marginBottom;
+    let   xPos = calculateX(i, columnWidth, n);
+
     if (isTransitioning && barPositions[i]) {
       xPos = lerp(barPositions[i].x, barPositions[i].targetX, easeOut(animationProgress));
     }
 
-    const color = determineColor(i, currentFrame);
-    ctx.fillStyle = color;
+    const color    = determineColor(i, currentFrame);
+    const isActive = color !== CANVAS_COLORS.default;
 
-    const radius = Math.min(3, columnWidth / 4);
-    ctx.beginPath();
-    ctx.moveTo(xPos + radius, yPos);
-    ctx.lineTo(xPos + columnWidth - radius, yPos);
-    ctx.quadraticCurveTo(xPos + columnWidth, yPos, xPos + columnWidth, yPos + radius);
-    ctx.lineTo(xPos + columnWidth, yPos + colH);
-    ctx.lineTo(xPos, yPos + colH);
-    ctx.lineTo(xPos, yPos + radius);
-    ctx.quadraticCurveTo(xPos, yPos, xPos + radius, yPos);
-    ctx.closePath();
-    ctx.fill();
+    // Vẽ bar glassmorphic gradient (thay thế flat fill cũ)
+    drawGlassmorphicBar(ctx, xPos, yPos, columnWidth, colH, color, isActive);
 
-    if (color === COLOR_SORTED) {
-      ctx.shadowColor = COLOR_SORTED; ctx.shadowBlur = 12; ctx.fill(); ctx.shadowBlur = 0;
+    // Nhãn giá trị phía trên bar
+    if (columnWidth >= 12) {
+      ctx.fillStyle    = CANVAS_COLORS.text;
+      ctx.font         = `bold ${Math.min(11, Math.max(8, columnWidth * 0.5))}px Inter, sans-serif`;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.shadowBlur   = 0;
+      ctx.fillText((currentFrame.dataState?.[i] ?? 0).toString(), xPos + columnWidth / 2, yPos - 4);
     }
 
-    ctx.fillStyle = COLOR_TEXT;
-    ctx.font = `bold ${Math.min(11, columnWidth * 0.55)}px Inter, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(currentFrame.dataState[i].toString(), xPos + columnWidth / 2, yPos - 4);
-
-    ctx.fillStyle = '#64748b';
-    ctx.font = `${Math.min(9, columnWidth * 0.4)}px Inter, sans-serif`;
-    ctx.textBaseline = 'top';
-    ctx.fillText(i.toString(), xPos + columnWidth / 2, h - MARGIN_BOTTOM + 5);
+    // Auto-hide STT labels nếu N > 12 (nhất quán với BubbleSortVisualizer)
+    if (n <= 12 && columnWidth >= 14) {
+      ctx.fillStyle    = CANVAS_COLORS.muted;
+      ctx.font         = `${Math.min(10, Math.max(8, columnWidth * 0.4))}px Inter, sans-serif`;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'top';
+      ctx.shadowBlur   = 0;
+      ctx.fillText(`[${i}]`, xPos + columnWidth / 2, h - CANVAS_LAYOUT.marginBottom + 18);
+    }
   }
 }

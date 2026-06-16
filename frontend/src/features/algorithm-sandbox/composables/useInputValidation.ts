@@ -16,9 +16,13 @@ export function useInputValidation() {
   const validateArray = () => {
     try {
       arrayError.value = null;
-      parsedArray.value = CustomInputParser.parseNumberArray(
+      const parsed = CustomInputParser.parseNumberArray(
         arrayInputText.value
       );
+      if (parsed.length > 15) {
+        throw new Error("Mảng quá dài! Giới hạn tối đa là 15 phần tử.");
+      }
+      parsedArray.value = parsed;
     } catch (err: unknown) {
       arrayError.value = err instanceof Error ? err.message : String(err);
       parsedArray.value = [];

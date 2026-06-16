@@ -7,7 +7,17 @@
     />
     <CodeEditorApiHints />
     <div class="flex-1 relative flex flex-col min-h-0 editor-wrapper rounded-xl border border-border-subtle overflow-hidden">
-      <div ref="editorContainer" class="w-full h-full"></div>
+      <div v-if="editorLoadError" class="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-bg-surface/30">
+        <span class="text-2xl mb-2">⚠️</span>
+        <p class="text-xs font-semibold text-text-primary mb-1">Không thể tải Monaco Editor</p>
+        <p class="text-[10px] text-text-secondary mb-4 max-w-xs leading-normal font-sans">
+          Lỗi do xung đột tối ưu hóa module hoặc kết nối. Hãy reload lại trang.
+        </p>
+        <button @click="reloadPage" class="px-3 py-1.5 rounded-lg text-xs bg-accent/25 text-accent border border-accent/30 hover:bg-accent/40 transition-colors font-sans cursor-pointer">
+          Tải lại trang (F5)
+        </button>
+      </div>
+      <div v-else ref="editorContainer" class="w-full h-full"></div>
     </div>
   </div>
 </template>
@@ -22,6 +32,12 @@ import CodeEditorApiHints from "./CodeEditorApiHints.vue";
 
 const vcrStore = useVcrStore();
 const editorContainer = ref<HTMLDivElement | null>(null);
+const editorLoadError = ref(false);
+
+function reloadPage() {
+  window.location.reload();
+}
+
 let editorInstance: any = null;
 let syncerCoordinator: MonacoLineSyncerCoordinator | null = null;
 
@@ -73,7 +89,14 @@ for (let i = 1; i < array.length; i++) {
 };
 
 onMounted(async () => {
-  const monaco = await loader.init();
+  let monaco;
+  try {
+    monaco = await loader.init();
+  } catch (err) {
+    console.error('Monaco load failed in code editor:', err);
+    editorLoadError.value = true;
+    return;
+  }
   if (!editorContainer.value) return;
   editorInstance = monaco.editor.create(editorContainer.value, {
     value: vcrStore.code, language: "javascript", theme: "vs-dark",

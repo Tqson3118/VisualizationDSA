@@ -1,5 +1,5 @@
 <template>
-  <div class="srp-panel flex flex-col gap-4">
+  <div class="srp-panel flex flex-col gap-4" data-tour-id="srp-lcom4-graph">
     <!-- SRP Header -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">

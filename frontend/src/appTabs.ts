@@ -15,9 +15,11 @@ export const APP_TABS: readonly (TabGroup | TabItem)[] = [
   {
     groupName: 'Giải thuật',
     items: [
-      { id: 'sorting',  path: '/sorting',  name: 'Sắp xếp' },
-      { id: 'graph',    path: '/graph',    name: 'Đồ thị' },
-      { id: 'code-ide', path: '/code-ide', name: 'Gỡ lỗi Code' }
+      { id: 'sorting',     path: '/sorting',     name: 'Sắp xếp' },
+      { id: 'graph',       path: '/graph',       name: 'Đồ thị' },
+      { id: 'compare',     path: '/compare',     name: 'So sánh' },
+      { id: 'concurrency', path: '/concurrency', name: 'Đa luồng' },
+      { id: 'code-ide',    path: '/code-ide',    name: 'Gỡ lỗi Code' }
     ]
   },
   {
@@ -35,14 +37,17 @@ export const APP_TABS: readonly (TabGroup | TabItem)[] = [
     items: [
       { id: 'quiz',          path: '/quiz',          name: 'Trắc nghiệm' },
       { id: 'gamification',  path: '/gamification',  name: 'Bảng xếp hạng' },
+      { id: 'state',         path: '/state',         name: 'State Inspector' },
     ]
   },
   {
     groupName: 'Tài khoản',
     items: [
       { id: 'dashboard', path: '/dashboard', name: 'Bảng điều khiển', requiresAuth: true },
+      { id: 'profile',   path: '/profile',   name: 'Hồ sơ cá nhân', requiresAuth: true },
       { id: 'checkout',  path: '/checkout',  name: 'Nâng cấp Premium' },
       { id: 'teacher',   path: '/teacher',   name: 'Quản lý Giảng viên', requiresAuth: true, requiresRole: 'Teacher' },
+      { id: 'admin',     path: '/admin',     name: 'Quản trị Admin', requiresAuth: true, requiresRole: 'Admin' },
     ]
   },
 ] as const;

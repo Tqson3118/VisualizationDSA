@@ -16,7 +16,7 @@ export const useInputStore = defineStore('input', () => {
   // 1. STATE
   // ==========================================
   const rawText = ref<string>('');
-  const maxLimit = ref<number>(50);
+  const maxLimit = ref<number>(15);
   const isLoading = ref<boolean>(false);
   const apiErrorMessage = ref<string>('');
 

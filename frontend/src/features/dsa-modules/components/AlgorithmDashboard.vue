@@ -1,9 +1,9 @@
 <template>
   <div class="dash-root h-full flex flex-col gap-6 overflow-auto p-4 font-sans">
-    <!-- Header (Terminal style~/algolens) -->
+    <!-- Header (Terminal style~/visualizationdsa) -->
     <div class="flex items-center justify-between dash-border-b pb-4">
       <div class="flex items-center gap-2">
-        <span class="font-mono text-base font-bold dash-text-secondary">~/algolens</span>
+        <span class="font-mono text-base font-bold dash-text-secondary">~/visualizationdsa</span>
         <span class="w-1.5 h-4 dash-bg-accent animate-pulse inline-block"></span>
       </div>
     </div>
@@ -137,7 +137,7 @@
               <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />
               </svg>
-              Mo phong
+              Mô phỏng
             </button>
             <button 
               class="dash-btn-ghost flex-1 py-1.5 px-2.5 rounded text-[11px] font-medium transition-all active:scale-95 flex items-center justify-center gap-1"
@@ -146,7 +146,7 @@
               <svg class="w-2.5 h-2.5 dash-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
-              Ly thuyet
+              Lý thuyết
             </button>
           </div>
         </div>
@@ -222,7 +222,7 @@
               <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />
               </svg>
-              Mo phong
+              Mô phỏng
             </button>
             <button 
               class="dash-btn-ghost flex-1 py-1.5 px-2.5 rounded text-[11px] font-medium transition-all flex items-center justify-center gap-1 active:scale-95"
@@ -231,7 +231,7 @@
               <svg class="w-2.5 h-2.5 dash-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
-              Ly thuyet
+              Lý thuyết
             </button>
           </div>
         </div>
@@ -424,18 +424,17 @@ function getDesc(algoId: string): string {
 
 // 6. Action handlers
 function handleSelect(algo: Algorithm): void {
-  algoStore.selectAlgorithm(algo);
+  algoStore.selectAlgorithm(algo, 'simulation');
   emit('select', algo);
 }
 
 function handleTheorySelect(algo: Algorithm): void {
-  algoStore.selectAlgorithm(algo);
+  algoStore.selectAlgorithm(algo, 'theory');
   emit('select', algo);
 }
 
 function loadMore(): void {
-  // Silent placeholder for production completeness
-  console.log('Loading more skills...');
+  // Silent placeholder for production completeness — no-op intentional
 }
 
 function scrollToTop(): void {
@@ -803,7 +802,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /* ============================================================
- * ALGOLENS DASHBOARD — SCOPED THEME BRIDGE
+ * VISUALIZATIONDSA DASHBOARD — SCOPED THEME BRIDGE
  * Tat ca mau sac lay tu CSS variables trong theme.css
  * Khong hardcode gia tri mau truc tiep o day
  * ============================================================ */

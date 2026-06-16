@@ -17,7 +17,7 @@
 export type TransportProtocol = 'webtransport' | 'websocket' | 'local';
 
 export interface TransportConfig {
-  /** Server URL (e.g., https://collab.algolens.dev/sync) */
+  /** Server URL (e.g., https://collab.visualizationdsa.dev/sync) */
   serverUrl: string;
   /** Room/session identifier for graph collaboration */
   roomId: string;

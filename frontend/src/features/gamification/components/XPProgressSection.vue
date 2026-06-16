@@ -53,7 +53,14 @@ defineProps<{
   progress: UserProgress;
   currentLevel: LevelConfig;
   levelProgressPercent: number;
-  stats: any;
+  stats: {
+    totalXP: number;
+    level: number;
+    badgesEarned: number;
+    modulesCompleted: number;
+    quizzesTaken: number;
+    currentStreak: number;
+  };
 }>();
 
 const emit = defineEmits<{

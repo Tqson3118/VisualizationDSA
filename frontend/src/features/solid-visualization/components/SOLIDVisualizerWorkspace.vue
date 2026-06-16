@@ -63,6 +63,12 @@
       </button>
     </div>
 
+    <!-- VCR Frame Visualizer (shown in VCR mode) -->
+    <SOLIDVcrFrameVisualizer
+      v-if="store.isVcrMode && store.vcrCurrentFrame"
+      :frame="store.vcrCurrentFrame"
+    />
+
     <!-- Active Lesson Panel (hidden in VCR mode) -->
     <div v-if="!store.isVcrMode" class="flex-1">
       <!-- SRP Lesson -->
@@ -94,7 +100,17 @@
         @reset-d-i-p="store.resetDIP()"
       />
 
-      <!-- Placeholder for OCP/ISP -->
+      <!-- OCP Lesson -->
+      <OCPLessonPanel
+        v-else-if="store.activeLesson === 'OCP'"
+      />
+
+      <!-- ISP Lesson -->
+      <ISPLessonPanel
+        v-else-if="store.activeLesson === 'ISP'"
+      />
+
+      <!-- Fallback for any unmapped lesson -->
       <div
         v-else
         class="placeholder-panel"
@@ -134,6 +150,9 @@ import type { SOLIDPrinciple } from '../types/solid-visualization.types';
 import SRPLessonPanel from './SRPLessonPanel.vue';
 import LSPLessonPanel from './LSPLessonPanel.vue';
 import DIPLessonPanel from './DIPLessonPanel.vue';
+import OCPLessonPanel from './OCPLessonPanel.vue';
+import ISPLessonPanel from './ISPLessonPanel.vue';
+import SOLIDVcrFrameVisualizer from './SOLIDVcrFrameVisualizer.vue';
 import VcrControls from '../../../components/VcrControls.vue';
 import VcrExplanationBanner from '../../../components/VcrExplanationBanner.vue';
 import ConceptScenarioPicker from '../../../components/ConceptScenarioPicker.vue';
@@ -191,7 +210,7 @@ function onSRPSplit(nodeId: string): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-b: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
   padding-bottom: 16px;
 }
 
@@ -266,7 +285,7 @@ function onSRPSplit(nodeId: string): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-t: 1px solid var(--color-border-subtle);
+  border-top: 1px solid var(--color-border-subtle);
   padding-top: 16px;
 }
 

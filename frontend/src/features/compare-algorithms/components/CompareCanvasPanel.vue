@@ -1,9 +1,12 @@
 <template>
   <div
     ref="containerRef"
-    class="relative w-full h-full overflow-hidden rounded-2xl transition-all duration-300"
-    :style="{ background: 'rgba(30, 41, 59, 0.35)', border: isFinished ? '1px solid rgba(16, 185, 129, 0.25)' : '1px solid rgba(255, 255, 255, 0.05)', boxShadow: isFinished ? '0 0 25px rgba(16, 185, 129, 0.08)' : 'none', backdropFilter: 'blur(12px)' }"
+    class="visualizer-canvas-container relative w-full h-full overflow-hidden rounded-[18px] transition-all duration-300"
+    :class="{ 'finished-border': isFinished }"
   >
+    <!-- Background grid -->
+    <div class="canvas-grid absolute inset-0 opacity-[0.18] pointer-events-none [mask-image:radial-gradient(ellipse_65%_55%_at_50%_50%,#000_60%,transparent_100%)]" />
+
     <div class="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-2" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px);">
       <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full" :style="{ background: accentColor, boxShadow: `0 0 8px ${accentColor}40` }" /><span class="text-xs font-bold text-text-primary uppercase tracking-wider">{{ algorithmName }}</span></div>
       <div class="flex items-center gap-2"><span class="text-[10px] font-mono text-text-secondary">{{ timeComplexity }}</span><span v-if="isFinished" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider" :style="{ background: `${accentColor}20`, color: accentColor, boxShadow: `0 0 12px ${accentColor}30` }">Hoàn thành</span></div>
@@ -45,8 +48,9 @@ const prepareTransition = () => {
   const f = props.currentFrame;
   if (!f || !canvasRef.value) return;
   const w = canvasRef.value.width / (window.devicePixelRatio || 1);
-  const colW = calculateColumnWidth(f.dataState.length, w);
-  barPositions = f.dataState.map((_, i) => ({ x: barPositions[i]?.x ?? calculateX(i, colW), targetX: calculateX(i, colW) }));
+  const dataState = f.dataState ?? [];
+  const colW = calculateColumnWidth(dataState.length, w);
+  barPositions = dataState.map((_, i) => ({ x: barPositions[i]?.x ?? calculateX(i, colW, dataState.length), targetX: calculateX(i, colW, dataState.length) }));
   animationProgress = 0; isTransitioning = true;
 };
 
@@ -56,8 +60,9 @@ const renderCanvas = () => {
     const dpr = window.devicePixelRatio || 1, w = c.width / dpr;
     drawCompareCanvas(ctx, w, c.height / dpr, dpr, f, isTransitioning, animationProgress, barPositions);
     if (!isTransitioning && f) {
-      const colW = calculateColumnWidth(f.dataState.length, w);
-      barPositions = f.dataState.map((_, i) => ({ x: calculateX(i, colW), targetX: calculateX(i, colW) }));
+      const dataState = f.dataState ?? [];
+      const colW = calculateColumnWidth(dataState.length, w);
+      barPositions = dataState.map((_, i) => ({ x: calculateX(i, colW, dataState.length), targetX: calculateX(i, colW, dataState.length) }));
     }
   }
 };
@@ -76,6 +81,13 @@ const resizeCanvas = () => {
     const dpr = window.devicePixelRatio || 1;
     c.width = r.width * dpr; c.height = r.height * dpr;
     c.style.width = r.width + 'px'; c.style.height = r.height + 'px';
+    const f = props.currentFrame;
+    if (f) {
+      const w = r.width;
+      const dataState = f.dataState ?? [];
+      const colW = calculateColumnWidth(dataState.length, w);
+      barPositions = dataState.map((_, i) => ({ x: calculateX(i, colW, dataState.length), targetX: calculateX(i, colW, dataState.length) }));
+    }
     renderCanvas();
   }
 };
@@ -93,3 +105,25 @@ onBeforeUnmount(() => {
   resizeObserver?.disconnect();
 });
 </script>
+
+<style scoped>
+.visualizer-canvas-container {
+  background-color: var(--color-bg-primary);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 85%, transparent);
+  box-shadow: 0 8px 40px var(--color-accent-cyan-dim), 0 2px 12px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+}
+
+.finished-border {
+  border-color: rgba(16, 185, 129, 0.25) !important;
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.08), 0 8px 40px var(--color-accent-cyan-dim), 0 2px 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+.canvas-grid {
+  background-image: 
+    linear-gradient(to right, var(--color-border-default) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-border-default) 1px, transparent 1px);
+  background-size: 3.5rem 3.5rem;
+}
+</style>
+

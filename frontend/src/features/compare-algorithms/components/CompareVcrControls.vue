@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center gap-4 px-6 py-3 rounded-2xl vcr-container"
+    class="flex items-center gap-4 px-6 py-3 rounded-2xl vcr-container compare-vcr-controls"
   >
     <div class="flex items-center gap-2">
       <button @click="store.stopPlayback()" class="flex items-center justify-center w-8 h-8 rounded-[10px] vcr-btn disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer" title="Dừng lại (R)"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1" /></svg></button>

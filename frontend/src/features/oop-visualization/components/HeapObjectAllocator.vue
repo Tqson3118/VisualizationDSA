@@ -1,5 +1,5 @@
 <template>
-  <div class="heap-allocator">
+  <div class="heap-allocator" data-tour-id="oop-memory-canvas">
     <!-- Header -->
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-2">

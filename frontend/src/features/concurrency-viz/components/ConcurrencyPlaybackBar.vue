@@ -9,6 +9,7 @@
         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" /></svg>
       </button>
       <button @click="$emit('toggle-play')" :disabled="isDeadlocked && playbackMode !== 'DEADLOCKED'"
+        data-tour-id="concurrency-play-btn"
         class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors" :class="playButtonClass">
         <svg v-if="playbackMode === 'FINISHED'" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
@@ -16,7 +17,9 @@
         <svg v-else-if="!isPlaying" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
         <svg v-else class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
       </button>
-      <button @click="$emit('step-forward')" :disabled="stepIndex >= totalSteps || isDeadlocked" class="vcr-btn disabled:opacity-30 disabled:cursor-not-allowed" title="Tiến (→)">
+      <button @click="$emit('step-forward')" :disabled="stepIndex >= totalSteps || isDeadlocked"
+        data-tour-id="concurrency-step-forward"
+        class="vcr-btn disabled:opacity-30 disabled:cursor-not-allowed" title="Tiến (→)">
         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" /></svg>
       </button>
     </div>
@@ -25,6 +28,7 @@
     <div class="flex-1 flex items-center gap-3">
       <span class="text-[10px] text-text-muted tabular-nums w-16 text-right">{{ stepIndex }} / {{ totalSteps }}</span>
       <input type="range" :min="0" :max="totalSteps" :value="stepIndex"
+        data-tour-id="concurrency-slider"
         @input="e => $emit('scrub', Number((e.target as HTMLInputElement).value))"
         class="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
         :class="isDeadlocked ? 'accent-rose-500' : 'accent-cyan-500'" />
@@ -37,6 +41,7 @@
     <div class="flex items-center gap-2 flex-shrink-0">
       <span class="text-[10px] text-text-secondary uppercase tracking-wider">Tốc độ</span>
       <select :value="playSpeed" @change="e => $emit('speed-change', Number((e.target as HTMLSelectElement).value))"
+        data-tour-id="concurrency-speed-select"
         class="bg-bg-surface border border-border-default text-text-secondary text-xs rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-accent">
         <option :value="0.25">0.25x</option><option :value="0.5">0.5x</option>
         <option :value="1">1x</option><option :value="2">2x</option><option :value="4">4x</option>

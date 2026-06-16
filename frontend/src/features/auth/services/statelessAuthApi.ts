@@ -17,7 +17,10 @@ export interface StatelessUserDto {
   createdAt:    string;
   badges:       StatelessBadgeInfo[];
   isPremium:    boolean;
-  role:         'Student' | 'Teacher';
+  role:         'Student' | 'Teacher' | 'Admin';
+  nickname?:    string;
+  bio?:         string;
+  university?:  string;
 }
 
 export interface StatelessBadgeInfo {
@@ -82,11 +85,11 @@ export const statelessAuthApi = {
     return handleResponse<StatelessAuthResponse>(res);
   },
 
-  async refresh(refreshToken: string): Promise<StatelessAuthResponse> {
+  async refresh(refreshToken: string, userId?: string): Promise<StatelessAuthResponse> {
     const res = await fetch(`${BASE_URL}/api/v1/concepts/auth/refresh`, {
       method: 'POST',
       headers: JSON_HEADERS,
-      body: JSON.stringify({ refreshToken }),
+      body: JSON.stringify({ refreshToken, userId }),
     });
     return handleResponse<StatelessAuthResponse>(res);
   },
@@ -111,11 +114,11 @@ export const statelessAuthApi = {
     return handleResponse<StatelessUserProgress>(res);
   },
 
-  async updateProfile(userId: string, username: string): Promise<StatelessUserDto> {
+  async updateProfile(userId: string, username: string, nickname?: string, bio?: string, university?: string): Promise<StatelessUserDto> {
     const res = await fetch(`${BASE_URL}/api/v1/concepts/auth/profile`, {
       method: 'PUT',
       headers: JSON_HEADERS,
-      body: JSON.stringify({ userId, username }),
+      body: JSON.stringify({ userId, username, nickname, bio, university }),
     });
     return handleResponse<StatelessUserDto>(res);
   },
@@ -123,5 +126,16 @@ export const statelessAuthApi = {
   async getDemoCredentials(): Promise<{ email: string; password: string; message: string }> {
     const res = await fetch(`${BASE_URL}/api/v1/concepts/auth/demo-credentials`);
     return handleResponse<{ email: string; password: string; message: string }>(res);
+  },
+
+  async impersonateUser(userId: string, adminToken: string): Promise<StatelessAuthResponse> {
+    const res = await fetch(`${BASE_URL}/api/v1/concepts/admin/users/${encodeURIComponent(userId)}/impersonate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`,
+      },
+    });
+    return handleResponse<StatelessAuthResponse>(res);
   },
 };

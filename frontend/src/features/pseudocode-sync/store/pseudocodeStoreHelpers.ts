@@ -1,12 +1,15 @@
-import { PseudocodeSyncEngine } from '../engine/PseudocodeSyncEngine';
+import { PseudocodeSyncEngine, type AnimationFrameForSync } from '../engine/PseudocodeSyncEngine';
 
-interface SimpleFrame {
-  frameIndex: number;
-  activeLogicalLineId: string;
-  variables: Record<string, any>;
+export interface AnimationStoreSync {
+  frames: Array<{ activeLogicalLineId?: string; variables?: Record<string, string | number> }>;
+  currentIndex: number;
+  goToFrame(frameIndex: number): void;
+  pause(): void;
 }
 
-export function getSyncFrames(frames: any[]): SimpleFrame[] {
+export function getSyncFrames(
+  frames: Array<{ activeLogicalLineId?: string; variables?: Record<string, string | number> }>
+): AnimationFrameForSync[] {
   return frames.map((f, idx) => ({
     frameIndex: idx,
     activeLogicalLineId: f.activeLogicalLineId ?? '',
@@ -14,7 +17,7 @@ export function getSyncFrames(frames: any[]): SimpleFrame[] {
   }));
 }
 
-export function snapToLogicalLine(animStore: any, logicalId: string): void {
+export function snapToLogicalLine(animStore: AnimationStoreSync, logicalId: string): void {
   const syncFrames = getSyncFrames(animStore.frames);
   const targetIdx = PseudocodeSyncEngine.findFirstFrameIndexForLogicalLine(logicalId, syncFrames);
   if (targetIdx !== -1) {
@@ -23,7 +26,7 @@ export function snapToLogicalLine(animStore: any, logicalId: string): void {
   }
 }
 
-export function snapToNextOccurrence(animStore: any, logicalId: string): void {
+export function snapToNextOccurrence(animStore: AnimationStoreSync, logicalId: string): void {
   const syncFrames = getSyncFrames(animStore.frames);
   const nextIdx = PseudocodeSyncEngine.getNextCycleFrameIndex(logicalId, animStore.currentIndex, syncFrames);
   if (nextIdx !== -1) {
@@ -32,7 +35,10 @@ export function snapToNextOccurrence(animStore: any, logicalId: string): void {
   }
 }
 
-export function getOccurrenceInfo(animStore: any, logicalId: string): { current: number; total: number } {
+export function getOccurrenceInfo(
+  animStore: AnimationStoreSync,
+  logicalId: string
+): { current: number; total: number } {
   const syncFrames = getSyncFrames(animStore.frames);
   const allIndices = PseudocodeSyncEngine.findAllFrameIndicesForLogicalLine(logicalId, syncFrames);
   const total = allIndices.length;

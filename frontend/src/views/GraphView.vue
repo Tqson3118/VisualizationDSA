@@ -1,7 +1,7 @@
 <template>
   <div class="graph-view-root flex flex-col h-full w-full gap-4 p-4 max-w-[1600px] mx-auto overflow-hidden">
     <!-- Header Sub-Tabs Switcher (Glassmorphic) -->
-    <div class="tabs-header-bar flex items-center justify-between px-4 py-2 border rounded-xl"
+    <div class="tabs-header-bar flex items-center justify-between px-4 py-2 border rounded-xl" data-tour-id="algo-tab-switch"
       style="background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(12px); border-color: rgba(255, 255, 255, 0.05);"
     >
       <div class="flex gap-2">
@@ -54,7 +54,7 @@
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
- 
+  
           <!-- Input Panel Wrap -->
           <div class="w-full h-full overflow-y-auto pointer-events-auto" v-show="!isPanelCollapsed">
             <CustomInputPanel class="w-full h-fit shadow-2xl" />
@@ -63,10 +63,13 @@
       </div>
 
       <!-- Tab 2: Graph & Tree DSA (Visual player catalog) -->
-      <div v-show="activeTab === 'dsa'" class="absolute inset-0 w-full h-full">
+      <div v-show="activeTab === 'dsa'" class="absolute inset-0 w-full h-full" data-tour-id="algo-theory-pane">
         <DSAPlayer class="w-full h-full" v-bind="activeProps" />
       </div>
     </div>
+
+    <!-- Nút Trợ giúp Guided Tour -->
+    <HelpButton />
   </div>
 </template>
 
@@ -76,9 +79,12 @@ import { CustomInputPanel } from '../features/algorithm-sandbox';
 import { InteractivePlayground } from '../features/interactive-playground';
 import { DSAPlayer } from '../features/dsa-modules';
 import BaseIcon from '../shared/components/BaseIcon.vue';
+import HelpButton from '../features/guided-tour/components/HelpButton.vue';
+import { useGuidedTourStore } from '../features/guided-tour/store/useGuidedTourStore';
 
 const activeTab = ref('graph');
 const isPanelCollapsed = ref(false);
+const tourStore = useGuidedTourStore();
 
 const tabs = [
   { id: 'graph', name: 'Sân chơi Đồ thị', icon: 'graph' },
@@ -93,6 +99,7 @@ const activeProps = computed(() => {
 });
 
 // Keypress hotkey 'p' to toggle collapsible sidebar
+// (Note: keydown is registered in onMounted block below)
 function handleKeydown(e: KeyboardEvent) {
   const tag = (e.target as HTMLElement)?.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
@@ -104,6 +111,7 @@ function handleKeydown(e: KeyboardEvent) {
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown);
+  tourStore.startPageTour('/graph', false);
 });
 
 onUnmounted(() => {

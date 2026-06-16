@@ -70,6 +70,12 @@
         @toggle-d-i-p="store.toggleDIP()"
       />
     </div>
+
+    <!-- VCR Frame Visualizer (shown in VCR mode) -->
+    <DesignPatternsVcrVisualizer
+      v-else-if="store.vcrCurrentFrame"
+      :frame="store.vcrCurrentFrame"
+    />
   </div>
 </template>
 
@@ -79,6 +85,7 @@ import { useDesignPatternsStore } from '../store/useDesignPatternsStore';
 import { getAllScenarioIds, SCENARIO_LABELS } from '../scenarios/scenarioData';
 import DesignPatternsCanvas from './DesignPatternsCanvas.vue';
 import DesignPatternsControlPanel from './DesignPatternsControlPanel.vue';
+import DesignPatternsVcrVisualizer from './DesignPatternsVcrVisualizer.vue';
 import VcrControls from '../../../components/VcrControls.vue';
 import VcrExplanationBanner from '../../../components/VcrExplanationBanner.vue';
 import ConceptScenarioPicker from '../../../components/ConceptScenarioPicker.vue';

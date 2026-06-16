@@ -19,7 +19,7 @@ defineEmits(['close']);
   bottom: 16px;
   right: 16px;
   width: 360px;
-  max-h: 280px;
+  max-height: 280px;
   background-color: color-mix(in srgb, var(--color-bg-primary) 95%, transparent);
   backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--color-border-subtle);
@@ -35,7 +35,7 @@ defineEmits(['close']);
   justify-content: space-between;
   padding: 8px 12px;
   background-color: color-mix(in srgb, var(--color-bg-hover) 60%, transparent);
-  border-b: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .panel-title {
@@ -67,7 +67,7 @@ defineEmits(['close']);
   color: var(--color-accent-green);
   font-family: var(--font-mono);
   overflow: auto;
-  max-h: 230px;
+  max-height: 230px;
   line-height: 1.625;
 }
 </style>

@@ -29,7 +29,17 @@
         </div>
 
         <!-- Monaco Container -->
-        <div ref="editorContainerRef" class="flex-1 min-h-0" style="background: var(--color-bg-active);" />
+        <div v-if="editorLoadError" class="flex-1 flex flex-col items-center justify-center p-6 text-center bg-bg-surface/30 border border-border-default/20 rounded-xl min-h-[300px]">
+          <span class="text-2xl mb-2">⚠️</span>
+          <p class="text-xs font-semibold text-text-primary mb-1">Không thể tải Monaco Editor</p>
+          <p class="text-[10px] text-text-secondary mb-4 max-w-xs leading-normal font-sans">
+            Lỗi do xung đột tối ưu hóa module hoặc kết nối. Hãy reload lại trang.
+          </p>
+          <button @click="reloadPage" class="px-3 py-1.5 rounded-lg text-xs bg-accent/25 text-accent border border-accent/30 hover:bg-accent/40 transition-colors font-sans cursor-pointer">
+            Tải lại trang (F5)
+          </button>
+        </div>
+        <div v-else ref="editorContainerRef" class="flex-1 min-h-0" style="background: var(--color-bg-active);" />
       </div>
 
       <!-- Canvas (Middle 4 cols) -->
@@ -179,6 +189,11 @@ import loader from '@monaco-editor/loader';
 const debugStore = useLiveDebuggerStore();
 const editorContainerRef = ref<HTMLDivElement | null>(null);
 const inputArrayStr = ref<string>(debugStore.inputArray.join(', '));
+const editorLoadError = ref(false);
+
+function reloadPage() {
+  window.location.reload();
+}
 
 interface MonacoEditor {
   getValue: () => string;
@@ -344,13 +359,20 @@ function syncErrorLineDecoration(): void {
 onMounted(async () => {
   if (!editorContainerRef.value) return;
 
-  const monaco = await loader.init();
+  let monaco;
+  try {
+    monaco = await loader.init();
+  } catch (err) {
+    console.error('Monaco load failed in debugger:', err);
+    editorLoadError.value = true;
+    return;
+  }
   monacoModule = monaco;
 
   const style = getComputedStyle(document.documentElement);
   const editorBg = style.getPropertyValue('--color-bg-active').trim() || '#1e293b';
 
-  monaco.editor.defineTheme('algolens-debug', {
+  monaco.editor.defineTheme('visualizationdsa-debug', {
     base: 'vs-dark',
     inherit: true,
     rules: [
@@ -374,7 +396,7 @@ onMounted(async () => {
   const editor = monaco.editor.create(editorContainerRef.value, {
     value: debugStore.sourceCode,
     language: 'javascript',
-    theme: 'algolens-debug',
+    theme: 'visualizationdsa-debug',
     fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
     fontSize: 14,
     lineHeight: 22,

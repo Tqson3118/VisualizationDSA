@@ -23,8 +23,8 @@
           <!-- Simulated widget header -->
           <div class="sim-header">
             <div class="sim-logo">
-              <span class="sim-logo-icon">A</span>
-              <span class="sim-logo-text">AlgoLens</span>
+              <span class="sim-logo-icon">V</span>
+              <span class="sim-logo-text">VisualizationDSA</span>
             </div>
             <span class="sim-algo-label">{{ algorithmLabel }}</span>
           </div>

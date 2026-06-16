@@ -20,7 +20,7 @@ export class OOPReflectionEngine {
     const memAddress = `0x${(3211264 + this.addressOffset).toString(16).toUpperCase().padStart(6, '0')}`;
     this.addressOffset += 16;
 
-    const fields = new Map<string, any>();
+    const fields = new Map<string, unknown>();
     const vTable = new Map<string, string>();
     const chain = this.getInheritanceChain(className).map(c => this.getClass(c)!);
 

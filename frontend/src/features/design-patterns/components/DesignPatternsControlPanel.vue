@@ -7,7 +7,7 @@
     </div>
 
     <!-- Strategy controls -->
-    <div v-if="activePatternId === 'strategy-pattern'" class="panel-section">
+    <div v-if="activePatternId === 'strategy-pattern'" class="panel-section" data-tour-id="strategy-sandbox">
       <div class="panel-label">Hoán đổi Strategy Runtime</div>
       <div class="strategy-buttons">
         <button class="strategy-btn" :class="{ active: activeStrategyId === 'Bubble' }" @click="$emit('switchStrategy', 'Bubble')">BubbleSort</button>

@@ -158,6 +158,7 @@
 
             <!-- Index bracket labels below bars -->
             <div
+              v-if="frame?.inputArray && frame.inputArray.length <= 12"
               class="mt-1 font-mono text-[9px] font-bold shrink-0 transition-all duration-300"
               :class="isInputBarActive(idx) ? 'text-cyan-400 scale-105' : 'index-label'"
             >
@@ -260,6 +261,7 @@
 
             <!-- Index bracket labels below slots -->
             <div
+              v-if="frame?.inputArray && frame.inputArray.length <= 12"
               class="mt-1 font-mono text-[9px] font-bold shrink-0 transition-all duration-300"
               :class="isOutputSlotActive(idx) ? 'text-emerald-400 scale-105' : 'index-label'"
             >

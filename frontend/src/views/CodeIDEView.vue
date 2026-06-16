@@ -30,27 +30,34 @@
         <component :is="activeComponent" class="absolute inset-0 w-full h-full" />
       </KeepAlive>
     </div>
+
+    <!-- Nút Trợ giúp Guided Tour -->
+    <HelpButton />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { CodeWorkspace } from '../features/code-to-visualization';
 import { DebugWorkspace } from '../features/debug-mode';
-import { StateInspectorWorkspace } from '../features/state-inspector';
 import BaseIcon from '../shared/components/BaseIcon.vue';
+import HelpButton from '../features/guided-tour/components/HelpButton.vue';
+import { useGuidedTourStore } from '../features/guided-tour/store/useGuidedTourStore';
 
 const activeTab = ref('workspace');
+const tourStore = useGuidedTourStore();
+
+onMounted(() => {
+  tourStore.startPageTour('/code-ide', false);
+});
 
 const tabs = [
   { id: 'workspace', name: 'IDE Workspace', icon: 'code-ide' },
-  { id: 'debugger', name: 'Live Debugger', icon: 'debug' },
-  { id: 'inspector', name: 'State Inspector', icon: 'state' }
+  { id: 'debugger', name: 'Live Debugger', icon: 'debug' }
 ];
 
 const activeComponent = computed(() => {
   if (activeTab.value === 'debugger') return DebugWorkspace;
-  if (activeTab.value === 'inspector') return StateInspectorWorkspace;
   return CodeWorkspace;
 });
 </script>

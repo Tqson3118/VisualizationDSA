@@ -45,7 +45,12 @@ export function useSortingAnimation() {
       .split(",")
       .map((num) => parseInt(num.trim(), 10))
       .filter((num) => !isNaN(num));
-    const arr = parsedArr.length > 0 ? parsedArr : [45, 12, 85, 32, 9, 60];
+
+    // Clamp: giới hạn tối đa 15 phần tử để tránh tràn Canvas và chồng lấn nhãn STT
+    const MAX_ELEMENTS = 15;
+    const arr = parsedArr.length > 0
+      ? parsedArr.slice(0, MAX_ELEMENTS)
+      : [45, 12, 85, 32, 9, 60];
 
     sortFrames.value = generators[algo](arr);
     enrichFramesWithIds(sortFrames.value);

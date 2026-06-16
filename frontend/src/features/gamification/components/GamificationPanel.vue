@@ -51,7 +51,7 @@ const showLevelUp = ref(false), copySuccess = ref(false);
 
 const xpEngine = new XPEngine('demo-user', () => {
   showLevelUp.value = true; setTimeout(() => { showLevelUp.value = false; }, 3000);
-}, (badge) => console.log('Earned badge:', badge.name));
+}, (_badge) => { /* Badge earned — no-op in production */ });
 
 const progress = ref<UserProgress>(xpEngine.getProgress());
 const allBadges = ref<Omit<Badge, 'earnedAt'>[]>(XPEngine.getAllBadges());

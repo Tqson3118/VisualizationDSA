@@ -30,22 +30,24 @@
     <!-- Main Content -->
     <div class="flex flex-1 min-h-0 overflow-hidden">
       <!-- Left: Call Stack + Heap -->
-      <div class="w-[320px] flex-shrink-0 flex flex-col gap-3 p-3 overflow-y-auto border-r border-border-default/30">
+      <div class="w-[320px] flex-shrink-0 flex flex-col gap-3 p-3 overflow-hidden border-r border-border-default/30 h-full">
         <!-- Call Stack Panel -->
         <CallStackPanel
+          data-tour-id="call-stack-3d-panel"
+          class="flex-1 min-h-0"
           :stackFrames="stackFrames"
           @selectFrame="store.selectFrame"
           @hoverVariable="store.hoverVariable"
         />
 
         <!-- Heap Objects -->
-        <div class="heap-section">
-          <div class="px-3 py-2 border-b border-border-default/50">
+        <div class="heap-section flex-1 min-h-0 flex flex-col" data-tour-id="state-heap-pointer-panel">
+          <div class="px-3 py-2 border-b border-border-default/50 flex-shrink-0">
             <h3 class="text-xs font-semibold text-accent-yellow uppercase tracking-wider">
               Heap Memory
             </h3>
           </div>
-          <div class="p-3 space-y-2">
+          <div class="p-3 space-y-2 overflow-y-auto flex-1 min-h-0">
             <HeapObjectNode
               v-for="obj in heapObjects"
               :key="obj.objectId"
@@ -63,6 +65,7 @@
       <div class="flex-1 flex flex-col gap-3 p-3 overflow-y-auto">
         <!-- Recursion Tree -->
         <RecursionTreeSVG
+          data-tour-id="recursion-tree-svg"
           :coordinates="treeCoordinates"
           :maxDepth="treeMaxDepth"
         />
@@ -177,7 +180,17 @@ const {
   overflow: hidden;
 }
 
-.heap-section,
+.heap-section {
+  background: rgba(10, 15, 30, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .active-frame-details {
   background: rgba(10, 15, 30, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.05);

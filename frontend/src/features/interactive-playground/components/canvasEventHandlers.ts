@@ -1,14 +1,44 @@
 import { GraphGeometryEngine, type Point } from '../engine/GraphGeometryEngine';
 import type { NodeDTO, EdgeDTO } from '../store/usePlaygroundStore';
+import type { Ref } from 'vue';
+
+/** Shape of the mutable drag state ref used by the playground canvas */
+interface DragState {
+  nodeId: string | null;
+  offsetX: number;
+  offsetY: number;
+  isDragging: boolean;
+}
+
+/** Shape of the mutable edge-draw state ref used during ADD_EDGE mode */
+interface EdgeDrawState {
+  fromNodeId: string | null;
+  mouseX: number;
+  mouseY: number;
+  snapTarget: NodeDTO | null;
+}
+
+/** Minimal store surface used by canvas event handlers */
+interface PlaygroundStoreSurface {
+  isAlgorithmMode: boolean;
+  setSourceNodeId(id: string): void;
+  selectNode(id: string): void;
+  clearSelection(): void;
+  addNode(x: number, y: number): void;
+  selectEdge(id: string): void;
+  deleteNode(id: string): void;
+  deleteEdge(id: string): void;
+  moveNode(id: string, x: number, y: number): void;
+}
 
 export function handleMouseDown(
   pos: Point,
   mode: string,
   nodes: NodeDTO[],
   edges: EdgeDTO[],
-  store: any,
-  dragState: any,
-  edgeDrawState: any,
+  store: PlaygroundStoreSurface,
+  dragState: Ref<DragState>,
+  edgeDrawState: Ref<EdgeDrawState>,
   emitWeightInput: (payload: { edgeId: string; x: number; y: number; currentWeight: number }) => void,
   canvasElement: HTMLCanvasElement | null
 ) {
@@ -56,10 +86,10 @@ export function handleMouseDown(
 export function handleMouseMove(
   pos: Point,
   mode: string,
-  dragState: any,
-  edgeDrawState: any,
+  dragState: Ref<DragState>,
+  edgeDrawState: Ref<EdgeDrawState>,
   nodes: NodeDTO[],
-  store: any,
+  store: PlaygroundStoreSurface,
   width: number,
   height: number
 ) {
@@ -85,3 +115,4 @@ export function handleMouseMove(
     edgeDrawState.value.snapTarget = snapTarget;
   }
 }
+
