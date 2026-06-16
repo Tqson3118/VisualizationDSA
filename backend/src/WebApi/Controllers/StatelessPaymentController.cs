@@ -71,8 +71,8 @@ namespace VisualizationDSA.WebApi.Controllers
             {
                 var order = _paymentStrategy.VerifyPayment(request.OrderId, request.UserId);
 
-                // Persist isPremium to PostgreSQL
-                await PersistPremiumStatus(request.UserId);
+                // Persist isPremium to PostgreSQL using order.UserId
+                await PersistPremiumStatus(order.UserId);
 
                 return Ok(order);
             }
@@ -119,8 +119,8 @@ namespace VisualizationDSA.WebApi.Controllers
             {
                 var order = _paymentStrategy.SimulateWebhook(request.OrderId);
 
-                // Persist isPremium to PostgreSQL
-                await PersistPremiumStatus(request.UserId);
+                // Persist isPremium to PostgreSQL using order.UserId
+                await PersistPremiumStatus(order.UserId);
 
                 return Ok(order);
             }
@@ -171,7 +171,7 @@ namespace VisualizationDSA.WebApi.Controllers
         {
             if (string.IsNullOrWhiteSpace(userId)) return;
             // In-memory userId might be "demo-user-001" or similar; try to find by email
-            var email = userId == "demo-user-001" ? "demo@algolens.dev" : userId;
+            var email = userId == "demo-user-001" ? "demo@visualizationdsa.dev" : userId;
             var dbUser = await _dbContext.Users
                 .FirstOrDefaultAsync(u => u.Email == email || u.Id.ToString() == userId);
             if (dbUser != null)

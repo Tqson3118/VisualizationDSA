@@ -52,7 +52,7 @@ namespace VisualizationDSA.Domain.Engine
     public class StatelessUserProfile
     {
         public string UserId { get; set; } = "demo-user";
-        public string Username { get; set; } = "AlgoLens Student";
+        public string Username { get; set; } = "VisualizationDSA Student";
         public int TotalXp { get; set; }
         public int CurrentLevel { get; set; }
         public string LevelName { get; set; } = string.Empty;

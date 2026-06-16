@@ -20,6 +20,12 @@ namespace VisualizationDSA.Domain.Entities
         public string    Role           { get; private set; } = "Student";
 
         /// <summary>
+        /// Trạng thái hoạt động của tài khoản. false = bị khóa, không thể đăng nhập.
+        /// ✅ Task 4.2 - Ban/Unban feature
+        /// </summary>
+        public bool      IsActive       { get; private set; } = true;
+
+        /// <summary>
         /// Ngày cuối cùng user có hoạt động học tập (xem lecture, làm quiz, v.v.)
         /// Dùng để tính streak chính xác thay vì chỉ dựa vào LastLoginAt.
         /// ✅ FIX 3.4: Thêm LastActivityDate — tránh streak reset sai khi chỉ login.
@@ -45,6 +51,7 @@ namespace VisualizationDSA.Domain.Entities
             StreakDays   = 0;
             IsPremium    = false;
             Role         = "Student";
+            IsActive     = true;
 
             UserBadges         = new List<UserBadge>();
             QuizAttempts       = new List<QuizAttempt>();
@@ -86,8 +93,18 @@ namespace VisualizationDSA.Domain.Entities
 
         public void SetRole(string role)
         {
-            if (role == "Student" || role == "Teacher")
+            if (role == "Student" || role == "Teacher" || role == "Admin")
                 Role = role;
+        }
+
+        /// <summary>
+        /// Khóa hoặc mở khóa tài khoản người dùng.
+        /// Khi IsActive = false, user bị từ chối JWT khi đăng nhập.
+        /// ✅ Task 4.2
+        /// </summary>
+        public void SetActiveStatus(bool isActive)
+        {
+            IsActive = isActive;
         }
 
         // ── Private ───────────────────────────────────────────────────────────

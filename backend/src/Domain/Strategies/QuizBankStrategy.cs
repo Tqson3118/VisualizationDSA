@@ -34,6 +34,23 @@ namespace VisualizationDSA.Domain.Strategies
             return quiz;
         }
 
+        public StatelessQuizDto? UpdateQuiz(string id, StatelessQuizDto updatedQuiz)
+        {
+            var index = _quizzes.FindIndex(q => q.Id == id);
+            if (index == -1) return null;
+            updatedQuiz.Id = id;
+            _quizzes[index] = updatedQuiz;
+            return updatedQuiz;
+        }
+
+        public bool DeleteQuiz(string id)
+        {
+            var quiz = GetQuizById(id);
+            if (quiz == null) return false;
+            _quizzes.Remove(quiz);
+            return true;
+        }
+
         public StatelessQuizAttemptResult EvaluateAttempt(StatelessQuizAttemptRequest request)
         {
             var quiz = GetQuizById(request.QuizId);

@@ -172,7 +172,7 @@ curl -s http://localhost:5055/api/v1/concepts/gamification/profile | python3 -m 
 ```
 
 **Kỳ vọng:**
-- `userId: "demo-user"`, `username: "AlgoLens Student"`
+- `userId: "demo-user"`, `username: "VisualizationDSA Student"`
 - `totalXp: 150`, `currentLevel: 2`, `levelName: "Explorer"`
 - `streakDays: 3`
 - `earnedBadges`: 1 badge (first-steps)
@@ -253,7 +253,7 @@ curl -s -X POST http://localhost:5055/api/v1/concepts/gamification/award-xp \
    - Progress bar cập nhật
 4. **Bảng xếp hạng từ server:**
    - Section "Bảng xếp hạng (Server)" hiển thị 10 entries
-   - Entry "AlgoLens Student" được highlight viền accent
+   - Entry "VisualizationDSA Student" được highlight viền accent
    - Mỗi entry hiển thị: rank, username, level, levelName, XP, badge count
 5. **Badges từ server:**
    - Section "Huy hiệu từ Server" hiển thị 8 badges

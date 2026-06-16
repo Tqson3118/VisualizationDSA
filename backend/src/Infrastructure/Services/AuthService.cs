@@ -170,6 +170,7 @@ namespace VisualizationDSA.Infrastructure.Services
                 new(JwtRegisteredClaimNames.Name,  user.Username),
                 new(JwtRegisteredClaimNames.Jti,   Guid.NewGuid().ToString()),
                 new("level", user.CurrentLevel.ToString()),
+                new("role", user.Role)
             };
 
             var token = new JwtSecurityToken(
@@ -198,7 +199,22 @@ namespace VisualizationDSA.Infrastructure.Services
             => BCrypt.Net.BCrypt.HashPassword(password, workFactor: 12);
 
         private static bool VerifyPassword(string password, string passwordHash)
-            => BCrypt.Net.BCrypt.Verify(password, passwordHash);
+        {
+            if (passwordHash.StartsWith("$2a$") || passwordHash.StartsWith("$2b$") || passwordHash.StartsWith("$2y$"))
+            {
+                try
+                {
+                    return BCrypt.Net.BCrypt.Verify(password, passwordHash);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            var bytes = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(password + "visualizationdsa-salt"));
+            var sha256Hash = Convert.ToHexString(bytes).ToLowerInvariant();
+            return sha256Hash == passwordHash;
+        }
 
         private static UserDto MapToUserDto(User user) => new()
         {

@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using VisualizationDSA.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace VisualizationDSA.Infrastructure.Data
 {
@@ -173,32 +174,38 @@ namespace VisualizationDSA.Infrastructure.Data
         /// </summary>
         private async Task SeedLeaderboardUsersAsync()
         {
-            if (_context.Users.Any()) return;
-
-            var demoHash = HashPasswordSHA256("Demo@2024");
-
-            var users = new (string email, string username, string password, int xp, int level, int streak)[]
+            var users = new (string email, string username, string password, int xp, int level, int streak, string role)[]
             {
-                ("nguyenvana@algolens.dev",   "NguyenVanA",       "User@2024", 2850, 7, 14),
-                ("tranthib@algolens.dev",     "TranThiB",         "User@2024", 2200, 7, 10),
-                ("levanc@algolens.dev",       "LeVanC",           "User@2024", 1800, 6, 8),
-                ("phamthid@algolens.dev",     "PhamThiD",         "User@2024", 1500, 6, 12),
-                ("hoangvane@algolens.dev",    "HoangVanE",        "User@2024", 1200, 5, 6),
-                ("vuthif@algolens.dev",       "VuThiF",           "User@2024", 950,  4, 5),
-                ("dangvang@algolens.dev",     "DangVanG",         "User@2024", 700,  4, 4),
-                ("buithih@algolens.dev",      "BuiThiH",          "User@2024", 450,  3, 3),
-                ("dovani@algolens.dev",       "DoVanI",           "User@2024", 250,  2, 2),
-                ("demo@algolens.dev",         "AlgoLens Student", "Demo@2024", 150,  2, 3),
+                ("admin@visualizationdsa.dev",     "VisualizationDSA Admin",   "Admin@2024", 9999, 8, 30, "Admin"),
+                ("admin@gmail.com",                "Easy Admin",               "admin123",   9999, 8, 30, "Admin"),
+                ("nguyenvana@visualizationdsa.dev",   "NguyenVanA",    "User@2024",  2850, 7, 14, "Student"),
+                ("tranthib@visualizationdsa.dev",     "TranThiB",      "User@2024",  2200, 7, 10, "Student"),
+                ("levanc@visualizationdsa.dev",       "LeVanC",        "User@2024",  1800, 6, 8,  "Student"),
+                ("phamthid@visualizationdsa.dev",     "PhamThiD",      "User@2024",  1500, 6, 12, "Student"),
+                ("hoangvane@visualizationdsa.dev",    "HoangVanE",     "User@2024",  1200, 5, 6,  "Student"),
+                ("vuthif@visualizationdsa.dev",       "VuThiF",        "User@2024",  950,  4, 5,  "Student"),
+                ("dangvang@visualizationdsa.dev",     "DangVanG",      "User@2024",  700,  4, 4,  "Student"),
+                ("buithih@visualizationdsa.dev",      "BuiThiH",       "User@2024",  450,  3, 3,  "Student"),
+                ("dovani@visualizationdsa.dev",       "DoVanI",        "User@2024",  250,  2, 2,  "Student"),
+                ("demo@visualizationdsa.dev",         "VisualizationDSA Demo", "Demo@2024",  150,  2, 3,  "Teacher"),
             };
 
-            foreach (var (email, username, password, xp, level, streak) in users)
+            foreach (var (email, username, password, xp, level, streak, role) in users)
             {
-                var passwordHash = HashPasswordSHA256(password);
-                var user = new User(email, username, passwordHash);
-                // Award XP to set level correctly via the entity's business logic
-                if (xp > 0) user.AwardXP(xp);
-                if (email == "demo@algolens.dev") user.SetRole("Teacher");
-                await _context.Users.AddAsync(user);
+                var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+                if (existingUser == null)
+                {
+                    var passwordHash = HashPasswordSHA256(password);
+                    var user = new User(email, username, passwordHash);
+                    if (xp > 0) user.AwardXP(xp);
+                    user.SetRole(role);
+                    await _context.Users.AddAsync(user);
+                }
+                else
+                {
+                    // Luôn đồng bộ role
+                    existingUser.SetRole(role);
+                }
             }
 
             await _context.SaveChangesAsync();
@@ -206,7 +213,7 @@ namespace VisualizationDSA.Infrastructure.Data
 
         private static string HashPasswordSHA256(string password)
         {
-            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password + "algolens-salt"));
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password + "visualizationdsa-salt"));
             return Convert.ToHexString(bytes).ToLowerInvariant();
         }
     }

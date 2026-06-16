@@ -182,7 +182,7 @@ curl -s "http://localhost:5055/api/v1/concepts/payment/orders/invalid-order/stat
 
 ### 4.2 Luồng thanh toán đầy đủ
 
-1. Đăng nhập trước (nếu chưa): Click "Đăng nhập" → `demo@algolens.dev` / `Demo@2024`
+1. Đăng nhập trước (nếu chưa): Click "Đăng nhập" → `demo@visualizationdsa.dev` / `Demo@2024`
 2. Vào `/#/checkout` → Click "Bắt đầu Thanh toán (VietQR)"
 3. **Kỳ vọng:** QR code hiển thị + thông tin chuyển khoản (MBBank, 99999999999, mã VDSA...)
 4. Click nút "🧪 Mô phỏng: Xác nhận đã thanh toán"

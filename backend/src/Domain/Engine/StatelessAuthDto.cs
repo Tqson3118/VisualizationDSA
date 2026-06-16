@@ -28,6 +28,9 @@ namespace VisualizationDSA.Domain.Engine
         public List<StatelessBadgeInfoDto> Badges { get; set; } = new();
         public bool IsPremium { get; set; }
         public string Role { get; set; } = "Student";
+        public string? Nickname { get; set; }
+        public string? Bio { get; set; }
+        public string? University { get; set; }
     }
 
     public class StatelessBadgeInfoDto
@@ -56,6 +59,7 @@ namespace VisualizationDSA.Domain.Engine
     public class StatelessRefreshRequest
     {
         public string RefreshToken { get; set; } = string.Empty;
+        public string? UserId { get; set; }
     }
 
     public class StatelessUserProgressDto
@@ -76,6 +80,9 @@ namespace VisualizationDSA.Domain.Engine
     {
         public string? UserId { get; set; }
         public string? Username { get; set; }
+        public string? Nickname { get; set; }
+        public string? Bio { get; set; }
+        public string? University { get; set; }
     }
 
     public class StatelessXpAwardRequest

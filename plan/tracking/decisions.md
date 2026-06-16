@@ -960,3 +960,138 @@ Các ADR sau đây được ghi trong tài liệu đặc tả nhưng **chưa có
 - (+) Audit không xâm lấn — tự động bắt mọi API action, lỗi audit không ảnh hưởng response.
 - (−) Mỗi action phát sinh thêm một INSERT; chấp nhận đánh đổi cho mục tiêu observability.
 - **Tests:** 6 unit tests (InMemory) phủ append/default-payload/monotonic-sequence/block-update/block-delete/allow-append.
+
+---
+### ADR-42 | 2026-06-06 | Authentication & Payment Session Stabilization: Stateless Init Session Restore + Guest Checkout Prevention
+
+**Context:** Users were experiencing logout on page refresh because the stateless session restore wasn't triggered during the early application initialization (uthStore.init()). Furthermore, anonymous guests could access the premium payment page, bypassing authorization checks, which defaulted checkout transactions to a shared fallback user ID (demo-user-001). This caused conflicts where all guests saw "already premium" due to shared state.
+
+**Decision:**
+- Update useAuthStore.init() to check for the presence of dsa_stateless_user_id in localStorage and automatically restore the session via statelessInit() and loadStatelessProfile() prior to app mounting and progress retrieval.
+- Require active authentication for payment actions by updating usePaymentStore to abort and raise errors if uthStore.isAuthenticated is false.
+- Update PremiumCheckoutView.vue to conditionally render a glassmorphic login gate when not authenticated, providing a clear path to sign in without abrupt page redirection.
+
+**Consequences:**
+- (+) Secure, unified authentication checks that prevent unauthorized checkout access.
+- (+) Robust session persistence that survives browser reloads.
+- (+) Improved UX by displaying a prompt inside the checkout viewport rather than redirecting the user to the landing page.
+
+---
+### ADR-43 | 2026-06-09 | FrameDTO Optional Properties Type Mismatch Stabilization
+
+**Context:** The FrameDTO is a base interface used across all algorithm visualizers. However, to support graph simulation algorithms which do not render using array elements (dataState and highlights), these fields were made optional (?). This introduced strict TypeScript compile errors (possibly 'undefined') in sorting visualizers and test specifications that access dataState or highlights directly.
+
+**Decision:**
+- Refactor all sorting visualizers (useAnimationCanvas.ts, compareCanvasDraw.ts, CompareCanvasPanel.vue, compareHelpers.ts) to handle the optionality of dataState and highlights safely using nullish coalescing default values (e.g., frame.highlights ?? [] and frame.dataState ?? []).
+- In test specifications (e.g., algorithmApi.spec.ts) where sorting frames are guaranteed to contain highlights, apply TypeScript's non-null assertion operator (!) to resolve compile warnings without introducing type bypasses (like as any) which violate the project's strict styling guidelines.
+
+**Consequences:**
+- (+) Zero compilation warnings or errors under strict vue-tsc settings.
+- (+) Standardized type safety guidelines are fully preserved without resorting to type-bypasses.
+- (+) Reusable API integration where Sorting and Graph algorithms share a single FrameDTO interface cleanly.
+
+---
+### ADR-44 | 2026-06-09 | Standardizing API Host Configuration & Custom 404 Route Integration
+
+**Context:**
+The frontend was encountering API communication failures (404/CORS errors) due to a double API prefix (/api/v1/api/v1) caused by both .env.development and piClient.ts appending the prefix. Additionally, invalid URL paths silently redirected users to the landing page rather than notifying them with a clear 404 Not Found error page.
+
+**Decision:**
+- Normalize VITE_API_BASE_URL in .env.development to the host only (http://localhost:5000), and configure piClient.ts to automatically append /api/v1 to standard requests, ensuring consistency.
+- Implement NotFoundView.vue utilizing the project's signature Glassmorphism layout, featuring interactive elements like dynamic floating canvas particles, quick navigation links, a glitch 404 code aesthetic, and proper history navigation.
+- Update the Vue router catch-all route /:pathMatch(.*)* to directly render NotFoundView.vue instead of performing a silent redirect.
+
+**Consequences:**
+- (+) Fixed API communication, resolving leaderboard and user progression data fetching.
+- (+) Enhanced UX by preventing confusing silent redirects on missing pages, offering immediate navigation alternatives.
+- (+) Preserved application design aesthetics on all error pages.
+
+---
+### ADR-45 | 2026-06-09 | Guided Tour Onboarding, Monaco Editor Resilience, and SOLID pedagogical improvements
+
+**Context:**
+First-time users found the complex multi-panel DSA workspace and the terminal interface overwhelming. Additionally, when Monaco Editor failed to load due to network drops or CDN cache misses, the application crashed with white screen errors. Lastly, the OOP/SOLID section needed a clear Vietnamese pedagogical explanation to reduce cognitive load on students.
+
+**Decision:**
+- Implement `useGuidedTourStore.ts` using Pinia to manage a 5-step interactive guide with persistent state (`localStorage`), step navigation controls (skip, next, prev, restart), and spotlight positioning.
+- Develop `GuidedTourOverlay.vue` using glassmorphism styling, a dynamic spotlight overlay, and transition animations for onboarding.
+- Integrate a manual " Hu?ng d?n nhanh\ button in the global Header, and trigger the tour automatically on initial app launch.
+- Wrap Monaco Editor `loader.init()` in try-catch blocks in `MonacoEditorPanel.vue`, `DebugWorkspace.vue`, and `CodeEditor.vue` with dynamic reloading buttons to prevent app crashes.
+- Translate and enrich LSP and DIP educational content with detailed Vietnamese texts in `LSPLessonPanel.vue` and `DIPLessonPanel.vue`.
+
+**Consequences:**
+- (+) Streamlined onboarding experience that significantly reduces user friction and cognitive load.
+- (+) High resilience to CDN/network failures for the Monaco editor without breaking the rest of the application.
+- (+) Clear pedagogical explanations of complex SOLID design principles in Vietnamese.
+
+---
+### ADR-46 | 2026-06-09 | User Profile Management & Sidebar Redesign
+
+**Context:**
+The platform lacked a personalized space for students to view their gamification progress (XP, level name, badges), update their nickname/bio/university, and manage their account details. Furthermore, the sidebar navigation included a redundant "VCR Timeline" tab which offered no additional pedagogical value over the individual algorithm workspaces.
+
+**Decision:**
+- Refactor backend `StatelessAuthStrategy` and `StatelessAuthController` to accept and persist additional profile fields: `Nickname`, `Bio`, and `University` inside the session-level stateless state.
+- Update frontend `StatelessUserDto` and `AuthUserDto` interfaces, as well as `useAuthStore` Pinia store actions to support fetching and modifying these new properties.
+- Remove the redundant `VCR Timeline` tab from `appTabs.ts`, `routes.ts`, and navigation.
+- Implement `ProfileView.vue` using glassmorphism styling, a dynamic XP progression wheel, a grid showcasing earned badges, and an interactive form to edit user metadata.
+- Integrate click navigation to `ProfileView` directly from the global Header user badge avatar.
+
+**Consequences:**
+- (+) Cleaned up sidebar navigation by removing redundant components.
+- (+) Provided a centralized profile panel for tracking gamified student achievements.
+- (+) Maintained clean C# and TypeScript models with stateless reactive persistence.
+
+---
+### ADR-47 | 2026-06-14 | Backend 2-Layer Token Authentication Guard & Excel Importer Schema Compatibility
+
+**Context:**
+The platform required API-level access control on teacher quiz management endpoints (StatelessQuizController) and system administration endpoints (AdminController) to reject unauthenticated or non-role-conforming requests. Additionally, importing legacy quiz templates containing the column header "Tiêu đề trắc nghiệm" instead of "Tiêu đề Quiz" resulted in data parsing failures.
+
+**Decision:**
+- Apply the RequireToken() 2-layer authentication guard across all admin and teacher write/management endpoints in AdminController.cs and StatelessQuizController.cs, validating JWT signature integrity using the HMACS256 algorithm and expiration times.
+- Implement strict role-based claims verification using IsAdmin() and IsTeacherOrAdmin() to control access to write actions.
+- Update the ExcelRowInput interface and excelParser.ts engine to dynamically map both "Tiêu đề trắc nghiệm" and "Tiêu đề Quiz" to the quiz title property, maintaining 100% backward compatibility.
+- Localize the remaining English strings inside TeacherPanelView.vue and ExcelQuizImporter.vue into professional academic Vietnamese.
+
+**Consequences:**
+- (+) Secured critical backend quiz operations and system administrative actions against malicious API calls.
+- (+) Provided a robust, backward-compatible import workflow that handles legacy Excel templates.
+- (+) Completed end-to-end localization of the teacher dashboard, enhancing overall UX consistency.
+
+
+---
+### ADR-48 | 2026-06-16 | Guided Tour Expansion & Integration Stability
+
+**Context:**
+As the platform grew to include advanced modules like Algorithm Compare, Graph Playground, Sorting View, and System Design, students needed page-specific interactive onboarding guides to explain specialized UI components (VCR controls, comparative panels, physics layouts). Furthermore, the onboarding tests required verification alignment to ensure 100% test coverage with zero regressions.
+
+**Decision:**
+- Standardize target UI selectors by embedding explicit `data-tour-id` attributes on key elements of `/sorting`, `/compare`, `/graph`, and `/system` workspaces to avoid fragile CSS class dependence.
+- Expand `useGuidedTourStore.ts` with custom multi-step configs under the `PAGE_TOURS` registry for sorting, compare, graph, and system views.
+- Integrate the shared `HelpButton.vue` component in `CompareView.vue` and `GraphView.vue`, enabling students to manually trigger or replay the guide.
+- Configure automatic onboarding tour triggers on the first view visit using local storage keys (`page_tour_{route}_seen`).
+- Align and update the Vitest test suite (`useGuidedTourStore.spec.ts`) assertions to match the updated tour steps and titles, ensuring 100% of the 1548 tests pass.
+
+**Consequences:**
+- (+) Highly context-aware onboarding guides that automatically familiarize users with complex specialized controls.
+- (+) Clean separation of concerns by using HTML `data-tour-id` attributes for target element selection.
+- (+) Fully green, verified, and robust test suite coverage of the entire guided tour lifecycle.
+
+---
+### ADR-49 | 2026-06-16 | Interactive Assistant Guided Tour with Virtual Avatar & Simulation Playback
+
+**Context:**
+To further lower the cognitive load on students during onboarding, the static guided tour needed to evolve into an interactive "Virtual Assistant" experience. This required a responsive visual mascot to convey emotional states, a typewriter voice dialogue with simulated audio equalizers, and an auto-play "Watch Me Work" capability that drives automated clicks and input events using a virtual pointer.
+
+**Decision:**
+- Develop a responsive glassmorphic `VirtualMascot.vue` component with reactive emotional states (Greeting, Simulating, Success) and floating bobbing animations.
+- Implement `VirtualPointer.vue` representing a neon tracking cursor with Lerp-based movement and click ripple indicators.
+- Refactor `useGuidedTourStore.ts` with a core simulation script execution engine (`runCurrentStepScript`) that dispatches native DOM click and input events based on CSS selectors.
+- Update `GuidedTourOverlay.vue` to integrate the virtual avatar, pointer, real-time typewriter dialogue, and simulated voice equalizer waves.
+- Update the Vitest test suite (`useGuidedTourStore.spec.ts`) to assert simulation execution and JSDOM environment compatibility, keeping all tests passing.
+
+**Consequences:**
+- (+) Significant UX upgrade: immersive, human-like virtual onboarding assistant instead of static popups.
+- (+) Low-risk, non-intrusive DOM event simulation that does not mutate component states or introduce memory leaks.
+- (+) Complete and robust test suite coverage verifying interactive simulations.

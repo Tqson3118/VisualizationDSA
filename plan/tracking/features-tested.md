@@ -5,8 +5,8 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 ---
 
 ## 📌 Trạng Thái Bao Phủ Kiểm Thử (Test Coverage Status)
-*   **Tổng số tính năng hạt nhân:** 23/23 Tính năng + Phase 1 Animation Engine (23 tests) + Phase 1 Custom Input (38 tests) + Phase 1 DSA Modules (40 tests mới) + Phase 1 E-Lecture Mode (28 tests mới) + Phase 1 Execution Control (23 tests mới) + Phase 1 Interactive Playground (31 tests mới) + Phase 1 Pseudocode Sync (37 tests mới) + Phase 1 Quiz System (54 tests mới) + Phase 2 Code-to-Visualization (32 tests mới) + Phase 2 Compare Algorithms (33 tests mới) + Phase 2 Concurrency Visualizer (35 tests mới) + Phase 2 Debug Mode (49 tests mới) + Phase 2 Design Patterns (50 tests mới) + Phase 2 Embed Widget (76 tests mới) + Phase 2 Export & Share (85 tests mới) + Phase 2 Gamification Engine (88 tests mới) + Phase 2 Learning Path (98 tests mới) + Phase 2 Multi-View Sync (102 tests mới) + Phase 2 OOP Visualization (59 tests) + Phase 2 Smart Quiz (90 tests mới) + Phase 2 SOLID Visualization (105 tests mới) + Phase 2 State Inspector (90 tests mới) + Phase 2 System Design Viz (64 tests mới).
-*   **Trạng thái Vitest Suite (Frontend):** 🟢 100% PASSED (1550+/1551 — 1 pre-existing ForceDirectedLayout failure).
+*   **Tổng số tính năng hạt nhân:** 23/23 Tính năng + Phase 1 Animation Engine (23 tests) + Phase 1 Custom Input (38 tests) + Phase 1 DSA Modules (40 tests mới) + Phase 1 E-Lecture Mode (28 tests mới) + Phase 1 Execution Control (23 tests mới) + Phase 1 Interactive Playground (31 tests mới) + Phase 1 Pseudocode Sync (37 tests mới) + Phase 1 Quiz System (54 tests mới) + Phase 2 Code-to-Visualization (32 tests mới) + Phase 2 Compare Algorithms (33 tests mới) + Phase 2 Concurrency Visualizer (35 tests mới) + Phase 2 Debug Mode (49 tests mới) + Phase 2 Design Patterns (50 tests mới) + Phase 2 Embed Widget (76 tests mới) + Phase 2 Export & Share (85 tests mới) + Phase 2 Gamification Engine (88 tests mới) + Phase 2 Learning Path (98 tests mới) + Phase 2 Multi-View Sync (102 tests mới) + Phase 2 OOP Visualization (59 tests) + Phase 2 Smart Quiz (90 tests mới) + Phase 2 SOLID Visualization (105 tests mới) + Phase 2 State Inspector (90 tests mới) + Phase 2 System Design Viz (64 tests mới) + Guided Tour (8 tests mới).
+*   **Trạng thái Vitest Suite (Frontend):** 🟢 100% PASSED (1549/1549 - all tests pass).
 *   **Trạng thái xUnit Suite (Backend C#):** 🟢 100% PASSED (212/212 — 88 Domain + 46 Application + 78 Infrastructure).
 *   **Công cụ chạy kiểm thử:** Vitest Core (Frontend), xUnit 2.6.6 + FluentAssertions 6.12.0 + Moq 4.20.70 (Backend).
 *   **Thời gian phản hồi test suite:** Frontend ~180ms, Backend ~10s.
@@ -2102,3 +2102,52 @@ Tài liệu này ghi nhận trạng thái kiểm thử đơn vị tự động (
 | 1837 | **Event Sourcing** | Immutable interceptor blocks DELETE | SaveChanges ném InvalidOperationException khi Deleted | 🟢 PASSED |
 | 1838 | **Event Sourcing** | Immutable interceptor allows APPEND | Append (Added) không bị chặn | 🟢 PASSED |
 | 1839 | **Compilation** | dotnet test full suite | Backend 19/19 tests PASS | 🟢 PASSED |
+| 1840 | **UI/UX Layout** | PseudocodeViewer scrollbar & wrap | Cuộn dọc độc lập, không tràn panel, thụt lề dòng lệnh chính xác | 🟢 PASSED |
+| 1841 | **UI/UX Layout** | Glassmorphic HUD Step Card | Nền mờ kính tương phản cao, tự động mờ 90% khi di chuột vào | 🟢 PASSED |
+| 1842 | **Localization** | Spellcheck Vietnamese UI labels | Nhãn "Mô phỏng" và "Lý thuyết" hiển thị đúng ký tự có dấu | 🟢 PASSED |
+| 1843 | **Compilation** | vue-tsc production build | Biên dịch frontend không có lỗi kiểu dữ liệu nghiêm ngặt | 🟢 PASSED |
+| 1844 | **Excel Parser** | Parse multiple quizzes | Phân tích mảng hàng Excel thành DTO cấu trúc Quiz hoàn chỉnh | 🟢 PASSED |
+| 1845 | **Excel Parser** | Skip empty titles | Bỏ qua các hàng có tiêu đề trống | 🟢 PASSED |
+| 1846 | **Excel Parser** | Validation warnings | Trả lỗi khi thiếu câu hỏi, thiếu đáp án A/B, hoặc chỉ mục đáp án đúng sai | 🟢 PASSED |
+| 1847 | **Compilation** | npm run test | Frontend 1531/1531 tests PASS (bao gồm 3 test mới) | 🟢 PASSED |
+| 1848 | **Guided Tour** | should initialize with default inactive state | `isActive=false`, `currentStepIndex=0`, `steps.length > 0` | 🟢 PASSED |
+| 1849 | **Guided Tour** | should start the tour and reset step index to 0 | `isActive=true`, `currentStepIndex=0` | 🟢 PASSED |
+| 1850 | **Guided Tour** | should advance to next step | Increments `currentStepIndex` to 1 | 🟢 PASSED |
+| 1851 | **Guided Tour** | should complete tour when calling nextStep on the last step | Sets `isActive=false`, writes `guided_tour_seen=true` to localStorage | 🟢 PASSED |
+| 1852 | **Guided Tour** | should go to previous step and prevent going below 0 | Clamps `currentStepIndex` to 0 | 🟢 PASSED |
+| 1853 | **Guided Tour** | should skip tour and write to localStorage | Sets `isActive=false`, writes `guided_tour_seen=true` to localStorage | 🟢 PASSED |
+| 1854 | **Guided Tour** | should automatically init and start tour if guided_tour_seen is not set | Sets `isActive=true` | 🟢 PASSED |
+| 1855 | **Guided Tour** | should not start tour during init if guided_tour_seen is set to true | `isActive` remains `false` | 🟢 PASSED |
+| 1856 | **Compilation** | npm run test | Frontend 1539/1539 tests PASS (bao gồm 8 test mới) | 🟢 PASSED |
+
+
+
+| 1857 | **Auth Strategy** | Update InMemoryUser fields | Nickname, Bio, University persisted | 🟢 PASSED |
+| 1858 | **Auth API** | PUT /concepts/auth/profile DTO mapping | Correct mapping of optional properties | 🟢 PASSED |
+| 1859 | **Auth Store** | updateProfile Pinia action | updates state.user reactively | 🟢 PASSED |
+| 1860 | **Profile E2E** | Edit user profile flow | Nickname, Bio, University edited + saved successfully, Toast shown | 🟢 PASSED |
+| 1861 | **Profile Navigation** | Navigation via header avatar click | Clicking avatar badge correctly routes to /profile | 🟢 PASSED |
+| 1862 | **Profile UI** | Level progression & badges render | Correctly displays level XP progress & cabinet badges | 🟢 PASSED |
+| 1863 | **Admin Security** | RequireToken() on AdminController | Unauthenticated requests return 401 | ✅ PASSED |
+| 1864 | **Teacher Security** | RequireToken() on StatelessQuizController | Unauthenticated write requests return 401 | ✅ PASSED |
+| 1865 | **Excel Import Compatibility** | Title parsing with fallback | Supports "Tiêu đề trắc nghiệm" and "Tiêu đề Quiz" | ✅ PASSED |
+| 1866 | **Diagnostics Scanner** | Local UI/UX Diagnostics | 15 routes diagnostic sweep successfully passed | ✅ PASSED |
+| 1867 | **Guided Tour** | HelpButton trigger on /compare | Renders HelpButton and manually triggers /compare tour | ✅ PASSED |
+| 1868 | **Guided Tour** | HelpButton trigger on /graph | Renders HelpButton and manually triggers /graph tour | ✅ PASSED |
+| 1869 | **Guided Tour** | should correctly load tour steps for newly added academic routes | Validates steps for /compare, /graph, /system, etc. | ✅ PASSED |
+| 1870 | **Compilation** | npm run test | Frontend 1548/1548 tests PASS (including page-specific tour tests) | ✅ PASSED |
+
+| 1871 | **Guided Tour** | handleResize event listener safety | Resizing window does not crash app, handles skipScroll correctly | ✅ PASSED |
+| 1872 | **Compilation** | npm run build | Production compilation passes with zero TypeScript warnings | ✅ PASSED || 1873 | **Compare UI** | Custom glassmorphic dropdowns | Replaced native HTML select elements with custom glassmorphic dropdown components | 🟢 PASSED |
+| 1874 | **Compare UI** | Click outside dropdown logic | Click outside closes the open left/right dropdowns correctly | 🟢 PASSED |
+| 1875 | **Compare UI** | Help button integration | Help button successfully embedded inside CompareAlgorithmSelector | 🟢 PASSED |
+| 1876 | **Concurrency UI** | Absolute positioned status badges | Fixed-width state badges do not collide with rail track paths | 🟢 PASSED |
+| 1877 | **Concurrency UI** | High-contrast state badges | Opacity increased to 15% (bg/15) for improved text readability | 🟢 PASSED |
+| 1878 | **Concurrency UI** | Mutex toggle layout | Neon cyan glow and subpixel transforms applied to Mutex toggle | 🟢 PASSED |
+| 1879 | **Navigation Cleanup** | Remove redundant State Inspector links | Centralized /state workspace access, removed duplicate link in IDE view | 🟢 PASSED |
+| 1880 | **Compilation** | dotnet test + npm run test | Both suites run fully green with zero warnings/errors | 🟢 PASSED || 1881 | **Authentication** | Token refresh atomic lock | Prevent concurrent refresh token calls | âœ… PASSED |
+| 1882 | **Authentication** | Progress load retry | Retry fetch on 401 transparently | âœ… PASSED |
+| 1883 | **Guided Tour** | should support action scripts and run simulation successfully | Verifies DOM script playback using virtual cursor coordinates | âœ… PASSED |
+| 1884 | **Compilation** | npm run test | Frontend 1555/1555 tests PASS (including simulation test cases) | âœ… PASSED |
+| 1885 | **Guided Tour** | should correctly load tour steps for newly added academic routes | Expand testCases array to verify all 12 academic modules (including /sorting) | 🟢 PASSED |
+| 1886 | **Compilation** | npm run test | Frontend 1549/1549 tests PASS with all 12-step guided tour validations | 🟢 PASSED |

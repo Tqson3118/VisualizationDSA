@@ -33,6 +33,20 @@ namespace VisualizationDSA.Domain.Entities
         {
             Questions.Add(new QuizQuestion(Id, question, options, correctIndex, explanation));
         }
+
+        public void Update(string title, string description, string topic, int difficulty, int xpReward)
+        {
+            Title = title;
+            Description = description;
+            Topic = topic;
+            Difficulty = difficulty;
+            XPReward = xpReward;
+        }
+
+        public void ClearQuestions()
+        {
+            Questions.Clear();
+        }
     }
 
     public class QuizQuestion

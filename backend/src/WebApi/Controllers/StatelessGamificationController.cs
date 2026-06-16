@@ -70,7 +70,7 @@ namespace VisualizationDSA.WebApi.Controllers
 
             // Persist XP to PostgreSQL — update demo user
             var dbUser = await _dbContext.Users
-                .FirstOrDefaultAsync(u => u.Email == "demo@algolens.dev");
+                .FirstOrDefaultAsync(u => u.Email == "demo@visualizationdsa.dev");
             if (dbUser != null)
             {
                 dbUser.AwardXP(request.Amount);

@@ -29,7 +29,8 @@ trap cleanup EXIT INT TERM
 
 # --- Start Backend ---
 echo "[1/2] Starting .NET Backend on port 5055..."
-dotnet run --project "$SCRIPT_DIR/backend/src/WebApi/WebApi.csproj" --urls "http://localhost:5055" &
+ASPNETCORE_ENVIRONMENT=Development dotnet run --project "$SCRIPT_DIR/backend/src/WebApi/WebApi.csproj" --urls "http://localhost:5055" &
+
 BACKEND_PID=$!
 
 # --- Wait briefly for backend to begin initializing ---

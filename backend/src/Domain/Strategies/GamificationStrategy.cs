@@ -117,7 +117,7 @@ namespace VisualizationDSA.Domain.Strategies
         private static StatelessUserProfile BuildDemoProfile() => new()
         {
             UserId = "demo-user",
-            Username = "AlgoLens Student",
+            Username = "VisualizationDSA Student",
             TotalXp = 150,
             CurrentLevel = 2,
             LevelName = "Explorer",
@@ -144,7 +144,7 @@ namespace VisualizationDSA.Domain.Strategies
             new() { Rank = 7, Username = "DangVanG",     TotalXp = 700,  Level = 4, LevelName = "Practitioner",BadgeCount = 3, StreakDays = 4  },
             new() { Rank = 8, Username = "BuiThiH",      TotalXp = 450,  Level = 3, LevelName = "Learner",     BadgeCount = 2, StreakDays = 3  },
             new() { Rank = 9, Username = "DoVanI",        TotalXp = 250,  Level = 2, LevelName = "Explorer",    BadgeCount = 1, StreakDays = 2  },
-            new() { Rank = 10, Username = "AlgoLens Student", TotalXp = 150, Level = 2, LevelName = "Explorer", BadgeCount = 1, StreakDays = 3  },
+            new() { Rank = 10, Username = "VisualizationDSA Student", TotalXp = 150, Level = 2, LevelName = "Explorer", BadgeCount = 1, StreakDays = 3  },
         };
     }
 }

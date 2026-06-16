@@ -27,7 +27,7 @@ public sealed class SecurityHeadersMiddleware
         headers["X-XSS-Protection"] = "1; mode=block";
 
         // Ẩn thông tin server (không để lộ "Microsoft-IIS/10.0" hay "Kestrel")
-        headers["Server"] = "AlgoLens";
+        headers["Server"] = "VisualizationDSA";
 
         // Referrer policy — chỉ gửi origin khi cross-origin
         headers["Referrer-Policy"] = "strict-origin-when-cross-origin";

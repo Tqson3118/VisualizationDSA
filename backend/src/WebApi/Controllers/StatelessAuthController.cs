@@ -25,6 +25,27 @@ namespace VisualizationDSA.WebApi.Controllers
         private readonly StatelessAuthStrategy _authStrategy;
         private readonly ApplicationDbContext _dbContext;
 
+        static StatelessAuthController()
+        {
+            StatelessAuthStrategy.VerifyPasswordDelegate = (password, hash) =>
+            {
+                if (hash.StartsWith("$2a$") || hash.StartsWith("$2b$") || hash.StartsWith("$2y$"))
+                {
+                    try
+                    {
+                        return BCrypt.Net.BCrypt.Verify(password, hash);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
+                var bytes = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(password + "visualizationdsa-salt"));
+                var sha256Hash = Convert.ToHexString(bytes).ToLowerInvariant();
+                return sha256Hash == hash;
+            };
+        }
+
         public StatelessAuthController(StatelessAuthStrategy authStrategy, ApplicationDbContext dbContext)
         {
             _authStrategy = authStrategy;
@@ -33,7 +54,7 @@ namespace VisualizationDSA.WebApi.Controllers
 
         private static string HashPasswordSHA256(string password)
         {
-            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password + "algolens-salt"));
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password + "visualizationdsa-salt"));
             return Convert.ToHexString(bytes).ToLowerInvariant();
         }
 
@@ -46,18 +67,25 @@ namespace VisualizationDSA.WebApi.Controllers
         {
             try
             {
-                var response = _authStrategy.Register(request);
-
-                // Persist to PostgreSQL
+                // Persist to PostgreSQL first
                 var existingUser = await _dbContext.Users
                     .FirstOrDefaultAsync(u => u.Email == request.Email);
+                string dbUserId;
                 if (existingUser == null)
                 {
                     var passwordHash = HashPasswordSHA256(request.Password);
                     var dbUser = new User(request.Email, request.Username, passwordHash);
                     _dbContext.Users.Add(dbUser);
                     await _dbContext.SaveChangesAsync();
+                    dbUserId = dbUser.Id.ToString();
                 }
+                else
+                {
+                    dbUserId = existingUser.Id.ToString();
+                }
+
+                var response = _authStrategy.Register(request, dbUserId);
+
                 // Ensure response reflects DB role
                 response.User.Role = "Student";
 
@@ -78,15 +106,43 @@ namespace VisualizationDSA.WebApi.Controllers
         {
             try
             {
+                User dbUser = null;
+                try
+                {
+                    // Sync from PostgreSQL — update LastLoginAt + override role/premium from DB
+                    dbUser = await _dbContext.Users
+                        .FirstOrDefaultAsync(u => u.Email == request.Email);
+                    if (dbUser != null)
+                    {
+                        // ✅ Task 4.2: Kiểm tra tài khoản có bị khóa không
+                        if (!dbUser.IsActive)
+                            return StatusCode(403, new { error = "ACCOUNT_BANNED", message = "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên." });
+
+                        _authStrategy.EnsureUserInMemory(
+                            dbUser.Id.ToString(),
+                            dbUser.Email,
+                            dbUser.Username,
+                            dbUser.PasswordHash,
+                            dbUser.IsPremium,
+                            dbUser.Role,
+                            dbUser.TotalXP,
+                            dbUser.CurrentLevel,
+                            dbUser.StreakDays
+                        );
+
+                        dbUser.RecordLogin();
+                        await _dbContext.SaveChangesAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Serilog.Log.Warning(ex, "Không thể kết nối cơ sở dữ liệu để đồng bộ tài khoản trong Stateless Mode. Tiếp tục bằng in-memory auth.");
+                }
+
                 var response = _authStrategy.Login(request);
 
-                // Sync from PostgreSQL — update LastLoginAt + override role/premium from DB
-                var dbUser = await _dbContext.Users
-                    .FirstOrDefaultAsync(u => u.Email == request.Email);
                 if (dbUser != null)
                 {
-                    dbUser.RecordLogin();
-                    await _dbContext.SaveChangesAsync();
                     // Override in-memory fields with DB truth
                     response.User.Role = dbUser.Role;
                     response.User.IsPremium = dbUser.IsPremium;
@@ -107,10 +163,41 @@ namespace VisualizationDSA.WebApi.Controllers
         /// POST /api/v1/concepts/auth/refresh
         /// </summary>
         [HttpPost("refresh")]
-        public ActionResult<StatelessAuthResponse> Refresh([FromBody] StatelessRefreshRequest request)
+        public async Task<ActionResult<StatelessAuthResponse>> Refresh([FromBody] StatelessRefreshRequest request)
         {
             try
             {
+                // If the user's refresh token isn't in memory (e.g. server restart), but they provided their UserId, re-hydrate from DB
+                if (!string.IsNullOrEmpty(request.UserId))
+                {
+                    if (Guid.TryParse(request.UserId, out var dbUserId))
+                    {
+                        try
+                        {
+                            var dbUser = await _dbContext.Users.FindAsync(dbUserId);
+                            if (dbUser != null)
+                            {
+                                _authStrategy.EnsureUserInMemory(
+                                    dbUser.Id.ToString(),
+                                    dbUser.Email,
+                                    dbUser.Username,
+                                    dbUser.PasswordHash,
+                                    dbUser.IsPremium,
+                                    dbUser.Role,
+                                    dbUser.TotalXP,
+                                    dbUser.CurrentLevel,
+                                    dbUser.StreakDays
+                                );
+                                _authStrategy.ForceAddRefreshToken(request.RefreshToken, dbUser.Id.ToString());
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Serilog.Log.Warning(ex, "Không thể kết nối cơ sở dữ liệu để re-hydrate tài khoản trong Refresh. Tiếp tục bằng in-memory.");
+                        }
+                    }
+                }
+
                 var response = _authStrategy.RefreshToken(request.RefreshToken);
                 return Ok(response);
             }
@@ -140,11 +227,29 @@ namespace VisualizationDSA.WebApi.Controllers
         /// GET /api/v1/concepts/auth/me?userId=...
         /// </summary>
         [HttpGet("me")]
-        public ActionResult<StatelessUserDto> GetMe([FromQuery] string? userId)
+        public async Task<ActionResult<StatelessUserDto>> GetMe([FromQuery] string? userId)
         {
             try
             {
                 var id = userId ?? "demo-user-001";
+                if (id != "demo-user-001" && Guid.TryParse(id, out var dbUserId))
+                {
+                    var dbUser = await _dbContext.Users.FindAsync(dbUserId);
+                    if (dbUser != null)
+                    {
+                        _authStrategy.EnsureUserInMemory(
+                            dbUser.Id.ToString(),
+                            dbUser.Email,
+                            dbUser.Username,
+                            dbUser.PasswordHash,
+                            dbUser.IsPremium,
+                            dbUser.Role,
+                            dbUser.TotalXP,
+                            dbUser.CurrentLevel,
+                            dbUser.StreakDays
+                        );
+                    }
+                }
                 var user = _authStrategy.GetProfile(id);
                 return Ok(user);
             }
@@ -159,11 +264,29 @@ namespace VisualizationDSA.WebApi.Controllers
         /// GET /api/v1/concepts/auth/progress?userId=...
         /// </summary>
         [HttpGet("progress")]
-        public ActionResult<StatelessUserProgressDto> GetProgress([FromQuery] string? userId)
+        public async Task<ActionResult<StatelessUserProgressDto>> GetProgress([FromQuery] string? userId)
         {
             try
             {
                 var id = userId ?? "demo-user-001";
+                if (id != "demo-user-001" && Guid.TryParse(id, out var dbUserId))
+                {
+                    var dbUser = await _dbContext.Users.FindAsync(dbUserId);
+                    if (dbUser != null)
+                    {
+                        _authStrategy.EnsureUserInMemory(
+                            dbUser.Id.ToString(),
+                            dbUser.Email,
+                            dbUser.Username,
+                            dbUser.PasswordHash,
+                            dbUser.IsPremium,
+                            dbUser.Role,
+                            dbUser.TotalXP,
+                            dbUser.CurrentLevel,
+                            dbUser.StreakDays
+                        );
+                    }
+                }
                 var progress = _authStrategy.GetUserProgress(id);
                 return Ok(progress);
             }
@@ -178,12 +301,30 @@ namespace VisualizationDSA.WebApi.Controllers
         /// PUT /api/v1/concepts/auth/profile
         /// </summary>
         [HttpPut("profile")]
-        public ActionResult<StatelessUserDto> UpdateProfile([FromBody] StatelessUpdateProfileRequest request)
+        public async Task<ActionResult<StatelessUserDto>> UpdateProfile([FromBody] StatelessUpdateProfileRequest request)
         {
             try
             {
                 var id = request.UserId ?? "demo-user-001";
-                var user = _authStrategy.UpdateProfile(id, request.Username);
+                if (id != "demo-user-001" && Guid.TryParse(id, out var dbUserId))
+                {
+                    var dbUser = await _dbContext.Users.FindAsync(dbUserId);
+                    if (dbUser != null)
+                    {
+                        _authStrategy.EnsureUserInMemory(
+                            dbUser.Id.ToString(),
+                            dbUser.Email,
+                            dbUser.Username,
+                            dbUser.PasswordHash,
+                            dbUser.IsPremium,
+                            dbUser.Role,
+                            dbUser.TotalXP,
+                            dbUser.CurrentLevel,
+                            dbUser.StreakDays
+                        );
+                    }
+                }
+                var user = _authStrategy.UpdateProfile(id, request.Username, request.Nickname, request.Bio, request.University);
                 return Ok(user);
             }
             catch (KeyNotFoundException ex)
@@ -206,15 +347,33 @@ namespace VisualizationDSA.WebApi.Controllers
             try
             {
                 var id = request.UserId ?? "demo-user-001";
+                if (id != "demo-user-001" && Guid.TryParse(id, out var dbUserId))
+                {
+                    var dbUser = await _dbContext.Users.FindAsync(dbUserId);
+                    if (dbUser != null)
+                    {
+                        _authStrategy.EnsureUserInMemory(
+                            dbUser.Id.ToString(),
+                            dbUser.Email,
+                            dbUser.Username,
+                            dbUser.PasswordHash,
+                            dbUser.IsPremium,
+                            dbUser.Role,
+                            dbUser.TotalXP,
+                            dbUser.CurrentLevel,
+                            dbUser.StreakDays
+                        );
+                    }
+                }
                 var user = _authStrategy.AwardXP(id, request.Amount, request.Reason);
 
                 // Persist XP to PostgreSQL — find by email (in-memory ID is string, DB ID is Guid)
-                var dbUser = await _dbContext.Users
+                var dbUserXp = await _dbContext.Users
                     .FirstOrDefaultAsync(u => u.Email == user.Email);
-                if (dbUser != null)
+                if (dbUserXp != null)
                 {
-                    dbUser.AwardXP(request.Amount);
-                    dbUser.RecordActivity();
+                    dbUserXp.AwardXP(request.Amount);
+                    dbUserXp.RecordActivity();
                     await _dbContext.SaveChangesAsync();
                 }
 
@@ -240,7 +399,7 @@ namespace VisualizationDSA.WebApi.Controllers
             return Ok(new
             {
                 message = "Tài khoản demo để kiểm thử",
-                email = "demo@algolens.dev",
+                email = "demo@visualizationdsa.dev",
                 password = "Demo@2024",
                 note = "Dữ liệu đăng ký được lưu vĩnh viễn vào PostgreSQL. In-memory cache tự khởi tạo lại khi restart."
             });

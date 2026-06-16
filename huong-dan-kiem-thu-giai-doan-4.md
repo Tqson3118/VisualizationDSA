@@ -39,7 +39,7 @@ dotnet run --urls "http://0.0.0.0:5050"
 **Kiểm tra:**
 ```bash
 curl http://localhost:5055/api/v1/concepts/auth/demo-credentials
-# Phải trả về: {"email":"demo@algolens.dev","password":"Demo@2024",...}
+# Phải trả về: {"email":"demo@visualizationdsa.dev","password":"Demo@2024",...}
 ```
 
 ### 2.2 Frontend (Vue 3 + Vite)
@@ -61,28 +61,28 @@ Mở trình duyệt: `http://localhost:5173`
 curl -s http://localhost:5055/api/v1/concepts/auth/demo-credentials | python3 -m json.tool
 ```
 
-**Kỳ vọng:** `email: "demo@algolens.dev"`, `password: "Demo@2024"`
+**Kỳ vọng:** `email: "demo@visualizationdsa.dev"`, `password: "Demo@2024"`
 
 ### 3.2 Đăng nhập với tài khoản demo
 
 ```bash
 curl -s -X POST http://localhost:5055/api/v1/concepts/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"demo@algolens.dev","password":"Demo@2024"}' | python3 -m json.tool
+  -d '{"email":"demo@visualizationdsa.dev","password":"Demo@2024"}' | python3 -m json.tool
 ```
 
 **Kỳ vọng:**
 - `accessToken`: chuỗi JWT-like (3 phần ngăn cách bởi dấu chấm)
 - `refreshToken`: chuỗi 64 ký tự hex
 - `expiresIn: 900` (15 phút)
-- `user.username: "AlgoLens Student"`, `user.totalXP: 150`, `user.currentLevel: 2`
+- `user.username: "VisualizationDSA Student"`, `user.totalXP: 150`, `user.currentLevel: 2`
 
 ### 3.3 Đăng nhập sai mật khẩu
 
 ```bash
 curl -s -X POST http://localhost:5055/api/v1/concepts/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"demo@algolens.dev","password":"WrongPassword"}' | python3 -m json.tool
+  -d '{"email":"demo@visualizationdsa.dev","password":"WrongPassword"}' | python3 -m json.tool
 ```
 
 **Kỳ vọng:** HTTP 401 với `error: "LOGIN_FAILED"`, `message: "Email hoặc mật khẩu không đúng."`
@@ -104,7 +104,7 @@ curl -s -X POST http://localhost:5055/api/v1/concepts/auth/register \
 ```bash
 curl -s -X POST http://localhost:5055/api/v1/concepts/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email":"demo@algolens.dev","username":"NewUser","password":"Test@12345"}' | python3 -m json.tool
+  -d '{"email":"demo@visualizationdsa.dev","username":"NewUser","password":"Test@12345"}' | python3 -m json.tool
 ```
 
 **Kỳ vọng:** HTTP 400 với `error: "REGISTRATION_FAILED"`, `message: "Email này đã được sử dụng..."`
@@ -152,7 +152,7 @@ curl -s -X POST http://localhost:5055/api/v1/concepts/auth/logout \
 curl -s http://localhost:5055/api/v1/concepts/auth/me | python3 -m json.tool
 ```
 
-**Kỳ vọng:** `id: "demo-user-001"`, `username: "AlgoLens Student"`, `totalXP: 150`
+**Kỳ vọng:** `id: "demo-user-001"`, `username: "VisualizationDSA Student"`, `totalXP: 150`
 
 ### 4.2 Lấy profile theo userId
 
@@ -189,10 +189,10 @@ curl -s -X POST http://localhost:5055/api/v1/concepts/auth/award-xp \
 ```bash
 curl -s -X PUT http://localhost:5055/api/v1/concepts/auth/profile \
   -H "Content-Type: application/json" \
-  -d '{"username":"AlgoLens Pro Student"}' | python3 -m json.tool
+  -d '{"username":"VisualizationDSA Pro Student"}' | python3 -m json.tool
 ```
 
-**Kỳ vọng:** `username: "AlgoLens Pro Student"` (đã đổi)
+**Kỳ vọng:** `username: "VisualizationDSA Pro Student"` (đã đổi)
 
 ### 4.6 User không tồn tại
 
@@ -215,12 +215,12 @@ curl -s "http://localhost:5055/api/v1/concepts/auth/me?userId=invalid-id" | pyth
 ### 5.2 Đăng nhập demo
 
 1. Trong modal, nhập:
-   - Email: `demo@algolens.dev`
+   - Email: `demo@visualizationdsa.dev`
    - Password: `Demo@2024`
 2. Click **"Đăng nhập"**
 3. **Kỳ vọng:**
    - Modal đóng
-   - Header hiển thị avatar chữ "A" + "AlgoLens Student" + "Lv.2 · 150 XP"
+   - Header hiển thị avatar chữ "A" + "VisualizationDSA Student" + "Lv.2 · 150 XP"
    - Nút đăng xuất (icon mũi tên) xuất hiện thay nút "Đăng nhập"
 
 ### 5.3 Session persistence (F5)
@@ -252,7 +252,7 @@ curl -s "http://localhost:5055/api/v1/concepts/auth/me?userId=invalid-id" | pyth
 ### 5.7 Demo credentials hiển thị
 
 1. Trong modal đăng nhập, dưới cùng có section "Demo:"
-2. **Kỳ vọng:** Hiển thị `demo@algolens.dev` / `Demo@2024` bằng font monospace
+2. **Kỳ vọng:** Hiển thị `demo@visualizationdsa.dev` / `Demo@2024` bằng font monospace
 
 ---
 

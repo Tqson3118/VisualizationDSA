@@ -113,6 +113,7 @@ namespace VisualizationDSA.Domain.Strategies
             order.CompletedAt = DateTime.UtcNow;
 
             _premiumUsers[order.UserId] = true;
+            _authStrategy.SetUserPremium(order.UserId, true);
 
             LogTransaction(orderId, order.UserId, "PAYMENT_VERIFIED", order.Amount, "Completed");
 
@@ -142,15 +143,30 @@ namespace VisualizationDSA.Domain.Strategies
             order.CompletedAt = DateTime.UtcNow;
 
             _premiumUsers[order.UserId] = true;
+            _authStrategy.SetUserPremium(order.UserId, true);
 
             LogTransaction(orderId, order.UserId, "WEBHOOK_CONFIRMED", order.Amount, "Completed");
 
             return MapToOrderDto(order);
         }
 
+        private bool CheckIsPremium(string userId)
+        {
+            if (_premiumUsers.ContainsKey(userId)) return true;
+            try
+            {
+                var profile = _authStrategy.GetProfile(userId);
+                return profile.IsPremium;
+            }
+            catch (KeyNotFoundException)
+            {
+                return false;
+            }
+        }
+
         public StatelessPremiumStatusDto GetPremiumStatus(string userId)
         {
-            var isPremium = _premiumUsers.ContainsKey(userId);
+            var isPremium = CheckIsPremium(userId);
             var unlockedFeatures = PremiumFeatures
                 .Where(f => !f.RequiresPremium || isPremium)
                 .Select(f => f.Id)
@@ -170,7 +186,7 @@ namespace VisualizationDSA.Domain.Strategies
             var feature = PremiumFeatures.FirstOrDefault(f => f.Id == featureId);
             if (feature == null) return true;
             if (!feature.RequiresPremium) return true;
-            return _premiumUsers.ContainsKey(userId);
+            return CheckIsPremium(userId);
         }
 
         public List<StatelessTransactionLogEntry> GetTransactionLog(string? userId = null)

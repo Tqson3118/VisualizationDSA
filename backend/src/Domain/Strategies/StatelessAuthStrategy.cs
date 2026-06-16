@@ -20,13 +20,16 @@ namespace VisualizationDSA.Domain.Strategies
         private readonly ConcurrentDictionary<string, string> _refreshTokens = new(); // token → userId
         private static readonly TimeSpan AccessTokenLifetime = TimeSpan.FromMinutes(15);
 
+        public static Func<string, string, bool> VerifyPasswordDelegate { get; set; } = (password, hash) => 
+            HashPassword(password) == hash;
+
         public StatelessAuthStrategy()
         {
             var demoUser = new InMemoryUser
             {
                 Id = "demo-user-001",
-                Email = "demo@algolens.dev",
-                Username = "AlgoLens Student",
+                Email = "demo@visualizationdsa.dev",
+                Username = "VisualizationDSA Student",
                 PasswordHash = HashPassword("Demo@2024"),
                 TotalXP = 150,
                 CurrentLevel = 2,
@@ -42,9 +45,45 @@ namespace VisualizationDSA.Domain.Strategies
             };
             _usersByEmail[demoUser.Email] = demoUser;
             _usersById[demoUser.Id] = demoUser;
+
+            var adminUser = new InMemoryUser
+            {
+                Id = "admin-user-001",
+                Email = "admin@visualizationdsa.dev",
+                Username = "VisualizationDSA Admin",
+                PasswordHash = HashPassword("Admin@2024"),
+                TotalXP = 9999,
+                CurrentLevel = 8,
+                StreakDays = 30,
+                IsPremium = true,
+                Role = "Admin",
+                CreatedAt = DateTime.UtcNow.AddDays(-90),
+                LastLoginAt = DateTime.UtcNow,
+                Badges = new List<InMemoryBadge>()
+            };
+            _usersByEmail[adminUser.Email] = adminUser;
+            _usersById[adminUser.Id] = adminUser;
+
+            var easyAdmin = new InMemoryUser
+            {
+                Id = "admin-user-002",
+                Email = "admin@gmail.com",
+                Username = "Easy Admin",
+                PasswordHash = HashPassword("admin123"),
+                TotalXP = 9999,
+                CurrentLevel = 8,
+                StreakDays = 30,
+                IsPremium = true,
+                Role = "Admin",
+                CreatedAt = DateTime.UtcNow.AddDays(-90),
+                LastLoginAt = DateTime.UtcNow,
+                Badges = new List<InMemoryBadge>()
+            };
+            _usersByEmail[easyAdmin.Email] = easyAdmin;
+            _usersById[easyAdmin.Id] = easyAdmin;
         }
 
-        public StatelessAuthResponse Register(StatelessRegisterRequest request)
+        public StatelessAuthResponse Register(StatelessRegisterRequest request, string? dbUserId = null)
         {
             if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
                 throw new ArgumentException("Email, username và password không được để trống.");
@@ -60,7 +99,7 @@ namespace VisualizationDSA.Domain.Strategies
 
             var user = new InMemoryUser
             {
-                Id = $"user-{Guid.NewGuid():N}",
+                Id = dbUserId ?? $"user-{Guid.NewGuid():N}",
                 Email = request.Email,
                 Username = request.Username,
                 PasswordHash = HashPassword(request.Password),
@@ -119,7 +158,7 @@ namespace VisualizationDSA.Domain.Strategies
             _refreshTokens.TryRemove(refreshTokenValue, out _);
         }
 
-        public StatelessUserDto UpdateProfile(string userId, string? newUsername)
+        public StatelessUserDto UpdateProfile(string userId, string? newUsername, string? newNickname = null, string? newBio = null, string? newUniversity = null)
         {
             if (!_usersById.TryGetValue(userId, out var user))
                 throw new KeyNotFoundException("Người dùng không tồn tại.");
@@ -130,6 +169,11 @@ namespace VisualizationDSA.Domain.Strategies
                     throw new ArgumentException("Username này đã được sử dụng.");
                 user.Username = newUsername;
             }
+
+            user.Nickname = newNickname;
+            user.Bio = newBio;
+            user.University = newUniversity;
+
             return MapToUserDto(user);
         }
 
@@ -176,6 +220,11 @@ namespace VisualizationDSA.Domain.Strategies
             return MapToUserDto(user);
         }
 
+        public List<StatelessUserDto> GetAllUsers()
+        {
+            return _usersById.Values.Select(MapToUserDto).ToList();
+        }
+
         // ── Helpers ──────────────────────────────────────────────────────
 
         private StatelessAuthResponse GenerateAuthResponse(InMemoryUser user)
@@ -198,10 +247,11 @@ namespace VisualizationDSA.Domain.Strategies
             var header = Convert.ToBase64String(Encoding.UTF8.GetBytes("{\"alg\":\"HS256\",\"typ\":\"JWT\"}"));
             var payload = Convert.ToBase64String(Encoding.UTF8.GetBytes(
                 $"{{\"sub\":\"{user.Id}\",\"email\":\"{user.Email}\",\"name\":\"{user.Username}\"," +
+                $"\"role\":\"{user.Role}\"," +
                 $"\"level\":{user.CurrentLevel},\"exp\":{DateTimeOffset.UtcNow.Add(AccessTokenLifetime).ToUnixTimeSeconds()}," +
                 $"\"jti\":\"{Guid.NewGuid()}\"}}"
             ));
-            var key = Encoding.UTF8.GetBytes("AlgoLens-Stateless-Dev-Secret-Key-2024-Phase6-256bit!");
+            var key = Encoding.UTF8.GetBytes("VisualizationDSA-Stateless-Dev-Secret-Key-2024-Phase6-256bit!");
             var signature = Convert.ToBase64String(
                 HMACSHA256.HashData(key, Encoding.UTF8.GetBytes($"{header}.{payload}"))
             );
@@ -221,12 +271,58 @@ namespace VisualizationDSA.Domain.Strategies
 
         private static string HashPassword(string password)
         {
-            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password + "algolens-salt"));
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password + "visualizationdsa-salt"));
             return Convert.ToHexString(bytes).ToLowerInvariant();
         }
 
         private static bool VerifyPassword(string password, string hash)
-            => HashPassword(password) == hash;
+            => VerifyPasswordDelegate(password, hash);
+
+        public void EnsureUserInMemory(
+            string id,
+            string email,
+            string username,
+            string passwordHash,
+            bool isPremium,
+            string role,
+            int totalXP,
+            int currentLevel,
+            int streakDays)
+        {
+            if (!_usersById.ContainsKey(id))
+            {
+                var user = new InMemoryUser
+                {
+                    Id = id,
+                    Email = email,
+                    Username = username,
+                    PasswordHash = passwordHash,
+                    TotalXP = totalXP,
+                    CurrentLevel = currentLevel,
+                    StreakDays = streakDays,
+                    IsPremium = isPremium,
+                    Role = role,
+                    CreatedAt = DateTime.UtcNow,
+                    LastLoginAt = DateTime.UtcNow,
+                    Badges = new List<InMemoryBadge>()
+                };
+                _usersByEmail[email] = user;
+                _usersById[id] = user;
+            }
+        }
+
+        public void ForceAddRefreshToken(string token, string userId)
+        {
+            _refreshTokens[token] = userId;
+        }
+
+        public void SetUserPremium(string userId, bool isPremium)
+        {
+            if (_usersById.TryGetValue(userId, out var user))
+            {
+                user.IsPremium = isPremium;
+            }
+        }
 
         private static StatelessUserDto MapToUserDto(InMemoryUser user) => new()
         {
@@ -239,7 +335,10 @@ namespace VisualizationDSA.Domain.Strategies
             CreatedAt = user.CreatedAt,
             Badges = user.Badges.Select(MapToBadgeDto).ToList(),
             IsPremium = user.IsPremium,
-            Role = user.Role
+            Role = user.Role,
+            Nickname = user.Nickname,
+            Bio = user.Bio,
+            University = user.University
         };
 
         private static StatelessBadgeInfoDto MapToBadgeDto(InMemoryBadge b) => new()
@@ -265,6 +364,9 @@ namespace VisualizationDSA.Domain.Strategies
             public DateTime? LastLoginAt { get; set; }
             public List<InMemoryBadge> Badges { get; set; } = new();
             public List<string> CompletedModules { get; set; } = new();
+            public string? Nickname { get; set; }
+            public string? Bio { get; set; }
+            public string? University { get; set; }
         }
 
         private class InMemoryBadge
