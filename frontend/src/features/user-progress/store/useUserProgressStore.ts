@@ -46,6 +46,7 @@ export const useUserProgressStore = defineStore('userProgress', () => {
   const currentStreak        = ref<number>(0);
   const completedModuleIds   = ref<string[]>([]);
   const isSyncing            = ref<boolean>(false);
+  const isSyncError          = ref<boolean>(false);
   const pendingSyncQueue     = ref<XPSyncPayload[]>(loadSyncQueue());
 
   // Getters
@@ -59,16 +60,34 @@ export const useUserProgressStore = defineStore('userProgress', () => {
    * Khởi động: đồng bộ dữ liệu từ server nếu đã đăng nhập.
    * Gọi trong App.vue sau khi useAuthStore.init() hoàn thành.
    */
-  async function initFromServer(): Promise<void> {
+  async function loadProgress(): Promise<void> {
     const token = authStore.getAccessToken();
-    if (!token) return; // Guest mode — không sync
+    if (!token) return;
+
+    isSyncError.value = false;
 
     try {
+      // Gọi fetchUserProgress — global fetch interceptor (main.ts) đã tự động:
+      //   1. Inject Bearer token vào header
+      //   2. Nếu nhận 401 → tự refresh token và retry
+      // KHÔNG tự ý gọi refreshAccessToken() ở đây để tránh race condition song song.
       const data = await fetchUserProgress(token);
       _hydrateFromDto(data);
+    } catch (error: any) {
+      // Interceptor đã thử refresh + retry nhưng vẫn thất bại → đánh dấu lỗi nhẹ,
+      // không throw exception để không làm crash Vue Router.
+      console.warn("⚠️ loadProgress thất bại (interceptor đã retry):", error?.message ?? error);
+      isSyncError.value = true;
+    }
+  }
 
-      // Flush pending sync queue (XP tích lũy khi offline)
-      await _flushPendingQueue(token);
+  async function initFromServer(): Promise<void> {
+    try {
+      await loadProgress();
+      const token = authStore.getAccessToken();
+      if (token) {
+        await _flushPendingQueue(token);
+      }
     } catch {
       // Server không khả dụng → tiếp tục dùng local state
     }
@@ -167,7 +186,9 @@ export const useUserProgressStore = defineStore('userProgress', () => {
     currentStreak,
     completedModuleIds,
     isSyncing,
+    isSyncError,
     isModuleCompleted,
+    loadProgress,
     initFromServer,
     syncXP,
     completeModule,
