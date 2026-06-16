@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 
 /**
- * TAILWIND CONFIG — AlgoLens
+ * TAILWIND CONFIG — VisualizationDSA
  *
  * Tailwind được cấu hình để tham chiếu Design Tokens từ src/styles/theme.css.
  * Điều này cho phép dùng class Tailwind như `text-accent`, `bg-surface`
