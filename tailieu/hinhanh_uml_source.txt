@@ -1,0 +1,265 @@
+========================================================
+DANH SÁCH MÃ NGUỒN BIỂU ĐỒ UML / MERMAID - VISUALIZATIONDSA
+========================================================
+
+### Use Case Diagram: Học viên ###
+[SƠ ĐỒ MERMAID - ĐÃ ĐƯỢC CHÈN DƯỚI DẠNG ẢNH TRONG PHẦN REPORT GIAO DIỆN]
+graph TD
+    Student((Học Viên))
+    
+    Student --> UC_ViewDSA[Xem & điều khiển VCR Giải thuật]
+    Student --> UC_Compare[So sánh song song 2 giải thuật]
+    Student --> UC_IDE[Viết code tự do trong Monaco IDE]
+    Student --> UC_Playground[Tự vẽ đồ thị tự do & Physics]
+    Student --> UC_Quiz[Làm Quiz checkpoint tích lũy XP]
+    Student --> UC_Embed[Tạo mã nhúng Iframe Widget]
+    Student --> UC_SE[Thực hành SOLID/OOP Sandboxes]
+
+--------------------------------------------------
+
+### Use Case Diagram: Quản trị viên ###
+[SƠ ĐỒ MERMAID - ĐÃ ĐƯỢC CHÈN DƯỚI DẠNG ẢNH TRONG PHẦN REPORT GIAO DIỆN]
+graph TD
+    Admin((Quản Trị Viên))
+    
+    Admin --> UC_ManageAlgo[Quản lý thư viện giải thuật]
+    Admin --> UC_ManageQuiz[Quản lý câu hỏi Quiz]
+    Admin --> UC_Leaderboard[Theo dõi Bảng xếp hạng XP]
+
+--------------------------------------------------
+
+### UML DIAGRAM ###
+[SƠ ĐỒ MERMAID - ĐÃ ĐƯỢC CHÈN DƯỚI DẠNG ẢNH TRONG PHẦN REPORT GIAO DIỆN]
+erDiagram
+    USERS ||--|| USER_PROGRESS : "has progress"
+    USERS ||--oN USER_SUBMISSIONS : "submits"
+    USERS ||--oN EMBEDDING_WIDGETS : "owns widgets"
+    USERS ||--oN USER_CUSTOM_PLAYGROUNDS : "saves playgrounds"
+    USERS ||--oN USER_UNLOCKED_ACHIEVEMENTS : "unlocks"
+    
+    ALGORITHMS ||--oN QUIZZES : "associated with"
+    ALGORITHMS ||--oN EMBEDDING_WIDGETS : "visualizes"
+    
+    QUIZZES ||--oN QUIZ_QUESTIONS : "contains"
+    QUIZZES ||--oN USER_SUBMISSIONS : "has submissions"
+    
+    ACHIEVEMENTS ||--oN USER_UNLOCKED_ACHIEVEMENTS : "earned in"
+
+    USERS {
+        VARCHAR_50 id PK
+        VARCHAR_100 email UK
+        VARCHAR_255 password_hash
+        VARCHAR_50 role
+        VARCHAR_255 avatar_url
+        TIMESTAMP created_at
+    }
+    USER_PROGRESS {
+        VARCHAR_50 id PK
+        VARCHAR_50 user_id FK,UK
+        INT current_xp
+        INT current_level
+        INT algorithms_completed
+        INT quizzes_completed
+    }
+    ALGORITHMS {
+        VARCHAR_50 id PK
+        VARCHAR_100 name
+        TEXT description
+        VARCHAR_50 category
+        VARCHAR_50 complexity_time
+        VARCHAR_50 complexity_space
+        VARCHAR_30 difficulty
+    }
+    QUIZZES {
+        VARCHAR_50 id PK
+        VARCHAR_50 algorithm_id FK
+        VARCHAR_150 title
+        TEXT instructions_md
+        INT max_score
+        INT xp_reward
+        INT passing_score
+        BOOLEAN is_active
+    }
+    QUIZ_QUESTIONS {
+        VARCHAR_50 id PK
+        VARCHAR_50 quiz_id FK
+        TEXT question_text
+        VARCHAR_50 question_type
+        JSONB options_json
+        TEXT correct_answer
+    }
+    USER_SUBMISSIONS {
+        VARCHAR_50 id PK
+        VARCHAR_50 user_id FK
+        VARCHAR_50 quiz_id FK
+        INT score
+        BOOLEAN passed
+        INT xp_rewarded
+        TEXT submitted_code
+        JSONB answers_json
+    }
+    ACHIEVEMENTS {
+        VARCHAR_50 id PK
+        VARCHAR_100 name
+        TEXT description
+        VARCHAR_100 badge_icon_neon
+        VARCHAR_50 requirement_type
+        INT requirement_value
+        INT xp_reward
+    }
+    USER_UNLOCKED_ACHIEVEMENTS {
+        VARCHAR_50 user_id PK,FK
+        VARCHAR_50 achievement_id PK,FK
+        TIMESTAMP unlocked_at
+    }
+    EMBEDDING_WIDGETS {
+        VARCHAR_50 id PK
+        VARCHAR_50 user_id FK
+        VARCHAR_50 algorithm_id FK
+        VARCHAR_150 title
+        VARCHAR_50 theme
+        INT width
+        INT height
+        BOOLEAN allow_interaction
+        JSONB custom_data_json
+    }
+    USER_CUSTOM_PLAYGROUNDS {
+        VARCHAR_50 id PK
+        VARCHAR_50 user_id FK
+        VARCHAR_100 name
+        VARCHAR_50 algorithm_type
+        JSONB custom_data_json
+    }
+
+--------------------------------------------------
+
+### Class Diagram: Cấu trúc ứng dụng Client-side ###
+[SƠ ĐỒ MERMAID - ĐÃ ĐƯỢC CHÈN DƯỚI DẠNG ẢNH TRONG PHẦN REPORT GIAO DIỆN]
+classDiagram
+    class ApplicationDbContext {
+        +DbSet~User~ Users
+        +DbSet~UserProgress~ UserProgresses
+        +DbSet~Algorithm~ Algorithms
+        +DbSet~EmbeddingWidget~ EmbeddingWidgets
+        +SaveChangesAsync() Task~int~
+    }
+    class IApplicationDbContext {
+        <<interface>>
+        +DbSet~User~ Users
+        +DbSet~UserProgress~ UserProgresses
+        +DbSet~Algorithm~ Algorithms
+        +DbSet~EmbeddingWidget~ EmbeddingWidgets
+        +SaveChangesAsync() Task~int~
+    }
+    IApplicationDbContext <|.. ApplicationDbContext
+    
+    class IUserRepository {
+        <<interface>>
+        +GetByIdAsync(string id) Task~User~
+        +GetByEmailAsync(string email) Task~User~
+        +AddAsync(User user) Task
+    }
+    class UserRepository {
+        -ApplicationDbContext _context
+        +GetByIdAsync(string id) Task~User~
+        +GetByEmailAsync(string email) Task~User~
+        +AddAsync(User user) Task
+    }
+    IUserRepository <|.. UserRepository
+    UserRepository --> ApplicationDbContext : uses
+
+--------------------------------------------------
+
+### Sequence Diagram: Biên dịch & Chạy mã nguồn giải thuật ###
+[SƠ ĐỒ MERMAID - ĐÃ ĐƯỢC CHÈN DƯỚI DẠNG ẢNH TRONG PHẦN REPORT GIAO DIỆN]
+sequenceDiagram
+    autonumber
+    actor Student as Học Viên
+    participant Editor as Monaco Editor
+    participant Compiler as AST Compiler (Acorn)
+    participant Worker as Web Worker Sandbox
+    participant Store as useAnimationStore
+    participant Canvas as HTML5 Canvas 2D
+    
+    Student->>Editor: Nhập mã JS & click [Run Code]
+    Editor->>Compiler: Chuyển mã nguồn dạng chuỗi
+    Compiler->>Compiler: Phân tích AST, chèn Loop Guards & Trace Triggers
+    alt Lỗi Cú Pháp
+        Compiler-->>Editor: Trả về lỗi Syntax Error (Tô đỏ dòng lỗi)
+    else Hợp lệ
+        Compiler->>Worker: Khởi chạy mã nguồn trong Sandbox
+        activate Worker
+        Note over Worker: Đếm số vòng lặp loopCounter
+        alt Vòng lặp vô hạn (>5000)
+            Worker-->>Compiler: Ngắt luồng (Timeout Guard 1.5s)
+            Compiler-->>Editor: Báo lỗi vòng lặp vô hạn
+        else Chạy thành công
+            Worker->>Worker: Tạo danh sách LiveFrameDTO (So sánh, Hoán vị)
+            Worker-->>Compiler: Trả về kết quả chuỗi frame JSON
+        end
+        deactivate Worker
+        Compiler->>Store: loadResult() chuyển thành FrameDTO
+        loop Tần số 60 FPS (rAF)
+            Store->>Canvas: Lấy dữ liệu Frame hiện tại
+            Canvas->>Canvas: Vẽ Lerp tọa độ phần tử lên offscreen buffer
+            Canvas-->>Student: Hiển thị hoạt cảnh mượt mà
+        end
+    end
+
+--------------------------------------------------
+
+### State Diagram: Vòng đời hoạt cảnh VCR ###
+[SƠ ĐỒ MERMAID - ĐÃ ĐƯỢC CHÈN DƯỚI DẠNG ẢNH TRONG PHẦN REPORT GIAO DIỆN]
+stateDiagram-v2
+    [*] --> PlayAlgorithm : VCR chạy giải thuật
+    PlayAlgorithm --> DetectCheckpoint : Theo dõi currentIndex
+    DetectCheckpoint --> PausePlayback : Phát hiện frame trùng checkpoint
+    state PausePlayback {
+        [*] --> LockUI : Khóa các nút điều khiển VCR
+        LockUI --> ShowQuizOverlay : Hiển thị bảng câu hỏi trắc nghiệm
+    }
+    ShowQuizOverlay --> SelectAnswer : Học viên chọn đáp án
+    state CheckAnswer <<choice>>
+    SelectAnswer --> CheckAnswer
+    CheckAnswer --> CorrectResponse : Đáp án ĐÚNG
+    CheckAnswer --> IncorrectResponse : Đáp án SAI
+    CorrectResponse --> PlaySoundAndGlow : Phát âm success + Glow Emerald + Cộng 100 XP
+    IncorrectResponse --> ShakeWindow : Shake đỏ Rose + Giải thích đáp án
+    ShakeWindow --> SelectAnswer : Chọn lại
+    PlaySoundAndGlow --> UnlockUI : Nhấp [Tiếp tục] để mở khóa
+    UnlockUI --> ResumePlayback : Tự động chạy tiếp giải thuật
+    ResumePlayback --> [*]
+
+--------------------------------------------------
+
+### Class Diagram: Core Engine ###
+[SƠ ĐỒ MERMAID - ĐÃ ĐƯỢC CHÈN DƯỚI DẠNG ẢNH TRONG PHẦN REPORT GIAO DIỆN]
+classDiagram
+    class CoreAnimationEngine {
+        -int _animationFrameId
+        -double _lastTickTime
+        -double _speedMultiplier
+        +startLoop() void
+        +stopLoop() void
+        +tick(double timestamp) void
+    }
+    class CompilerStepExecutor {
+        -string _rawCode
+        -AcornParser _parser
+        +compileToAST() ASTNode
+        +instrumentCode(ASTNode ast) string
+        +executeInSandbox(string code) List~LiveFrameDTO~
+    }
+    class useAnimationStore {
+        +List~LiveFrameDTO~ frames
+        +int currentFrameIndex
+        +bool isPlaying
+        +loadResult(List~LiveFrameDTO~ result) void
+        +nextFrame() void
+        +prevFrame() void
+    }
+    CoreAnimationEngine --> useAnimationStore : updates/reads
+    CompilerStepExecutor --> useAnimationStore : loads frames
+
+--------------------------------------------------
+
