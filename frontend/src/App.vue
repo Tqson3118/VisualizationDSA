@@ -1,6 +1,6 @@
 <template>
   <!--
-    App Shell — AlgoLens
+    App Shell — VisualizationDSA
     Phong cách: Terminal / Code Editor aesthetic
     Font: Space Mono (logo), Inter (nav/UI), JetBrains Mono (code)
     Theme: data-theme attribute được set trên <html> trong index.html
@@ -12,7 +12,7 @@
     <header class="app-header">
       <div class="app-header__inner">
 
-        <!-- ── Logo: ~/AlgoLens style ── -->
+        <!-- ── Logo: ~/VisualizationDSA style ── -->
         <div class="header-logo">
           <!-- Traffic light dots — terminal window decoration -->
           <div class="terminal-dots" aria-hidden="true">
@@ -24,7 +24,7 @@
           <!-- Logo text -->
           <div class="logo-text">
             <span class="logo-prefix">~/</span>
-            <span class="logo-name">AlgoLens</span>
+            <span class="logo-name">VisualizationDSA</span>
           </div>
           <span class="logo-badge">DSA Viz</span>
         </div>
@@ -39,7 +39,7 @@
           <template v-if="authStore.isAuthenticated">
             <!-- Premium Crown Badge -->
             <span v-if="authStore.isPremium" class="premium-crown" title="Thành viên Premium">👑</span>
-            <div class="user-badge" :class="{ 'user-badge--premium': authStore.isPremium }">
+            <div class="user-badge" :class="{ 'user-badge--premium': authStore.isPremium }" @click="router.push('/profile')" title="Xem hồ sơ cá nhân">
               <div class="user-badge__avatar" :class="{ 'user-badge__avatar--premium': authStore.isPremium }">
                 {{ authStore.userName.charAt(0).toUpperCase() }}
               </div>
@@ -74,6 +74,20 @@
             @click="showLoginModal = true"
           >
             Đăng nhập
+          </button>
+
+          <!-- Restart Guided Tour Button -->
+          <button
+            class="btn-icon btn-icon--ghost"
+            title="Xem hướng dẫn nhanh"
+            aria-label="Xem hướng dẫn nhanh"
+            @click="tourStore.startTour()"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
           </button>
 
           <!-- GitHub link -->
@@ -134,12 +148,42 @@
       <!-- ── MAIN CONTENT AREA ── -->
       <main class="app-main" :class="{ 'app-main--full': isLandingPage }">
         <RouterView v-slot="{ Component }">
-          <Transition name="page-fade" mode="out-in">
-            <component :is="Component" class="app-view" @openLogin="handleOpenLogin" />
+          <Transition name="page-fade">
+            <component
+              v-if="Component"
+              :is="Component"
+              :key="$route.fullPath"
+              class="app-view"
+              @openLogin="handleOpenLogin"
+            />
           </Transition>
         </RouterView>
       </main>
     </div>
+  </div>
+
+  <!-- Impersonation Banner (Phase C) -->
+  <div v-if="authStore.isImpersonating" class="impersonate-banner">
+    <div class="impersonate-banner__pulse"></div>
+    <div class="impersonate-banner__text">
+      <span class="impersonate-banner__icon">🎭</span>
+      <span>Đang đóng vai: <strong>{{ authStore.userName }}</strong></span>
+    </div>
+    <button class="impersonate-banner__btn" @click="handleStopImpersonating">
+      Thoát đóng vai
+    </button>
+  </div>
+
+  <!-- Sync Error Banner -->
+  <div v-if="progressStore.isSyncError" class="sync-error-banner">
+    <div class="sync-error-banner__pulse"></div>
+    <div class="sync-error-banner__text">
+      <span class="sync-error-banner__icon">⚠️</span>
+      <span>Đồng bộ tiến trình thất bại.</span>
+    </div>
+    <button class="sync-error-banner__btn" :disabled="isSyncingProgress" @click="handleRetrySync">
+      {{ isSyncingProgress ? 'Đang thử...' : 'Thử lại' }}
+    </button>
   </div>
 
   <!-- Login Modal -->
@@ -147,6 +191,9 @@
 
   <!-- Global Toast Notifications -->
   <ToastContainer />
+
+  <!-- Interactive Guided Tour Overlay -->
+  <GuidedTourOverlay />
 
 </template>
 
@@ -159,11 +206,26 @@ import type { TabGroup, TabItem } from './appTabs';
 import BaseIcon from './shared/components/BaseIcon.vue';
 import LoginModal from './features/auth/components/LoginModal.vue';
 import ToastContainer from './components/ToastContainer.vue';
+import GuidedTourOverlay from './features/guided-tour/components/GuidedTourOverlay.vue';
+import { useGuidedTourStore } from './features/guided-tour/store/useGuidedTourStore';
+import { useUserProgressStore } from './features/user-progress/store/useUserProgressStore';
 
 const authStore      = useAuthStore();
+const tourStore      = useGuidedTourStore();
+const progressStore  = useUserProgressStore();
 const route          = useRoute();
 const router         = useRouter();
 const showLoginModal = ref(false);
+const isSyncingProgress = ref(false);
+
+async function handleRetrySync(): Promise<void> {
+  isSyncingProgress.value = true;
+  try {
+    await progressStore.loadProgress();
+  } finally {
+    isSyncingProgress.value = false;
+  }
+}
 
 const isLandingPage = computed(() => route.name === 'landing');
 
@@ -189,7 +251,11 @@ const filteredTabs = computed(() => {
 
 function isTabVisible(tab: TabItem): boolean {
   if (tab.requiresAuth && !authStore.isAuthenticated) return false;
-  if (tab.requiresRole && authStore.userRole !== tab.requiresRole) return false;
+  if (tab.requiresRole) {
+    const role = authStore.userRole;
+    if (role === 'Admin') return true; // Admin sees everything
+    if (role !== tab.requiresRole) return false;
+  }
   return true;
 }
 
@@ -206,8 +272,15 @@ function handleOpenLogin(): void {
   showLoginModal.value = true;
 }
 
+function handleStopImpersonating(): void {
+  authStore.stopImpersonating();
+  alert('Đã thoát chế độ đóng vai. Khôi phục tài khoản Admin.');
+  router.push('/admin');
+}
+
 onMounted(() => {
   authStore.statelessInit();
+  tourStore.initTour();
 });
 </script>
 
@@ -331,6 +404,7 @@ onMounted(() => {
     overflow-y: auto;
     overflow-x: hidden;
     padding: var(--space-4) var(--space-3);
+    padding-bottom: 60px; /* Safe bottom padding to prevent cutoff on low-height viewports */
   }
   .app-sidebar::-webkit-scrollbar {
     width: 4px;
@@ -488,6 +562,14 @@ onMounted(() => {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-md);
+  transition: var(--transition-fast);
+  cursor: pointer;
+}
+
+.user-badge:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-default);
+  transform: translateY(-1px);
 }
 
 .user-badge__avatar {
@@ -596,21 +678,25 @@ onMounted(() => {
 .app-view {
   flex: 1;
   min-height: 0;
+  overflow-y: auto;
 }
 
 /* ── PAGE TRANSITION ─────────────────────────────────────── */
-.page-fade-enter-active {
+/* IMPORTANT: Must use :global() because <Transition> injects classes on child
+   elements that don't carry App.vue's scoped data attribute. Without :global(),
+   Vue's scoped CSS appends [data-v-xxx] making selectors never match → stuck invisible. */
+:global(.page-fade-enter-active) {
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
-.page-fade-leave-active {
+:global(.page-fade-leave-active) {
   transition: opacity 0.12s ease, transform 0.12s ease;
 }
 
-.page-fade-enter-from {
+:global(.page-fade-enter-from) {
   opacity: 0;
   transform: translateY(8px);
 }
-.page-fade-leave-to {
+:global(.page-fade-leave-to) {
   opacity: 0;
   transform: translateY(-4px);
 }
@@ -668,5 +754,176 @@ onMounted(() => {
   .header-controls { gap: 4px; }
   .btn-icon { width: 26px; height: 26px; }
   .premium-crown { font-size: 13px; }
+}
+
+/* ── IMPERSONATION BANNER ────────────────────────────────── */
+.impersonate-banner {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background: rgba(245, 158, 11, 0.12); /* Amber glassmorphism */
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), 0 0 15px rgba(245, 158, 11, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 12px;
+  color: #fef08a;
+  font-family: inherit;
+  animation: banner-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.impersonate-banner__pulse {
+  width: 8px;
+  height: 8px;
+  background-color: #f59e0b;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+  animation: pulse-glow 1.6s infinite;
+}
+
+.impersonate-banner__text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.impersonate-banner__text strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.impersonate-banner__btn {
+  background: #f59e0b;
+  border: none;
+  color: #000;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+}
+
+.impersonate-banner__btn:hover {
+  background: #d97706;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.5);
+}
+
+.impersonate-banner__btn:active {
+  transform: translateY(0);
+}
+
+@keyframes banner-slide-in {
+  from {
+    transform: translateY(30px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+  }
+}
+
+/* ── SYNC ERROR BANNER ───────────────────────────────────── */
+.sync-error-banner {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background: rgba(239, 68, 68, 0.12); /* Rose glassmorphism */
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), 0 0 15px rgba(239, 68, 68, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 12px;
+  color: #fecaca;
+  font-family: inherit;
+  animation: banner-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sync-error-banner__pulse {
+  width: 8px;
+  height: 8px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  animation: pulse-glow-red 1.6s infinite;
+}
+
+@keyframes pulse-glow-red {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.sync-error-banner__text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.sync-error-banner__btn {
+  background: #ef4444;
+  border: none;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+}
+
+.sync-error-banner__btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
+}
+
+.sync-error-banner__btn:active {
+  transform: translateY(0);
+}
+
+.sync-error-banner__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>
