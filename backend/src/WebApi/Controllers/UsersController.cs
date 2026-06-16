@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -150,9 +151,19 @@ namespace VisualizationDSA.WebApi.Controllers
 
         private Guid GetCurrentUserId()
         {
+            // AuthService.cs tạo JWT với JwtRegisteredClaimNames.Sub ("sub").
+            // ASP.NET Core JWT middleware tự map "sub" → ClaimTypes.NameIdentifier,
+            // nhưng để chắc chắn, đọc cả hai theo thứ tự: NameIdentifier → "sub" → "nameid"
             var claim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                        ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub)
                         ?? User.FindFirstValue("sub");
-            return Guid.Parse(claim!);
+
+            if (string.IsNullOrEmpty(claim) || !Guid.TryParse(claim, out var userId))
+            {
+                // Log để debug — không lộ thông tin nhạy cảm
+                throw new UnauthorizedAccessException("User identity claim không hợp lệ hoặc bị thiếu.");
+            }
+            return userId;
         }
     }
 }

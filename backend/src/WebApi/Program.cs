@@ -189,13 +189,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
+            ValidateIssuer           = true,
+            ValidateAudience         = true,
+            ValidateLifetime         = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+            ValidIssuer              = builder.Configuration["Jwt:Issuer"],
+            ValidAudience            = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+
+            // ✅ FIX: Map "sub" JWT claim → ClaimTypes.NameIdentifier
+            // AuthService.cs tạo JWT với JwtRegisteredClaimNames.Sub ("sub").
+            // Nếu không set NameClaimType, FindFirstValue(ClaimTypes.NameIdentifier) trả null
+            // → GetCurrentUserId() throw UnauthorizedAccessException → 401 trên mọi endpoint /me/*
+            NameClaimType = "sub",
+            RoleClaimType = "role",
         };
     });
 
@@ -260,7 +267,10 @@ app.UseSerilogRequestLogging(options =>
 app.UseSecurityHeaders();
 
 app.UseResponseCompression();
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
