@@ -114,7 +114,7 @@ namespace VisualizationDSA.WebApi.Controllers
         public async Task<ActionResult<IEnumerable<BadgeDto>>> GetMyBadges()
         {
             var userId = GetCurrentUserId();
-            var user   = await _unitOfWork.Users.GetByIdWithDetailsAsync(userId);
+            var user   = await _unitOfWork.Users.GetByIdWithDetailsAsync(userId, track: false);
             if (user == null) return NotFound();
 
             var badges = user.UserBadges.Select(ub => new BadgeDto
@@ -134,7 +134,7 @@ namespace VisualizationDSA.WebApi.Controllers
         [HttpGet("{id}/progress")]
         public async Task<ActionResult> GetUserProgress(Guid id)
         {
-            var user = await _unitOfWork.Users.GetByIdWithDetailsAsync(id);
+            var user = await _unitOfWork.Users.GetByIdWithDetailsAsync(id, track: false);
             if (user == null) return NotFound();
 
             return Ok(new

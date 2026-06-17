@@ -34,7 +34,11 @@ export class QuizStatsManager {
       stats.completedQuizzes.push(quizId);
     }
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+    } catch (err) {
+      console.error('Failed to save quiz statistics to localStorage:', err);
+    }
   }
 
   static clearStats(): void {

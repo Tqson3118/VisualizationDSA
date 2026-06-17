@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, shallowRef, watch, onMounted, onBeforeUnmount } from 'vue';
 import type { FrameDTO } from '../../types/algorithm.types';
 import { drawBoxArray, type AnimatedState } from './boxArrayRenderHelpers';
 
@@ -18,7 +18,7 @@ const canvasRef = ref<HTMLCanvasElement | null>(null);
 let resizeObserver: ResizeObserver | null = null;
 
 // Lerp Animation engine states
-const animatedState = ref<AnimatedState | null>(null);
+const animatedState = shallowRef<AnimatedState | null>(null);
 let animationFrameId: number | null = null;
 let animStartTime = 0;
 const ANIM_DURATION = 420; // Cinematic 420ms pacing with ease-out-quart physics

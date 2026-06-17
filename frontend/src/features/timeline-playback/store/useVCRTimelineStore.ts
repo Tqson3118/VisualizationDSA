@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, shallowRef } from 'vue';
 import { VCRPlaybackEngine } from '../engine/VCRPlaybackEngine';
 import type { PlaybackFrame, PlaybackStatus, CanvasStateSnapshot } from '../types/timeline-playback.types';
 import { demoBubbleSortFrames } from './demoBubbleSortData';
@@ -12,7 +12,7 @@ export const useVCRTimelineStore = defineStore('vcrTimeline', () => {
   const status = ref<PlaybackStatus>('PAUSED');
   const currentDescription = ref<string>('Chờ nạp giải thuật');
   const currentLineNumber = ref<number>(0);
-  const currentSnapshot = ref<CanvasStateSnapshot | null>(null);
+  const currentSnapshot = shallowRef<CanvasStateSnapshot | null>(null);
   const isInitialized = ref<boolean>(false);
 
   let engine: VCRPlaybackEngine | null = null;

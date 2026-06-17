@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Asp.Versioning;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace VisualizationDSA.WebApi.Controllers
     [ApiVersion("1.0")]
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [EnableRateLimiting("api")]
     public class LeaderboardController : ControllerBase
     {
         private readonly ILeaderboardService _leaderboard;

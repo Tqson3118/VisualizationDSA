@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Asp.Versioning;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using VisualizationDSA.Application.Services;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace VisualizationDSA.WebApi.Controllers
 {
@@ -16,13 +18,16 @@ namespace VisualizationDSA.WebApi.Controllers
     [ApiVersion("1.0")]
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [EnableRateLimiting("api")]
     public class AnalyticsController : ControllerBase
     {
         private readonly IAnalyticsService _analytics;
+        private readonly IMemoryCache _cache;
 
-        public AnalyticsController(IAnalyticsService analytics)
+        public AnalyticsController(IAnalyticsService analytics, IMemoryCache cache)
         {
             _analytics = analytics;
+            _cache = cache;
         }
 
         /// <summary>
@@ -33,7 +38,14 @@ namespace VisualizationDSA.WebApi.Controllers
         [HttpGet("overview")]
         public async Task<ActionResult<SystemOverviewDto>> GetOverview()
         {
-            var overview = await _analytics.GetSystemOverviewAsync();
+            const string cacheKey = "Analytics_Overview";
+            if (!_cache.TryGetValue(cacheKey, out SystemOverviewDto? overview))
+            {
+                overview = await _analytics.GetSystemOverviewAsync();
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(2));
+                _cache.Set(cacheKey, overview, cacheEntryOptions);
+            }
             return Ok(overview);
         }
 
@@ -63,7 +75,16 @@ namespace VisualizationDSA.WebApi.Controllers
         public async Task<ActionResult<IEnumerable<ModulePopularityDto>>> GetPopularModules(
             [FromQuery] int limit = 10)
         {
-            var popularity = await _analytics.GetModulePopularityAsync(limit);
+            limit = Math.Clamp(limit, 1, 50);
+
+            string cacheKey = $"Analytics_PopularModules_{limit}";
+            if (!_cache.TryGetValue(cacheKey, out IEnumerable<ModulePopularityDto>? popularity))
+            {
+                popularity = await _analytics.GetModulePopularityAsync(limit);
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
+                _cache.Set(cacheKey, popularity, cacheEntryOptions);
+            }
             return Ok(popularity);
         }
     }

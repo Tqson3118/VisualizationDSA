@@ -1,6 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Asp.Versioning;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using VisualizationDSA.Domain.Engine;
 using VisualizationDSA.Domain.Strategies;
 using VisualizationDSA.Infrastructure.Data;
@@ -15,10 +21,12 @@ namespace VisualizationDSA.WebApi.Controllers
     [ApiVersion("1.0")]
     [ApiController]
     [Route("api/v{version:apiVersion}/concepts/gamification")]
+    [EnableRateLimiting("api")]
     public class StatelessGamificationController : ControllerBase
     {
         private readonly GamificationStrategy _gamification;
         private readonly ApplicationDbContext _dbContext;
+        private readonly IMemoryCache _cache;
 
         private static readonly (int level, string name, int xpRequired)[] LevelTable =
         {
@@ -32,10 +40,14 @@ namespace VisualizationDSA.WebApi.Controllers
             (8, "Legend",       3000),
         };
 
-        public StatelessGamificationController(GamificationStrategy gamification, ApplicationDbContext dbContext)
+        public StatelessGamificationController(
+            GamificationStrategy gamification, 
+            ApplicationDbContext dbContext,
+            IMemoryCache cache)
         {
             _gamification = gamification;
             _dbContext = dbContext;
+            _cache = cache;
         }
 
         private static string GetLevelName(int level)
@@ -92,41 +104,53 @@ namespace VisualizationDSA.WebApi.Controllers
         }
 
         /// <summary>
-        /// Lấy bảng xếp hạng từ PostgreSQL (live database records).
+        /// Lấy bảng xếp hạng từ PostgreSQL (live database records) có đệm kết quả.
         /// GET /api/v1/concepts/gamification/leaderboard?limit=10
         /// </summary>
         [HttpGet("leaderboard")]
         public async Task<IActionResult> GetLeaderboard([FromQuery] int limit = 10)
         {
-            var dbUsers = await _dbContext.Users
-                .OrderByDescending(u => u.TotalXP)
-                .Take(Math.Min(limit, 50))
-                .Select(u => new
+            limit = Math.Clamp(limit, 1, 50);
+            var cacheKey = $"StatelessGamification_Leaderboard_{limit}";
+
+            if (!_cache.TryGetValue(cacheKey, out List<StatelessLeaderboardEntry>? leaderboard))
+            {
+                var dbUsers = await _dbContext.Users
+                    .OrderByDescending(u => u.TotalXP)
+                    .Take(limit)
+                    .Select(u => new
+                    {
+                        u.Username,
+                        u.TotalXP,
+                        u.CurrentLevel,
+                        u.StreakDays,
+                        BadgeCount = u.UserBadges.Count
+                    })
+                    .ToListAsync();
+
+                if (dbUsers.Count == 0)
                 {
-                    u.Username,
-                    u.TotalXP,
-                    u.CurrentLevel,
-                    u.StreakDays,
-                    BadgeCount = u.UserBadges.Count
-                })
-                .ToListAsync();
+                    // Fallback to in-memory mock if DB is empty
+                    return Ok(_gamification.GetLeaderboard(limit));
+                }
 
-            if (dbUsers.Count == 0)
-            {
-                // Fallback to in-memory mock if DB is empty
-                return Ok(_gamification.GetLeaderboard(limit));
+                leaderboard = dbUsers.Select((u, index) => new StatelessLeaderboardEntry
+                {
+                    Rank = index + 1,
+                    Username = u.Username,
+                    TotalXp = u.TotalXP,
+                    Level = u.CurrentLevel,
+                    LevelName = GetLevelName(u.CurrentLevel),
+                    BadgeCount = u.BadgeCount,
+                    StreakDays = u.StreakDays
+                }).ToList();
+
+                var cacheOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(15))
+                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
+
+                _cache.Set(cacheKey, leaderboard, cacheOptions);
             }
-
-            var leaderboard = dbUsers.Select((u, index) => new StatelessLeaderboardEntry
-            {
-                Rank = index + 1,
-                Username = u.Username,
-                TotalXp = u.TotalXP,
-                Level = u.CurrentLevel,
-                LevelName = GetLevelName(u.CurrentLevel),
-                BadgeCount = u.BadgeCount,
-                StreakDays = u.StreakDays
-            }).ToList();
 
             return Ok(leaderboard);
         }

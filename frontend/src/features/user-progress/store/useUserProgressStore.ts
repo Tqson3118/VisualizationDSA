@@ -30,7 +30,11 @@ function loadSyncQueue(): XPSyncPayload[] {
 }
 
 function saveSyncQueue(queue: XPSyncPayload[]): void {
-  localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(queue));
+  try {
+    localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(queue));
+  } catch (err) {
+    console.error('Failed to save XP sync queue to localStorage:', err);
+  }
 }
 
 // ── Store ─────────────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, shallowRef } from 'vue';
 import { CompilerStepExecutor, type PlaybackFrame } from '../../../core/CompilerStepExecutor';
 import { DEFAULT_BUBBLE_SORT_CODE } from './vcrDefaults';
 
@@ -31,7 +31,7 @@ export const useVcrStore = defineStore('vcr-player', () => {
   );
 
   // ─── PLAYBACK STATE ──────────────────────────────────────────────────────────
-  const playbackFrames     = ref<VcrBaseFrame[]>([]);
+  const playbackFrames     = shallowRef<VcrBaseFrame[]>([]);
   const currentFrameIndex  = ref<number>(0);
   const isPlaying          = ref<boolean>(false);
   const playbackSpeed      = ref<number>(1); // 0.5x | 1x | 2x | 4x

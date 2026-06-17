@@ -274,7 +274,11 @@ function loadProgress() {
 }
 
 function saveProgress() {
-  localStorage.setItem('dsa_progress', JSON.stringify(progressMap.value));
+  try {
+    localStorage.setItem('dsa_progress', JSON.stringify(progressMap.value));
+  } catch (err) {
+    console.error('Failed to save dsa progress to localStorage:', err);
+  }
 }
 
 function toggleProgress(algoId: string) {
@@ -319,7 +323,11 @@ function loadLikes() {
 
 function toggleLike(algoId: string) {
   likedMap.value[algoId] = !likedMap.value[algoId];
-  localStorage.setItem('dsa_likes', JSON.stringify(likedMap.value));
+  try {
+    localStorage.setItem('dsa_likes', JSON.stringify(likedMap.value));
+  } catch (err) {
+    console.error('Failed to save dsa likes to localStorage:', err);
+  }
 }
 
 // 3. Featured Section Selection

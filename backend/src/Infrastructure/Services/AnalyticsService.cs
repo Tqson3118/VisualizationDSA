@@ -50,6 +50,7 @@ namespace VisualizationDSA.Infrastructure.Services
         {
             // Load user với navigation properties cần thiết — chỉ đúng user đó
             var user = await _db.Users
+                .AsNoTracking()
                 .Include(u => u.QuizAttempts)
                 .Include(u => u.LearningProgresses)
                 .Include(u => u.UserBadges)

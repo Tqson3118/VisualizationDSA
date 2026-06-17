@@ -46,6 +46,7 @@ namespace VisualizationDSA.Infrastructure.Services
                 }).ToList();
 
                 var cacheOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(15))
                     .SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
 
                 _cache.Set(cacheKey, cachedEntries, cacheOptions);

@@ -213,10 +213,10 @@ builder.Services.AddHealthChecks()
                name: "postgres",
                tags: new[] { "db", "ready" });
 
-// ── Rate Limiting (built-in .NET 7+) — bảo vệ auth endpoints ────────────────
-// "auth" policy: max 10 requests/60 giây mỗi IP — ngăn brute-force login
+// ── Rate Limiting (built-in .NET 7+) — bảo vệ auth endpoints & chống spam ──
 builder.Services.AddRateLimiter(options =>
 {
+    // "auth" policy: max 10 requests/60 giây mỗi IP — ngăn brute-force login
     options.AddPolicy("auth", context =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "global",
@@ -225,6 +225,30 @@ builder.Services.AddRateLimiter(options =>
                 PermitLimit          = 10,
                 Window               = TimeSpan.FromMinutes(1),
                 QueueLimit           = 0,  // reject immediately khi quá limit
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            }));
+
+    // "api" policy: max 60 requests/60 giây mỗi IP — bảo vệ API thông thường
+    options.AddPolicy("api", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "global",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit          = 60,
+                Window               = TimeSpan.FromMinutes(1),
+                QueueLimit           = 10,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            }));
+
+    // "heavy" policy: max 15 requests/60 giây mỗi IP — bảo vệ các endpoint tính toán nặng
+    options.AddPolicy("heavy", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "global",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit          = 15,
+                Window               = TimeSpan.FromMinutes(1),
+                QueueLimit           = 0,  // reject immediately để tránh nghẽn thread pool
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst
             }));
 

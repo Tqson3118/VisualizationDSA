@@ -13,9 +13,14 @@ namespace VisualizationDSA.Infrastructure.Repositories
     {
         public UserRepository(ApplicationDbContext context) : base(context) { }
 
-        public async Task<User?> GetByIdWithDetailsAsync(Guid id)
+        public async Task<User?> GetByIdWithDetailsAsync(Guid id, bool track = true)
         {
-            return await _context.Users
+            var query = _context.Users.AsQueryable();
+            if (!track)
+            {
+                query = query.AsNoTracking();
+            }
+            return await query
                 .Include(u => u.LearningProgresses)
                 .Include(u => u.UserBadges)
                     .ThenInclude(ub => ub.Badge)

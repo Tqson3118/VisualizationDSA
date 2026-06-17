@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import MonacoEditorPanel from './MonacoEditorPanel.vue';
 import CompilerConsole from './CompilerConsole.vue';
 import ArrayInputBar from './ArrayInputBar.vue';
@@ -80,6 +80,10 @@ function runCompilation(): void {
 }
 
 onMounted(() => parseInputArray());
+
+onBeforeUnmount(() => {
+  compilerStore.cancelExecution();
+});
 </script>
 
 <style scoped>

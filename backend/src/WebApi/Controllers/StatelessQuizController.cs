@@ -94,6 +94,7 @@ namespace VisualizationDSA.WebApi.Controllers
 
                 // ✅ Persist quiz attempt vào DB — không dùng RAM-only nữa
                 var quiz = await _dbContext.Quizzes
+                    .AsNoTracking()
                     .FirstOrDefaultAsync(q => q.Title == request.QuizId || q.Id.ToString() == request.QuizId);
                 if (quiz != null)
                 {

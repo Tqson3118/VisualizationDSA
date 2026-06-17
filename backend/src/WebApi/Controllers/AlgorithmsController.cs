@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using VisualizationDSA.Application.DTOs;
 using VisualizationDSA.Domain.Engine;
 using VisualizationDSA.Domain.Input;
@@ -10,6 +11,7 @@ namespace VisualizationDSA.WebApi.Controllers;
 [ApiVersion("1.0")]
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
+[EnableRateLimiting("heavy")]
 public class AlgorithmsController : ControllerBase
 {
     private readonly IEnumerable<IAlgorithmStrategy> _strategies;
@@ -68,7 +70,7 @@ public class AlgorithmsController : ControllerBase
     /// POST /api/v1/algorithms/execute
     /// </summary>
     [HttpPost("execute")]
-    public ActionResult<AlgorithmResult> Execute([FromBody] AlgorithmRequestDto request)
+    public async Task<ActionResult<AlgorithmResult>> Execute([FromBody] AlgorithmRequestDto request)
     {
         if (request.InputData.Length == 0)
         {
@@ -78,6 +80,18 @@ public class AlgorithmsController : ControllerBase
                 title = "Bad Request",
                 errorType = "EMPTY_INPUT",
                 message = "Mảng dữ liệu đầu vào không được rỗng."
+            });
+        }
+
+        // ✅ Validate input size limit to prevent resource exhaustion / spam
+        if (!ConstraintResolver.ValidateSize(request.AlgorithmId, request.InputData.Length, out int allowedLimit))
+        {
+            return UnprocessableEntity(new
+            {
+                status = 422,
+                title = "Unprocessable Entity",
+                errorType = "SIZE_LIMIT_EXCEEDED",
+                message = $"Kích thước mảng ({request.InputData.Length}) vượt quá giới hạn an toàn {allowedLimit} của thuật toán '{request.AlgorithmId}'."
             });
         }
 
@@ -95,9 +109,13 @@ public class AlgorithmsController : ControllerBase
             });
         }
 
+        using var timeoutSource = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+        using var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(
+            timeoutSource.Token, HttpContext.RequestAborted);
+
         try
         {
-            var frames = strategy.Execute(request.InputData, HttpContext.RequestAborted);
+            var frames = await Task.Run(() => strategy.Execute(request.InputData, linkedSource.Token), linkedSource.Token);
             var result = new AlgorithmResult
             {
                 AlgorithmId = strategy.AlgorithmId,
@@ -105,6 +123,16 @@ public class AlgorithmsController : ControllerBase
                 Frames = frames
             };
             return Ok(result);
+        }
+        catch (OperationCanceledException)
+        {
+            return StatusCode(StatusCodes.Status504GatewayTimeout, new
+            {
+                status = 504,
+                title = "Gateway Timeout",
+                errorType = "TIMEOUT_EXCEEDED",
+                message = "Thời gian xử lý giải thuật vượt quá giới hạn an toàn cho phép (2 giây)."
+            });
         }
         catch (ArgumentException ex)
         {
@@ -230,7 +258,7 @@ public class AlgorithmsController : ControllerBase
     /// ✅ B1: Batch execute thay vì N requests riêng lẻ từ frontend.
     /// </summary>
     [HttpPost("compare")]
-    public ActionResult<IEnumerable<CompareResultDto>> Compare([FromBody] CompareRequestDto request)
+    public async Task<ActionResult<IEnumerable<CompareResultDto>>> Compare([FromBody] CompareRequestDto request)
     {
         if (request.AlgorithmIds == null || request.AlgorithmIds.Length == 0)
             return BadRequest(new { errorType = "EMPTY_ALGORITHMS", message = "Danh sách thuật toán không được rỗng." });
@@ -241,52 +269,88 @@ public class AlgorithmsController : ControllerBase
         if (request.AlgorithmIds.Length > 4)
             return BadRequest(new { errorType = "TOO_MANY_ALGORITHMS", message = "Tối đa 4 thuật toán mỗi lần so sánh." });
 
-        var results = new List<CompareResultDto>();
-
+        // ✅ Validate input size limit for each compared algorithm to prevent resource exhaustion / spam
         foreach (var algorithmId in request.AlgorithmIds)
         {
-            var strategy = _strategies.FirstOrDefault(s =>
-                s.AlgorithmId.Equals(algorithmId, StringComparison.OrdinalIgnoreCase));
-
-            if (strategy == null)
+            if (!ConstraintResolver.ValidateSize(algorithmId, request.InputData.Length, out int allowedLimit))
             {
-                results.Add(new CompareResultDto
+                return UnprocessableEntity(new
                 {
-                    AlgorithmId = algorithmId,
-                    Error       = $"Thuật toán '{algorithmId}' không tồn tại."
-                });
-                continue;
-            }
-
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            try
-            {
-                var frames = strategy.Execute(request.InputData, HttpContext.RequestAborted);
-                sw.Stop();
-
-                results.Add(new CompareResultDto
-                {
-                    AlgorithmId     = strategy.AlgorithmId,
-                    Name            = strategy.Name,
-                    ElapsedMs       = sw.Elapsed.TotalMilliseconds,
-                    FrameCount      = frames.Count,
-                    TimeComplexity  = strategy.GetMetadata().TimeComplexity,
-                    SpaceComplexity = strategy.GetMetadata().SpaceComplexity,
-                    Frames          = frames
-                });
-            }
-            catch (Exception ex)
-            {
-                sw.Stop();
-                results.Add(new CompareResultDto
-                {
-                    AlgorithmId = algorithmId,
-                    Error       = ex.Message
+                    status = 422,
+                    title = "Unprocessable Entity",
+                    errorType = "SIZE_LIMIT_EXCEEDED",
+                    message = $"Kích thước mảng ({request.InputData.Length}) vượt quá giới hạn an toàn {allowedLimit} của thuật toán '{algorithmId}'."
                 });
             }
         }
 
-        return Ok(results);
+        var results = new List<CompareResultDto>();
+
+        using var timeoutSource = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+        using var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(
+            timeoutSource.Token, HttpContext.RequestAborted);
+
+        try
+        {
+            foreach (var algorithmId in request.AlgorithmIds)
+            {
+                var strategy = _strategies.FirstOrDefault(s =>
+                    s.AlgorithmId.Equals(algorithmId, StringComparison.OrdinalIgnoreCase));
+
+                if (strategy == null)
+                {
+                    results.Add(new CompareResultDto
+                    {
+                        AlgorithmId = algorithmId,
+                        Error       = $"Thuật toán '{algorithmId}' không tồn tại."
+                    });
+                    continue;
+                }
+
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                try
+                {
+                    var frames = await Task.Run(() => strategy.Execute(request.InputData, linkedSource.Token), linkedSource.Token);
+                    sw.Stop();
+
+                    results.Add(new CompareResultDto
+                    {
+                        AlgorithmId     = strategy.AlgorithmId,
+                        Name            = strategy.Name,
+                        ElapsedMs       = sw.Elapsed.TotalMilliseconds,
+                        FrameCount      = frames.Count,
+                        TimeComplexity  = strategy.GetMetadata().TimeComplexity,
+                        SpaceComplexity = strategy.GetMetadata().SpaceComplexity,
+                        Frames          = frames
+                    });
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    sw.Stop();
+                    results.Add(new CompareResultDto
+                    {
+                        AlgorithmId = algorithmId,
+                        Error       = ex.Message
+                    });
+                }
+            }
+
+            return Ok(results);
+        }
+        catch (OperationCanceledException)
+        {
+            return StatusCode(StatusCodes.Status504GatewayTimeout, new
+            {
+                status = 504,
+                title = "Gateway Timeout",
+                errorType = "TIMEOUT_EXCEEDED",
+                message = "Thời gian xử lý so sánh giải thuật vượt quá giới hạn an toàn cho phép (2 giây)."
+            });
+        }
     }
 }
 
